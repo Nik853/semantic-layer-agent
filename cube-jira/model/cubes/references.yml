@@ -1,0 +1,186 @@
+cubes:
+  # Issue Types
+  - name: issue_types
+    sql_table: public.issue_types
+    title: Тип задачи
+    description: >
+      Справочник типов задач JIRA. Определяет характер работы.
+      Доступные типы: Bug (ошибка), Story (пользовательская история), Task (задача),
+      Epic (эпик — большая функциональность), Subtask (подзадача),
+      Improvement (улучшение), Spike (исследование), Technical Debt (технический долг)
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID типа
+
+      - name: name
+        sql: name
+        type: string
+        title: Тип
+        description: >
+          Название типа задачи. Возможные значения: Bug, Story, Task, Epic, Subtask,
+          Improvement, Spike, Technical Debt
+
+      - name: description
+        sql: description
+        type: string
+        title: Описание типа
+
+      - name: color
+        sql: color
+        type: string
+        title: Цвет
+        description: Цвет иконки типа задачи в интерфейсе
+
+      - name: is_subtask
+        sql: is_subtask
+        type: boolean
+        title: Является подзадачей
+        description: true = тип является подзадачей (Subtask), false = обычный тип
+
+    measures:
+      - name: count
+        type: count
+        title: Количество типов
+
+  # Issue Statuses
+  - name: issue_statuses
+    sql_table: public.issue_statuses
+    title: Статус
+    description: >
+      Справочник статусов задач JIRA. Определяет текущее состояние задачи в workflow.
+      Статусы: Open (открыта), To Do (к выполнению), In Progress (в работе),
+      In Review (на проверке), Testing (тестирование), Blocked (заблокирована),
+      On Hold (на паузе), Done (выполнена), Closed (закрыта).
+      Категории: todo (ожидание), in_progress (в работе), done (завершено).
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID статуса
+
+      - name: name
+        sql: name
+        type: string
+        title: Статус
+        description: >
+          Название статуса задачи. Возможные значения: Open, To Do, In Progress,
+          In Review, Testing, Blocked, On Hold, Done, Closed
+
+      - name: description
+        sql: description
+        type: string
+        title: Описание статуса
+
+      - name: color
+        sql: color
+        type: string
+        title: Цвет статуса
+
+      - name: category
+        sql: category
+        type: string
+        title: Категория статуса
+        description: >
+          Группировка статусов по категориям.
+          todo — задача ещё не начата (Open, To Do, On Hold),
+          in_progress — задача в работе (In Progress, In Review, Testing, Blocked),
+          done — задача завершена (Done, Closed)
+
+    measures:
+      - name: count
+        type: count
+        title: Количество статусов
+
+  # Issue Priorities
+  - name: issue_priorities
+    sql_table: public.issue_priorities
+    title: Приоритет
+    description: >
+      Справочник приоритетов задач JIRA. Определяет важность и срочность задачи.
+      Приоритеты от высшего к низшему: Blocker (блокер — критический, блокирует работу),
+      Critical (критический), High (высокий), Medium (средний), Low (низкий),
+      Trivial (тривиальный — незначительный).
+      priority_order: 1=Blocker, 2=Critical, 3=High, 4=Medium, 5=Low, 6=Trivial.
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID приоритета
+
+      - name: name
+        sql: name
+        type: string
+        title: Приоритет
+        description: >
+          Название приоритета задачи. Возможные значения по убыванию важности:
+          Blocker, Critical, High, Medium, Low, Trivial
+
+      - name: description
+        sql: description
+        type: string
+        title: Описание приоритета
+
+      - name: color
+        sql: color
+        type: string
+        title: Цвет приоритета
+
+      - name: priority_order
+        sql: priority_order
+        type: number
+        title: Порядок приоритета
+        description: >
+          Числовой порядок приоритета: 1=Blocker (самый важный), 2=Critical,
+          3=High, 4=Medium, 5=Low, 6=Trivial (наименее важный).
+          Чем меньше число, тем выше приоритет
+
+    measures:
+      - name: count
+        type: count
+        title: Количество приоритетов
+
+  # Organizations
+  - name: organizations
+    sql_table: public.organizations
+    title: Организации
+    description: >
+      Организации в системе JIRA. Каждая организация может содержать несколько проектов.
+      Организация — это верхний уровень группировки проектов и пользователей.
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID организации
+
+      - name: name
+        sql: name
+        type: string
+        title: Название организации
+        description: Полное название организации
+
+      - name: slug
+        sql: slug
+        type: string
+        title: Slug (короткое имя)
+        description: URL-friendly короткое имя организации
+
+      - name: is_active
+        sql: is_active
+        type: boolean
+        title: Активная
+        description: true = организация активна, false = неактивна
+
+    measures:
+      - name: count
+        type: count
+        title: Количество организаций

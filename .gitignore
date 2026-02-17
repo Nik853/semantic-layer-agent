@@ -1,0 +1,52 @@
+# Secrets
+.env
+.env.server
+.env.local
+.env.production
+
+# Node
+node_modules/
+.cubestore/
+.empty
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+*.duckdb
+
+# FAISS index (generated, large)
+faiss_index/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archives
+*.tar.gz
+*.zip
+
+# Temp / personal files
+neggo/
+instr*
+instru
+Recom_ex
+new_classifier_prompt.txt
+smart_handler.py
+smart_list_handler.py
+jira_data.sql
+jira_schema.csv
+jira_schema.sql
+jira_tables_summary.csv
+
+# Test results
+test_results_*.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

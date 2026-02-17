@@ -1,0 +1,13 @@
+urlPath: /issues
+description: Get issues with project name, reporter and dates
+profiles:
+  - pg
+request:
+  - fieldName: project_key
+    fieldIn: query
+    description: Filter by project key (e.g., AUTH, PAY)
+    type: string
+  - fieldName: limit
+    fieldIn: query
+    description: Maximum number of results (default 100)
+    type: number

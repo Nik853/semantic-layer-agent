@@ -1,0 +1,64 @@
+# ============================================================
+# КОНФИГУРАЦИЯ СЕМАНТИЧЕСКОГО АГЕНТА
+# Заполните этот файл перед запуском
+# ============================================================
+
+# --- Подключение к данным ---
+# Поддерживаемые driver:
+#   postgresql / greenplum — прямое подключение (psycopg2)
+#   duckdb                 — локальный DuckDB-файл
+#   cube                   — чтение метаданных из работающего Cube API (без БД)
+database:
+  driver: "duckdb"             # <-- измените на нужный
+  schema: "main"               # main (DuckDB) / dbo / public / ваша_схема
+
+  # --- Для DuckDB ---
+  path: "./data.duckdb"        # Путь к файлу DuckDB
+
+  # --- Для PostgreSQL / GreenPlum ---
+  # host: "localhost"
+  # port: 5432
+  # name: "your_database"
+  # user: "your_user"
+  # password: "your_password"
+
+# --- Подключение к Cube ---
+cube:
+  api_url: "http://localhost:4000/cubejs-api/v1"
+  api_token: ""
+  model_path: "./cube_models"
+
+# --- GigaChat API ---
+# Поддерживается ДВА режима подключения:
+#   1. credentials — через ключ авторизации (SberCloud)
+#   2. base_url + access_token — через прокси (закрытый контур)
+# Заполните ОДИН из вариантов.
+gigachat:
+  # Вариант 1: прямой доступ через credentials
+  # credentials: "your_key_here"
+  # verify_ssl: false
+  # timeout: 60
+
+  # Вариант 2: через прокси (закрытый контур, JupyterHub)
+  base_url: "http://liveaccess-sig/v1/gc"
+  access_token_env: "JPY_API_TOKEN"
+
+  # Модель GigaChat
+  model: "GigaChat-2-Max"
+
+# --- Настройки FAISS ---
+faiss:
+  index_path: "./faiss_index"
+  embedding_model: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+  search_k: 20
+
+# --- Настройки агента ---
+agent:
+  language: "ru"
+  max_rows_display: 15
+
+# --- Пути к semantic-конфигам (опционально) ---
+# Если не указаны — используются ./config/glossary.yml и ./config/examples.yml
+# semantic:
+#   glossary_path: "/absolute/path/to/glossary.yml"
+#   examples_path: "/absolute/path/to/examples.yml"

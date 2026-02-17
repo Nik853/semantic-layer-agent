@@ -1,0 +1,375 @@
+# Business Glossary - Maps business terms to Cube fields
+# All references now use direct cubes (issues, worklogs, sprints, etc.)
+# Views issues_overview and team_performance have been removed
+
+# ============================================
+# People / Users
+# ============================================
+
+assignee:
+  aliases:
+    - исполнитель
+    - исполнителя
+    - исполнителю
+    - исполнителем
+    - assignee
+    - assigned to
+    - кто делает
+    - ответственный
+    - назначен
+  semantic_type: person
+  fields:
+    - "users_assignee.display_name"
+    - "*.users_assignee_display_name"
+  filter_operator: contains
+  group_field: "users_assignee.display_name"
+  description: "Исполнитель задачи — пользователь назначенный на выполнение"
+
+reporter:
+  aliases:
+    - автор
+    - автора
+    - автором
+    - reporter
+    - reported by
+    - создал
+    - создатель
+    - кто создал
+  semantic_type: person
+  fields:
+    - "users_reporter.display_name"
+    - "*.users_reporter_display_name"
+  filter_operator: contains
+  group_field: "users_reporter.display_name"
+  description: "Автор задачи — пользователь который создал задачу"
+
+lead:
+  aliases:
+    - руководитель
+    - лид
+    - lead
+    - project lead
+    - тимлид
+  semantic_type: person
+  fields:
+    - "users_lead.display_name"
+    - "*.users_lead_display_name"
+  filter_operator: contains
+  description: "Руководитель проекта"
+
+# ============================================
+# Projects / Organization
+# ============================================
+
+project:
+  aliases:
+    - проект
+    - проекта
+    - проекту
+    - проектом
+    - проекте
+    - project
+    - projects
+  semantic_type: project
+  fields:
+    - "projects.key"
+    - "projects.name"
+    - "*.projects_key"
+    - "*.projects_name"
+  filter_operator: equals
+  group_field: "projects.key"
+  description: "Проект JIRA. Примеры ключей: AUTH, PAY, PORTAL, AI, CRM, ECOM, K8S"
+
+organization:
+  aliases:
+    - организация
+    - организации
+    - компания
+    - organization
+    - org
+  semantic_type: organization
+  fields:
+    - "organizations.name"
+    - "*.organization_name"
+  filter_operator: equals
+  description: "Организация — верхний уровень группировки проектов"
+
+# ============================================
+# Issues
+# ============================================
+
+show_list:
+  aliases:
+    - покажи
+    - список
+    - выведи
+    - отобрази
+    - подробности
+    - детали
+    - подробно
+    - все задачи
+    - все поля
+    - list
+    - show
+    - details
+  semantic_type: action
+  description: >
+    Действие 'покажи/список/детали' — пользователь хочет видеть отдельные записи с полями.
+    Нужно включить детальные dimensions: issues.key, issues.summary, users_assignee.display_name,
+    issue_statuses.name, issue_priorities.name
+
+issue:
+  aliases:
+    - задача
+    - задачи
+    - задачу
+    - задач
+    - issue
+    - issues
+    - ticket
+    - тикет
+  semantic_type: issue
+  fields:
+    - "issues.key"
+    - "*.key"
+  filter_operator: equals
+  description: "Задача JIRA. Ключ в формате ПРОЕКТ-НОМЕР, например AUTH-1, PAY-15"
+
+status:
+  aliases:
+    - статус
+    - статусом
+    - статусе
+    - status
+    - state
+    - состояние
+  semantic_type: status
+  fields:
+    - "issue_statuses.name"
+    - "issue_statuses.category"
+    - "*.issue_statuses_name"
+    - "*.issue_statuses_category"
+  filter_operator: equals
+  group_field: "issue_statuses.name"
+  description: "Статус задачи: Open, To Do, In Progress, In Review, Testing, Blocked, On Hold, Done, Closed"
+
+priority:
+  aliases:
+    - приоритет
+    - приоритетом
+    - priority
+    - важность
+  semantic_type: priority
+  fields:
+    - "issue_priorities.name"
+    - "*.issue_priorities_name"
+  filter_operator: equals
+  group_field: "issue_priorities.name"
+  description: "Приоритет задачи: Blocker, Critical, High, Medium, Low, Trivial"
+
+issue_type:
+  aliases:
+    - тип задачи
+    - тип
+    - type
+    - issue type
+    - вид задачи
+  semantic_type: issue_type
+  fields:
+    - "issue_types.name"
+    - "*.issue_types_name"
+  filter_operator: equals
+  group_field: "issue_types.name"
+  description: "Тип задачи: Bug, Story, Task, Epic, Subtask, Improvement, Spike, Technical Debt"
+
+# ============================================
+# Sprints / Time
+# ============================================
+
+sprint:
+  aliases:
+    - спринт
+    - спринта
+    - спринте
+    - sprint
+    - sprints
+    - итерация
+  semantic_type: sprint
+  fields:
+    - "sprints.name"
+    - "sprints.status"
+    - "*.sprints_name"
+  filter_operator: equals
+  group_field: "sprints.name"
+  description: "Agile-спринт. Статусы: future (будущий), active (текущий), closed (завершённый)"
+
+# ============================================
+# Metrics
+# ============================================
+
+count:
+  aliases:
+    - сколько
+    - количество
+    - число
+    - count
+    - how many
+    - total
+    - всего
+  semantic_type: metric
+  measures:
+    - "issues.count"
+    - "*.count"
+  description: "Количество/число элементов"
+
+project_count:
+  aliases:
+    - количество проектов
+    - сколько проектов
+    - число проектов
+    - проектов всего
+    - в скольких проектах
+  semantic_type: metric
+  measures:
+    - "issues.distinct_projects_count"
+    - "projects.count"
+  description: >
+    Количество проектов. Если нужно считать с фильтром по задачам (исполнитель, статус),
+    используй issues.distinct_projects_count. Для общего количества — projects.count
+
+story_points:
+  aliases:
+    - story points
+    - стори поинты
+    - сторипоинты
+    - поинты
+    - points
+    - оценка
+    - sp
+  semantic_type: metric
+  measures:
+    - "issues.total_story_points"
+    - "issues.avg_story_points"
+    - "*.total_story_points"
+    - "*.avg_story_points"
+  description: "Story points — оценка сложности задачи (1-13). Используется в Agile"
+
+hours:
+  aliases:
+    - часов
+    - часы
+    - время
+    - hours
+    - time spent
+    - затрачено
+    - потрачено
+    - трудозатраты
+  semantic_type: metric
+  measures:
+    - "worklogs.total_hours"
+    - "worklogs.total_time_spent"
+    - "*.total_hours"
+    - "*.total_time_spent"
+  description: "Затраченное время в часах из worklogs"
+
+velocity:
+  aliases:
+    - velocity
+    - велосити
+    - скорость
+    - производительность
+  semantic_type: metric
+  measures:
+    - "sprints.total_velocity"
+    - "sprints.avg_velocity"
+    - "*.total_velocity"
+    - "*.avg_velocity"
+  description: "Velocity спринта — количество story points завершённых за спринт"
+
+lead_time:
+  aliases:
+    - lead time
+    - время выполнения
+    - cycle time
+    - время решения
+    - как быстро
+  semantic_type: metric
+  measures:
+    - "issues.avg_lead_time_days"
+  description: "Lead Time — среднее время от создания задачи до её решения в днях"
+
+completed:
+  aliases:
+    - завершённые
+    - завершенные
+    - закрытые
+    - решённые
+    - completed
+    - resolved
+    - done
+    - throughput
+  semantic_type: metric
+  measures:
+    - "issues.completed_count"
+  fields:
+    - "issues.resolved_at"
+  filter_field: "issues.resolved_at"
+  filter_operator: "set"
+  description: >
+    Завершённые (resolved) задачи. Для подсчёта используй меру issues.completed_count.
+    Для ФИЛЬТРАЦИИ (в комбинации с другими условиями) используй фильтр:
+    {"member": "issues.resolved_at", "operator": "set"} — это IS NOT NULL
+
+open:
+  aliases:
+    - открытые
+    - нерешённые
+    - бэклог
+    - backlog
+    - open
+    - unresolved
+  semantic_type: metric
+  measures:
+    - "issues.open_count"
+  fields:
+    - "issues.resolved_at"
+  filter_field: "issues.resolved_at"
+  filter_operator: "notSet"
+  description: >
+    Открытые (нерешённые) задачи. Для подсчёта используй меру issues.open_count.
+    Для ФИЛЬТРАЦИИ (в комбинации с другими условиями) используй фильтр:
+    {"member": "issues.resolved_at", "operator": "notSet"} — это IS NULL
+
+overdue:
+  aliases:
+    - просроченные
+    - просрочены
+    - overdue
+    - прошёл срок
+  semantic_type: metric
+  measures:
+    - "issues.overdue_count"
+  description: "Количество просроченных задач (срок прошёл, задача не решена)"
+
+reopen:
+  aliases:
+    - переоткрыто
+    - переоткрытые
+    - reopen
+    - reopened
+    - вернули
+  semantic_type: metric
+  measures:
+    - "issue_history.reopen_count"
+  description: "Количество переоткрытий — задачи вернувшиеся из Done/Closed обратно в работу"
+
+comments_count:
+  aliases:
+    - комментарии
+    - комментариев
+    - обсуждения
+    - comments
+  semantic_type: metric
+  measures:
+    - "issue_comments.count"
+  description: "Количество комментариев к задачам"

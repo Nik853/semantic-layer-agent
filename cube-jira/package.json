@@ -1,0 +1,14 @@
+{
+  "name": "cube-jira",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "cubejs-server"
+  },
+  "template": "docker",
+  "templateVersion": "1.6.7",
+  "devDependencies": {
+    "@cubejs-backend/postgres-driver": "^1.6.7",
+    "@cubejs-backend/server": "^1.6.7"
+  }
+}

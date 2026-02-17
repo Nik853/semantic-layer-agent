@@ -1,0 +1,133 @@
+cubes:
+  - name: sprints
+    sql_table: public.sprints
+    title: Спринты
+    description: >
+      Спринты для Scrum-досок. Спринт — это итерация фиксированной длительности (обычно 2 недели),
+      в течение которой команда работает над набором задач. Каждый спринт имеет цель (goal),
+      статус (future/active/closed) и метрику velocity (скорость работы в story points).
+      Спринты привязаны к доскам (boards).
+
+    joins:
+      - name: boards
+        sql: "{CUBE}.board_id = {boards}.id"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID спринта
+
+      - name: name
+        sql: name
+        type: string
+        title: Название спринта
+        description: >
+          Название спринта, обычно включает номер.
+          Пример: "Sprint 1", "Sprint 5", "AUTH Sprint 3"
+
+      - name: goal
+        sql: goal
+        type: string
+        title: Цель спринта
+        description: Описание цели спринта — что команда планирует достичь
+
+      - name: status
+        sql: status
+        type: string
+        title: Статус спринта
+        description: >
+          Текущий статус спринта. Возможные значения:
+          future — запланирован, ещё не начат;
+          active — текущий активный спринт;
+          closed — завершённый спринт
+
+      - name: start_date
+        sql: start_date
+        type: time
+        title: Дата начала
+        description: Когда спринт начался или планируется начать
+
+      - name: end_date
+        sql: end_date
+        type: time
+        title: Дата окончания
+        description: Когда спринт должен завершиться (планируемая дата окончания)
+
+      - name: completed_date
+        sql: completed_date
+        type: time
+        title: Дата фактического завершения
+        description: Когда спринт был фактически закрыт (может отличаться от end_date)
+
+      - name: velocity
+        sql: velocity
+        type: number
+        title: Velocity (скорость)
+        description: >
+          Velocity спринта — количество story points, завершённых в этом спринте.
+          Основная метрика производительности Scrum-команды.
+          Используется для планирования следующих спринтов
+
+    measures:
+      - name: count
+        type: count
+        title: Количество спринтов
+        description: Общее число спринтов
+
+      - name: active_count
+        type: count
+        title: Активные спринты
+        description: Количество спринтов в статусе "active" (текущие)
+        filters:
+          - sql: "{CUBE}.status = 'active'"
+
+      - name: avg_velocity
+        sql: velocity
+        type: avg
+        title: Средняя velocity
+        description: >
+          Средняя velocity по спринтам — среднее количество story points
+          завершаемых за спринт. Показывает устойчивую скорость команды
+
+      - name: total_velocity
+        sql: velocity
+        type: sum
+        title: Суммарная velocity
+        description: Суммарное количество story points завершённых во всех спринтах
+
+  - name: boards
+    sql_table: public.boards
+    title: Доски (Boards)
+    description: >
+      Agile-доски для управления задачами. Каждая доска может быть типа Scrum (с спринтами)
+      или Kanban (непрерывный поток). Доски содержат спринты (для Scrum) и отображают задачи.
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID доски
+
+      - name: name
+        sql: name
+        type: string
+        title: Название доски
+        description: Название Agile-доски
+
+      - name: board_type
+        sql: board_type
+        type: string
+        title: Тип доски
+        description: >
+          Тип Agile-доски. Возможные значения:
+          scrum — доска для Scrum-команд (с спринтами и velocity),
+          kanban — доска для Kanban (непрерывный поток без спринтов)
+
+    measures:
+      - name: count
+        type: count
+        title: Количество досок

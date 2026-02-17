@@ -1,0 +1,324 @@
+cubes:
+  - name: fact_issues
+    sql_table: public.fact_issues
+    title: Issues Analytics
+    description: |
+      Денормализованная таблица задач для аналитики.
+      KPI: Throughput, Lead Time, WIP, Backlog trends, Estimate accuracy.
+    
+    # Meta for Router Agent
+    meta:
+      keywords:
+        ru: ["задачи", "количество задач", "сколько задач", "статистика по задачам"]
+        en: ["issues", "issue count", "how many issues", "issue statistics"]
+      intent: analytics
+
+    dimensions:
+      # Identifiers
+      - name: issue_id
+        sql: issue_id
+        type: number
+        primary_key: true
+
+      - name: issue_key
+        sql: issue_key
+        type: string
+        title: Issue Key
+
+      - name: summary
+        sql: summary
+        type: string
+        title: Summary
+
+      # Project
+      - name: project_id
+        sql: project_id
+        type: number
+
+      - name: project_key
+        sql: project_key
+        type: string
+        title: Project Key
+        meta:
+          keywords:
+            ru: ["проект", "по проекту", "в проекте"]
+            en: ["project", "by project", "for project"]
+          filter: true
+
+      - name: project_name
+        sql: project_name
+        type: string
+        title: Project Name
+
+      # Type
+      - name: issue_type_name
+        sql: issue_type_name
+        type: string
+        title: Issue Type
+        meta:
+          keywords:
+            ru: ["тип", "баг", "задача", "история"]
+            en: ["type", "bug", "task", "story"]
+          filter: true
+
+      - name: is_subtask
+        sql: is_subtask
+        type: boolean
+
+      # Status
+      - name: status_name
+        sql: status_name
+        type: string
+        title: Status
+        meta:
+          keywords:
+            ru: ["статус", "состояние"]
+            en: ["status", "state"]
+          filter: true
+
+      - name: status_category
+        sql: status_category
+        type: string
+        title: Status Category
+        meta:
+          keywords:
+            ru: ["открытые", "в работе", "закрытые", "завершенные"]
+            en: ["open", "in progress", "done", "closed"]
+          filter: true
+          values: ["todo", "in_progress", "done"]
+
+      # Priority
+      - name: priority_name
+        sql: priority_name
+        type: string
+        title: Priority
+        meta:
+          keywords:
+            ru: ["приоритет", "критичность", "важность"]
+            en: ["priority", "criticality", "importance"]
+          filter: true
+
+      - name: priority_order
+        sql: priority_order
+        type: number
+
+      # Sprint
+      - name: sprint_id
+        sql: sprint_id
+        type: number
+
+      - name: sprint_name
+        sql: sprint_name
+        type: string
+        title: Sprint Name
+        meta:
+          keywords:
+            ru: ["спринт", "итерация"]
+            en: ["sprint", "iteration"]
+          filter: true
+
+      - name: sprint_status
+        sql: sprint_status
+        type: string
+        title: Sprint Status
+
+      # People
+      - name: reporter_name
+        sql: reporter_name
+        type: string
+        title: Reporter
+
+      - name: assignee_id
+        sql: assignee_id
+        type: number
+
+      - name: assignee_name
+        sql: assignee_name
+        type: string
+        title: Assignee
+        meta:
+          keywords:
+            ru: ["исполнитель", "назначен", "ответственный"]
+            en: ["assignee", "assigned to", "responsible"]
+          filter: true
+
+      # Time dimensions
+      - name: created_at
+        sql: created_at
+        type: time
+        title: Created At
+        meta:
+          keywords:
+            ru: ["создан", "дата создания", "за период", "за неделю", "за месяц"]
+            en: ["created", "creation date", "for period", "last week", "last month"]
+          supports_date_range: true
+
+      - name: resolved_at
+        sql: resolved_at
+        type: time
+        title: Resolved At
+        meta:
+          keywords:
+            ru: ["закрыт", "завершен", "решен"]
+            en: ["resolved", "closed", "completed"]
+          supports_date_range: true
+
+      - name: created_week
+        sql: created_week
+        type: time
+        title: Created Week
+
+      - name: resolved_week
+        sql: resolved_week
+        type: time
+        title: Resolved Week
+
+      # Flags
+      - name: is_resolved
+        sql: is_resolved
+        type: boolean
+        title: Is Resolved
+
+      - name: is_overdue
+        sql: is_overdue
+        type: boolean
+        title: Is Overdue
+
+      - name: is_flagged
+        sql: is_flagged
+        type: boolean
+
+    measures:
+      # KPI 1: Throughput - count of resolved issues
+      - name: throughput
+        type: count
+        title: Throughput (Resolved Issues)
+        filters:
+          - sql: "{CUBE}.is_resolved = true"
+        meta:
+          keywords:
+            ru: ["throughput", "пропускная способность", "завершено", "закрыто", "выполнено"]
+            en: ["throughput", "completed", "resolved", "done"]
+          question_templates:
+            - "сколько задач завершено"
+            - "throughput по проекту"
+            - "how many resolved"
+
+      # KPI 2: Created Issues
+      - name: created_count
+        type: count
+        title: Created Issues
+        meta:
+          keywords:
+            ru: ["создано", "новых", "количество", "сколько", "всего"]
+            en: ["created", "new", "count", "how many", "total"]
+          question_templates:
+            - "сколько задач"
+            - "количество задач"
+            - "how many issues"
+
+      # KPI 3: Open Issues (Backlog)
+      - name: open_count
+        type: count
+        title: Open Issues (Backlog)
+        filters:
+          - sql: "{CUBE}.is_resolved = false"
+        meta:
+          keywords:
+            ru: ["открыто", "бэклог", "backlog", "не закрыто", "в ожидании"]
+            en: ["open", "backlog", "not resolved", "pending"]
+          question_templates:
+            - "сколько открытых"
+            - "размер бэклога"
+
+      # KPI 4: WIP - In Progress issues
+      - name: wip_count
+        type: count
+        title: WIP (In Progress)
+        filters:
+          - sql: "{CUBE}.status_category = 'in_progress'"
+        meta:
+          keywords:
+            ru: ["wip", "в работе", "in progress", "текущие", "активные"]
+            en: ["wip", "in progress", "work in progress", "active", "current"]
+          question_templates:
+            - "сколько в работе"
+            - "WIP по проекту"
+
+      # KPI 5: Lead Time (avg days from created to resolved)
+      - name: avg_lead_time
+        sql: cycle_time_days
+        type: avg
+        title: Avg Lead Time (days)
+        meta:
+          keywords:
+            ru: ["lead time", "время выполнения", "cycle time", "среднее время"]
+            en: ["lead time", "cycle time", "average time", "time to resolve"]
+          question_templates:
+            - "среднее время выполнения"
+            - "lead time по проекту"
+
+      # KPI 5b: Age of open issues
+      - name: avg_open_age
+        sql: open_age_days
+        type: avg
+        title: Avg Age of Open Issues (days)
+        meta:
+          keywords:
+            ru: ["возраст задач", "как долго открыты", "старые задачи"]
+            en: ["issue age", "how long open", "aging"]
+
+      # Total story points
+      - name: total_story_points
+        sql: story_points
+        type: sum
+        title: Total Story Points
+        meta:
+          keywords:
+            ru: ["story points", "очки", "оценка", "сложность"]
+            en: ["story points", "points", "estimation"]
+
+      - name: completed_story_points
+        sql: story_points
+        type: sum
+        title: Completed Story Points
+        filters:
+          - sql: "{CUBE}.is_resolved = true"
+
+      # KPI 8: Estimate Accuracy
+      - name: avg_estimate_accuracy
+        sql: estimate_accuracy_ratio
+        type: avg
+        title: Avg Estimate Accuracy Ratio
+        meta:
+          keywords:
+            ru: ["точность оценки", "estimate accuracy", "оценка vs факт"]
+            en: ["estimate accuracy", "estimation accuracy", "estimate vs actual"]
+          question_templates:
+            - "точность оценок по проекту"
+
+      # Time spent
+      - name: total_time_spent_hours
+        sql: "time_spent / 3600.0"
+        type: sum
+        title: Total Time Spent (hours)
+        meta:
+          keywords:
+            ru: ["затраченное время", "потрачено часов", "time spent"]
+            en: ["time spent", "hours logged", "logged time"]
+
+      - name: total_original_estimate_hours
+        sql: "original_estimate / 3600.0"
+        type: sum
+        title: Total Original Estimate (hours)
+
+      # Overdue
+      - name: overdue_count
+        type: count
+        title: Overdue Issues
+        filters:
+          - sql: "{CUBE}.is_overdue = true"
+        meta:
+          keywords:
+            ru: ["просроченные", "overdue", "с нарушением сроков"]
+            en: ["overdue", "past due", "late"]

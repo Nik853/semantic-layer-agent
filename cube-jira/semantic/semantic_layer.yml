@@ -1,0 +1,137 @@
+# Semantic Layer Configuration
+# Main configuration file for the Universal Semantic Agent
+# IMPORTANT: All queries now go through Cube only. DataAPI is kept but not used.
+
+# ============================================
+# Data Sources
+# ============================================
+
+cube:
+  name: "JIRA Cube"
+  base_url: "${CUBE_BASE_URL}"
+  meta_endpoint: "/meta"
+  load_endpoint: "/load"
+  sql_endpoint: "/sql"
+  
+  # Preferred cubes for different query types
+  # All queries go through Cube - no views, direct cubes with joins
+  preferred_cubes:
+    issues: "issues"
+    time: "worklogs"
+    sprints: "sprints"
+    users: "users"
+    comments: "issue_comments"
+    history: "issue_history"
+
+# VulcanSQL is kept for reference but NOT USED in current routing
+# All queries are routed to Cube semantic layer
+vulcan:
+  name: "JIRA VulcanSQL API"
+  base_url: "${VULCAN_BASE_URL}"
+  enabled: false  # Disabled - all queries go through Cube
+  
+  endpoints:
+    issues:
+      list: "/jira/issues"
+      detail: "/jira/issues/{id}"
+      search: "/jira/issues/search"
+      comments: "/jira/issues/{id}/comments"
+      links: "/jira/issues/{id}/links"
+      worklogs: "/jira/issues/{id}/worklogs"
+    projects:
+      list: "/jira/projects"
+    sprints:
+      list: "/jira/sprints"
+    users:
+      list: "/jira/users"
+
+# ============================================
+# Intent Detection
+# ============================================
+
+intents:
+  # ALL queries now go to analytics (Cube)
+  analytics:
+    description: "All queries go through Cube semantic layer - aggregates, filters, lists, details"
+    keywords:
+      - сколько
+      - количество
+      - статистика
+      - метрик
+      - топ
+      - среднее
+      - всего
+      - распределение
+      - группировка
+      - how many
+      - count
+      - total
+      - average
+      - statistics
+      - top
+      - distribution
+      - с высоким приоритетом
+      - с низким приоритетом
+      - высокий приоритет
+      - критический приоритет
+      - приоритет High
+      - приоритет Critical
+      - high priority
+      - critical priority
+      - покажи все задачи
+      - все задачи с
+      - задачи с приоритетом
+      - задачи со статусом
+      - открытые задачи
+      - закрытые задачи
+      - in progress
+      - to do
+      - done
+      - задачи по проектам
+      - по исполнителям
+      - по авторам
+      - velocity
+      - спринт
+      - sprint
+      - время
+      - часов
+      - hours
+      - lead time
+      - backlog
+      - бэклог
+      - reopen
+      - story points
+      - задачи
+      - issues
+      - проект
+      - project
+      - пользователи
+      - users
+      - комментарии
+      - worklogs
+    priority: 1
+
+# ============================================
+# Query Generation
+# ============================================
+
+query_generation:
+  llm:
+    model: "${OPENAI_MODEL}"
+    temperature: 0
+    max_tokens: 1000
+  
+  few_shot_count: 3
+  relevant_members_count: 15
+  
+  default_limit: 100
+  max_limit: 1000
+
+# ============================================
+# Validation
+# ============================================
+
+validation:
+  require_measure: true
+  max_limit: 10000
+  validate_members: true

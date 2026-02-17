@@ -1,0 +1,539 @@
+# Few-shot examples for query generation
+# ALL queries go through Cube - no VulcanSQL/DataAPI
+# All references use direct cubes with joins (no views)
+
+# ============================================
+# Analytics: Count of entities
+# ============================================
+
+- question: "сколько проектов"
+  intent: analytics
+  query:
+    measures: ["projects.count"]
+    limit: 100
+  tags: [count, project, total]
+
+- question: "сколько всего задач"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    limit: 100
+  tags: [count, issue, total]
+
+- question: "сколько пользователей"
+  intent: analytics
+  query:
+    measures: ["users.count"]
+    limit: 100
+  tags: [count, users, total]
+
+# ============================================
+# Analytics: Count by dimension (group by)
+# ============================================
+
+- question: "сколько задач по проектам"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["projects.key", "projects.name"]
+    limit: 100
+  tags: [count, project, group_by]
+
+- question: "количество задач по исполнителям"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["users_assignee.display_name"]
+    limit: 100
+  tags: [count, assignee, group_by]
+
+- question: "сколько задач по статусам"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issue_statuses.name"]
+    limit: 100
+  tags: [count, status, group_by]
+
+- question: "задачи по приоритетам"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issue_priorities.name"]
+    limit: 100
+  tags: [count, priority, group_by]
+
+- question: "задачи по типам"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issue_types.name"]
+    limit: 100
+  tags: [count, issue_type, group_by]
+
+- question: "задачи по категориям статуса"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issue_statuses.category"]
+    limit: 100
+  tags: [count, status, category, group_by]
+
+# ============================================
+# Analytics: Filtering by priority
+# ============================================
+
+- question: "задачи с высоким приоритетом"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "users_assignee.display_name"]
+    filters:
+      - member: "issue_priorities.name"
+        operator: "equals"
+        values: ["High"]
+    limit: 100
+  tags: [issues, priority, high, filter]
+
+- question: "задачи с критическим приоритетом"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "users_assignee.display_name"]
+    filters:
+      - member: "issue_priorities.name"
+        operator: "equals"
+        values: ["Critical"]
+    limit: 100
+  tags: [issues, priority, critical, filter]
+
+- question: "задачи блокеры"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "projects.key", "users_assignee.display_name"]
+    filters:
+      - member: "issue_priorities.name"
+        operator: "equals"
+        values: ["Blocker"]
+    limit: 100
+  tags: [issues, priority, blocker, filter]
+
+# ============================================
+# Analytics: Filtering by status
+# ============================================
+
+- question: "открытые задачи"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "users_assignee.display_name", "issue_statuses.name"]
+    filters:
+      - member: "issues.resolved_at"
+        operator: "notSet"
+    limit: 100
+  tags: [issues, open, status, filter]
+
+- question: "задачи в работе"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "users_assignee.display_name"]
+    filters:
+      - member: "issue_statuses.category"
+        operator: "equals"
+        values: ["in_progress"]
+    limit: 100
+  tags: [issues, in_progress, status, filter]
+
+- question: "завершённые задачи"
+  intent: analytics
+  query:
+    measures: ["issues.completed_count"]
+    dimensions: ["projects.key"]
+    limit: 100
+  tags: [issues, completed, done, filter]
+
+- question: "завершённые задачи по проектам"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["projects.key"]
+    filters:
+      - member: "issues.resolved_at"
+        operator: "set"
+    limit: 100
+  tags: [issues, completed, done, project, filter, group_by]
+
+# ============================================
+# Analytics: Combination filters (set/notSet)
+# ============================================
+
+- question: "количество проектов где есть закрытые задачи с исполнителем {name}"
+  intent: analytics
+  query:
+    measures: ["issues.distinct_projects_count"]
+    dimensions: ["users_assignee.display_name"]
+    filters:
+      - member: "issues.resolved_at"
+        operator: "set"
+      - member: "users_assignee.display_name"
+        operator: "contains"
+        values: ["{name}"]
+    limit: 100
+  tags: [project_count, completed, assignee, filter, set]
+
+- question: "открытые задачи исполнителя {name} по проектам"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["projects.key", "users_assignee.display_name"]
+    filters:
+      - member: "issues.resolved_at"
+        operator: "notSet"
+      - member: "users_assignee.display_name"
+        operator: "contains"
+        values: ["{name}"]
+    limit: 100
+  tags: [open, assignee, project, filter, notSet]
+
+- question: "закрытые задачи с высоким приоритетом"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "users_assignee.display_name", "issue_priorities.name"]
+    filters:
+      - member: "issues.resolved_at"
+        operator: "set"
+      - member: "issue_priorities.name"
+        operator: "equals"
+        values: ["High"]
+    limit: 100
+  tags: [completed, priority, filter, set]
+
+# ============================================
+# Analytics: Filtering by person
+# ============================================
+
+- question: "сколько открытых задач с исполнителем Lisa"
+  intent: analytics
+  query:
+    measures: ["issues.open_count"]
+    dimensions: ["users_assignee.display_name"]
+    filters:
+      - member: "users_assignee.display_name"
+        operator: "contains"
+        values: ["Lisa"]
+    limit: 100
+  tags: [count, assignee, open, filter]
+
+- question: "сколько всего задач с исполнителем Lisa"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["users_assignee.display_name"]
+    filters:
+      - member: "users_assignee.display_name"
+        operator: "contains"
+        values: ["Lisa"]
+    limit: 100
+  tags: [count, assignee, total, filter]
+
+- question: "сколько проектов где есть задачи с исполнителем {name}"
+  intent: analytics
+  query:
+    measures: ["issues.distinct_projects_count"]
+    dimensions: ["users_assignee.display_name"]
+    filters:
+      - member: "users_assignee.display_name"
+        operator: "contains"
+        values: ["{name}"]
+    limit: 100
+  tags: [project_count, assignee, filter]
+
+- question: "проекты где исполнитель {name}"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["projects.key", "users_assignee.display_name"]
+    filters:
+      - member: "users_assignee.display_name"
+        operator: "contains"
+        values: ["{name}"]
+    limit: 100
+  tags: [project, assignee, filter]
+
+- question: "задачи исполнителя {name} по проектам"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["projects.key", "users_assignee.display_name"]
+    filters:
+      - member: "users_assignee.display_name"
+        operator: "contains"
+        values: ["{name}"]
+    limit: 100
+  tags: [count, assignee, project, filter, group_by]
+
+- question: "задачи автора {name}"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["projects.key", "issue_statuses.name", "users_reporter.display_name"]
+    filters:
+      - member: "users_reporter.display_name"
+        operator: "contains"
+        values: ["{name}"]
+    limit: 100
+  tags: [count, reporter, filter]
+
+- question: "покажи все задачи среднего приоритета с исполнителем {name}"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "users_assignee.display_name", "issue_priorities.name", "issue_statuses.name"]
+    filters:
+      - member: "issue_priorities.name"
+        operator: "equals"
+        values: ["Medium"]
+      - member: "users_assignee.display_name"
+        operator: "contains"
+        values: ["{name}"]
+    limit: 100
+  tags: [issues, priority, assignee, filter, list]
+
+# ============================================
+# Analytics: Filtering by project
+# ============================================
+
+- question: "сколько открытых задач по проектам"
+  intent: analytics
+  query:
+    measures: ["issues.open_count"]
+    dimensions: ["projects.key"]
+    limit: 100
+  tags: [count, open, project, group_by]
+
+- question: "задачи проекта AUTH"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "issue_statuses.name", "users_assignee.display_name", "issue_priorities.name"]
+    filters:
+      - member: "projects.key"
+        operator: "equals"
+        values: ["AUTH"]
+    limit: 100
+  tags: [issues, project, filter, list]
+
+- question: "покажи задачи по проекту AI"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["issues.key", "issues.summary", "users_assignee.display_name", "issue_statuses.name", "issue_priorities.name", "issues.story_points"]
+    filters:
+      - member: "projects.key"
+        operator: "equals"
+        values: ["AI"]
+    limit: 100
+  tags: [issues, project, filter, list, show]
+
+- question: "покажи все подробности по проекту AI"
+  intent: analytics
+  query:
+    measures: ["issues.count", "issues.total_story_points", "issues.open_count", "issues.completed_count"]
+    dimensions: ["projects.key", "projects.name", "projects.description", "projects.project_type"]
+    filters:
+      - member: "projects.key"
+        operator: "equals"
+        values: ["AI"]
+    limit: 100
+  tags: [project, detail, all_fields]
+
+- question: "задачи в статусе {status}"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["projects.key"]
+    filters:
+      - member: "issue_statuses.name"
+        operator: "equals"
+        values: ["{status}"]
+    limit: 100
+  tags: [count, status, filter]
+
+# ============================================
+# Analytics: Metrics - Story Points
+# ============================================
+
+- question: "story points по проектам"
+  intent: analytics
+  query:
+    measures: ["issues.total_story_points"]
+    dimensions: ["projects.key"]
+    limit: 100
+  tags: [story_points, project, group_by]
+
+- question: "средние story points по исполнителям"
+  intent: analytics
+  query:
+    measures: ["issues.avg_story_points"]
+    dimensions: ["users_assignee.display_name"]
+    limit: 100
+  tags: [story_points, avg, assignee, group_by]
+
+# ============================================
+# Analytics: Metrics - Time Tracking
+# ============================================
+
+- question: "затраченное время по авторам"
+  intent: analytics
+  query:
+    measures: ["worklogs.total_hours"]
+    dimensions: ["users.display_name"]
+    limit: 100
+  tags: [hours, time, assignee, group_by]
+
+- question: "сколько часов потрачено по проектам"
+  intent: analytics
+  query:
+    measures: ["worklogs.total_hours"]
+    dimensions: ["issues.key"]
+    limit: 100
+  tags: [hours, time, project, group_by]
+
+# ============================================
+# Analytics: Metrics - Sprints / Velocity
+# ============================================
+
+- question: "velocity по спринтам"
+  intent: analytics
+  query:
+    measures: ["sprints.avg_velocity"]
+    dimensions: ["sprints.name"]
+    limit: 100
+  tags: [velocity, sprint, group_by]
+
+- question: "активные спринты"
+  intent: analytics
+  query:
+    measures: ["sprints.count"]
+    dimensions: ["sprints.name", "sprints.goal", "sprints.start_date", "sprints.end_date"]
+    filters:
+      - member: "sprints.status"
+        operator: "equals"
+        values: ["active"]
+    limit: 100
+  tags: [sprint, active, filter]
+
+# ============================================
+# Analytics: Metrics - Lead Time
+# ============================================
+
+- question: "среднее время выполнения задач по проектам"
+  intent: analytics
+  query:
+    measures: ["issues.avg_lead_time_days"]
+    dimensions: ["projects.key"]
+    limit: 100
+  tags: [lead_time, project, group_by]
+
+# ============================================
+# Analytics: Metrics - Reopens
+# ============================================
+
+- question: "количество переоткрытий по проектам"
+  intent: analytics
+  query:
+    measures: ["issue_history.reopen_count"]
+    dimensions: ["issues.key"]
+    limit: 100
+  tags: [reopen, project, group_by]
+
+# ============================================
+# Analytics: Top N
+# ============================================
+
+- question: "топ исполнителей по закрытым задачам"
+  intent: analytics
+  query:
+    measures: ["issues.completed_count"]
+    dimensions: ["users_assignee.display_name"]
+    order:
+      "issues.completed_count": "desc"
+    limit: 10
+  tags: [top, assignee, completed, order]
+
+- question: "топ проектов по количеству задач"
+  intent: analytics
+  query:
+    measures: ["issues.count"]
+    dimensions: ["projects.key"]
+    order:
+      "issues.count": "desc"
+    limit: 10
+  tags: [top, project, count, order]
+
+- question: "топ авторов по залогированному времени"
+  intent: analytics
+  query:
+    measures: ["worklogs.total_hours"]
+    dimensions: ["users.display_name"]
+    order:
+      "worklogs.total_hours": "desc"
+    limit: 10
+  tags: [top, hours, time, order]
+
+# ============================================
+# Analytics: Comments
+# ============================================
+
+- question: "количество комментариев по задачам"
+  intent: analytics
+  query:
+    measures: ["issue_comments.count"]
+    dimensions: ["issues.key"]
+    order:
+      "issue_comments.count": "desc"
+    limit: 20
+  tags: [comments, count, group_by]
+
+# ============================================
+# Analytics: Overdue
+# ============================================
+
+- question: "просроченные задачи"
+  intent: analytics
+  query:
+    measures: ["issues.overdue_count"]
+    dimensions: ["projects.key"]
+    limit: 100
+  tags: [overdue, project]
+
+# ============================================
+# Analytics: List Projects/Users
+# ============================================
+
+- question: "список проектов"
+  intent: analytics
+  query:
+    measures: ["projects.count"]
+    dimensions: ["projects.key", "projects.name", "projects.project_type"]
+    limit: 100
+  tags: [list, projects]
+
+- question: "список пользователей"
+  intent: analytics
+  query:
+    measures: ["users.count"]
+    dimensions: ["users.display_name", "users.email"]
+    limit: 100
+  tags: [list, users]
+
+- question: "список спринтов"
+  intent: analytics
+  query:
+    measures: ["sprints.count"]
+    dimensions: ["sprints.name", "sprints.status", "sprints.start_date", "sprints.end_date"]
+    limit: 100
+  tags: [list, sprints]

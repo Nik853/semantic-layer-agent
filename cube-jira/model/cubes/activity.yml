@@ -1,0 +1,234 @@
+cubes:
+  # Issue Comments
+  - name: issue_comments
+    sql_table: public.issue_comments
+    title: Комментарии к задачам
+    description: >
+      Комментарии пользователей к задачам JIRA.
+      Каждый комментарий привязан к задаче и автору.
+      Комментарии могут быть публичными или внутренними (is_internal).
+      Используется для анализа активности обсуждения задач.
+
+    joins:
+      - name: issues
+        sql: "{CUBE}.issue_id = {issues}.id"
+        relationship: many_to_one
+
+      - name: users
+        sql: "{CUBE}.author_id = {users}.id"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID комментария
+
+      - name: body
+        sql: body
+        type: string
+        title: Текст комментария
+        description: Содержание комментария к задаче
+
+      - name: is_internal
+        sql: is_internal
+        type: boolean
+        title: Внутренний комментарий
+        description: >
+          true = комментарий виден только команде (не виден клиенту/заказчику),
+          false = публичный комментарий
+
+      - name: created_at
+        sql: created_at
+        type: time
+        title: Дата создания
+        description: Когда комментарий был написан
+
+      - name: updated_at
+        sql: updated_at
+        type: time
+        title: Дата обновления
+        description: Когда комментарий был отредактирован
+
+    measures:
+      - name: count
+        type: count
+        title: Количество комментариев
+        description: Общее число комментариев. Показывает активность обсуждения задач
+
+      - name: internal_count
+        type: count
+        title: Внутренние комментарии
+        description: Количество внутренних (скрытых от клиента) комментариев
+        filters:
+          - sql: "{CUBE}.is_internal = true"
+
+  # Worklogs
+  - name: worklogs
+    sql_table: public.worklogs
+    title: Учёт рабочего времени (Worklogs)
+    description: >
+      Записи о затраченном рабочем времени (worklogs/таймшиты).
+      Каждая запись содержит: кто работал, над какой задачей, сколько времени потрачено
+      и описание выполненной работы. Время хранится в секундах.
+      Используется для анализа трудозатрат по авторам, проектам и задачам.
+
+    joins:
+      - name: issues
+        sql: "{CUBE}.issue_id = {issues}.id"
+        relationship: many_to_one
+
+      - name: users
+        sql: "{CUBE}.author_id = {users}.id"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID записи
+
+      - name: time_spent
+        sql: time_spent
+        type: number
+        title: Затраченное время (секунды)
+        description: >
+          Количество потраченного времени в секундах.
+          Пример: 3600 = 1 час, 7200 = 2 часа, 28800 = 8 часов (рабочий день)
+
+      - name: time_spent_hours
+        sql: "{CUBE}.time_spent / 3600.0"
+        type: number
+        title: Затраченное время (часы)
+        description: Количество потраченного времени в часах. Рассчитывается как time_spent / 3600
+
+      - name: work_description
+        sql: work_description
+        type: string
+        title: Описание работы
+        description: Текстовое описание выполненной работы
+
+      - name: started_at
+        sql: started_at
+        type: time
+        title: Дата начала работы
+        description: Дата и время когда была начата работа
+
+      - name: created_at
+        sql: created_at
+        type: time
+        title: Дата создания записи
+        description: Когда запись worklog была создана в системе
+
+    measures:
+      - name: count
+        type: count
+        title: Количество записей worklog
+        description: Общее число записей о рабочем времени
+
+      - name: total_time_spent
+        sql: "{CUBE}.time_spent"
+        type: sum
+        title: Суммарное время (секунды)
+        description: Суммарное затраченное время в секундах по всем записям
+
+      - name: total_hours
+        sql: "{CUBE}.time_spent / 3600.0"
+        type: sum
+        title: Суммарное время (часы)
+        description: >
+          Суммарное затраченное время в часах. Основная метрика трудозатрат.
+          Используйте с группировкой по автору или проекту для анализа загрузки
+
+      - name: avg_hours_per_entry
+        sql: "{CUBE}.time_spent / 3600.0"
+        type: avg
+        title: Среднее время на запись (часы)
+        description: Средняя продолжительность одной записи worklog в часах
+
+  # Issue History
+  - name: issue_history
+    sql_table: public.issue_history
+    title: История изменений задач
+    description: >
+      Лог всех изменений полей задач: смена статуса, переназначение исполнителя,
+      изменение приоритета и т.д. Каждая запись содержит: какое поле изменилось,
+      старое и новое значение, кто изменил. Используется для анализа потока работы,
+      частоты переоткрытий (reopen rate) и времени в каждом статусе.
+
+    joins:
+      - name: issues
+        sql: "{CUBE}.issue_id = {issues}.id"
+        relationship: many_to_one
+
+      - name: users
+        sql: "{CUBE}.user_id = {users}.id"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID записи истории
+
+      - name: field_name
+        sql: field_name
+        type: string
+        title: Имя поля
+        description: >
+          Название изменённого поля задачи.
+          Примеры: "status" (статус), "assignee" (исполнитель), "priority" (приоритет),
+          "story_points", "sprint"
+
+      - name: field_type
+        sql: field_type
+        type: string
+        title: Тип поля
+        description: Тип данных изменённого поля (string, number, date и др.)
+
+      - name: old_value
+        sql: old_value
+        type: string
+        title: Старое значение
+        description: >
+          Значение поля ДО изменения.
+          Пример: для поля status — "In Progress", для assignee — "John Smith"
+
+      - name: new_value
+        sql: new_value
+        type: string
+        title: Новое значение
+        description: >
+          Значение поля ПОСЛЕ изменения.
+          Пример: для поля status — "Done", для assignee — "Sarah Connor"
+
+      - name: created_at
+        sql: created_at
+        type: time
+        title: Дата изменения
+        description: Когда было произведено изменение
+
+    measures:
+      - name: count
+        type: count
+        title: Количество изменений
+        description: Общее число изменений полей задач. Показывает интенсивность работы с задачами
+
+      - name: status_change_count
+        type: count
+        title: Количество смен статуса
+        description: Число смен статуса задач. Показывает поток задач через workflow
+        filters:
+          - sql: "{CUBE}.field_name = 'status'"
+
+      - name: reopen_count
+        type: count
+        title: Количество переоткрытий
+        description: >
+          Число случаев когда задача была возвращена из статуса Done/Closed обратно в работу.
+          Высокое значение указывает на проблемы с качеством
+        filters:
+          - sql: "{CUBE}.field_name = 'status' AND {CUBE}.old_value IN ('Done', 'Closed') AND {CUBE}.new_value NOT IN ('Done', 'Closed')"

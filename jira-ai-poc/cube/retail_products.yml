@@ -1,0 +1,52 @@
+cubes:
+  - name: retail_products
+    sql_table: retail.dim_products
+    title: Retail Products
+    description: |
+      Справочник товаров розничной торговли.
+      Dimensions: product_id, stock_code, description.
+    
+    meta:
+      keywords:
+        ru: ["товары", "продукты", "ассортимент"]
+        en: ["products", "items", "inventory"]
+      intent: analytics
+
+    dimensions:
+      - name: product_id
+        sql: product_id
+        type: number
+        primary_key: true
+        title: Product ID
+
+      - name: stock_code
+        sql: stock_code
+        type: string
+        title: Stock Code
+        meta:
+          keywords:
+            ru: ["код товара", "артикул"]
+            en: ["stock code", "sku"]
+
+      - name: description
+        sql: description
+        type: string
+        title: Description
+        meta:
+          keywords:
+            ru: ["описание", "название товара"]
+            en: ["description", "product name"]
+
+      - name: created_at
+        sql: created_at
+        type: time
+        title: Created At
+
+    measures:
+      - name: product_count
+        type: count
+        title: Total Products
+        meta:
+          keywords:
+            ru: ["количество товаров", "сколько товаров"]
+            en: ["product count", "how many products"]

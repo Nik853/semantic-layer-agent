@@ -1,0 +1,190 @@
+cubes:
+  - name: issues
+    sql_table: public.issues
+    title: Задачи JIRA
+    description: >
+      Основная таблица задач (issues) системы JIRA. Содержит все задачи всех проектов.
+      Каждая задача имеет ключ (например AUTH-1, PAY-15), заголовок, описание, приоритет, статус,
+      исполнителя, автора, оценку в story points и даты создания/решения.
+      Используется для анализа: количество задач, распределение по проектам,
+      статусам, приоритетам, исполнителям, а также для расчёта метрик (throughput, backlog, lead time).
+      В системе 20 проектов: AUTH, PAY, PORTAL, AI, CRM, ECOM, K8S и др.
+
+    joins:
+      - name: projects
+        sql: "{CUBE}.project_id = {projects}.id"
+        relationship: many_to_one
+
+      - name: users_reporter
+        sql: "{CUBE}.reporter_id = {users_reporter}.id"
+        relationship: many_to_one
+
+      - name: users_assignee
+        sql: "{CUBE}.assignee_id = {users_assignee}.id"
+        relationship: many_to_one
+
+      - name: issue_types
+        sql: "{CUBE}.issue_type_id = {issue_types}.id"
+        relationship: many_to_one
+
+      - name: issue_statuses
+        sql: "{CUBE}.status_id = {issue_statuses}.id"
+        relationship: many_to_one
+
+      - name: issue_priorities
+        sql: "{CUBE}.priority_id = {issue_priorities}.id"
+        relationship: many_to_one
+
+      - name: sprints
+        sql: "{CUBE}.sprint_id = {sprints}.id"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: id
+        type: number
+        primary_key: true
+        title: ID задачи
+        description: Уникальный числовой идентификатор задачи в базе данных
+
+      - name: key
+        sql: key
+        type: string
+        title: Ключ задачи
+        description: >
+          Уникальный строковый ключ задачи в формате ПРОЕКТ-НОМЕР.
+          Примеры: AUTH-1, PAY-15, PORTAL-42, AI-7, CRM-100
+
+      - name: summary
+        sql: summary
+        type: string
+        title: Название задачи
+        description: >
+          Краткое название задачи (заголовок). Это основное поле для отображения задачи.
+          ИСПОЛЬЗУЙТЕ ЭТО ПОЛЕ при запросах "покажи задачи", "список задач" — это то что видит пользователь.
+          Пример: "Implement JWT authentication", "Fix payment timeout error"
+
+      - name: description
+        sql: description
+        type: string
+        title: Полное описание задачи
+        description: >
+          Полное описание задачи с деталями реализации или воспроизведения бага.
+          Это длинное текстовое поле. НЕ используйте для списков задач — используйте summary (название)
+
+      - name: story_points
+        sql: story_points
+        type: number
+        title: Story Points (оценка сложности)
+        description: >
+          Оценка сложности задачи в story points по методологии Agile.
+          Значения от 1 до 13 (последовательность Фибоначчи). Среднее значение ~6.8.
+          Чем больше значение, тем сложнее задача.
+
+      - name: due_date
+        sql: due_date
+        type: time
+        title: Срок выполнения
+        description: Планируемая дата завершения задачи. Может быть NULL если срок не установлен
+
+      - name: created_at
+        sql: created_at
+        type: time
+        title: Дата создания
+        description: Дата и время когда задача была создана в системе
+
+      - name: updated_at
+        sql: updated_at
+        type: time
+        title: Дата обновления
+        description: Дата последнего изменения задачи (статус, комментарий, поле)
+
+      - name: resolved_at
+        sql: resolved_at
+        type: time
+        title: Дата решения
+        description: >
+          Дата и время когда задача была решена (resolved/closed).
+          NULL означает что задача ещё не решена (открыта или в работе).
+          ИСПОЛЬЗУЙ ДЛЯ ФИЛЬТРАЦИИ: operator "set" = закрытые задачи, operator "notSet" = открытые задачи
+
+      - name: is_flagged
+        sql: is_flagged
+        type: boolean
+        title: Флаг (помечена)
+        description: >
+          Задача помечена флагом — означает проблему или блокировку.
+          true = задача требует внимания, false = обычная задача
+
+    measures:
+      - name: count
+        type: count
+        title: Количество задач
+        description: Общее количество задач. Используйте для подсчёта задач с группировкой по любому измерению
+
+      - name: total_story_points
+        sql: story_points
+        type: sum
+        title: Сумма Story Points
+        description: Суммарная оценка сложности задач в story points. Показывает объём работы
+
+      - name: avg_story_points
+        sql: story_points
+        type: avg
+        title: Среднее Story Points
+        description: Средняя оценка сложности задач. Помогает оценить типичную сложность задач в проекте
+
+      - name: completed_count
+        type: count
+        title: Завершённые задачи
+        description: >
+          Количество задач которые были решены (имеют дату resolved_at).
+          Показывает throughput — пропускную способность команды
+        filters:
+          - sql: "{CUBE}.resolved_at IS NOT NULL"
+
+      - name: open_count
+        type: count
+        title: Открытые задачи (бэклог)
+        description: >
+          Количество нерешённых задач (resolved_at IS NULL).
+          Показывает размер бэклога — сколько работы предстоит
+        filters:
+          - sql: "{CUBE}.resolved_at IS NULL"
+
+      - name: overdue_count
+        type: count
+        title: Просроченные задачи
+        description: >
+          Количество задач у которых срок выполнения (due_date) прошёл,
+          но задача ещё не решена. Показывает проблемы с планированием
+        filters:
+          - sql: "{CUBE}.due_date < CURRENT_DATE AND {CUBE}.resolved_at IS NULL"
+
+      - name: distinct_projects_count
+        sql: "project_id"
+        type: count_distinct
+        title: Количество уникальных проектов
+        description: >
+          Количество различных проектов в выборке задач.
+          Используйте для ответа на вопрос "сколько проектов" с фильтрами по исполнителю/статусу/приоритету
+
+      - name: avg_lead_time_days
+        sql: "EXTRACT(EPOCH FROM ({CUBE}.resolved_at - {CUBE}.created_at)) / 86400.0"
+        type: avg
+        title: Среднее время выполнения (дни)
+        description: >
+          Средний Lead Time — время от создания задачи до её решения в днях.
+          Рассчитывается только для завершённых задач. Показывает скорость доставки
+        filters:
+          - sql: "{CUBE}.resolved_at IS NOT NULL"
+
+    pre_aggregations:
+      - name: issues_by_day
+        measures:
+          - count
+          - total_story_points
+        dimensions:
+          - created_at
+        time_dimension: created_at
+        granularity: day

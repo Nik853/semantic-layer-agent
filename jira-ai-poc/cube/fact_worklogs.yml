@@ -1,0 +1,147 @@
+cubes:
+  - name: fact_worklogs
+    sql_table: public.fact_worklogs
+    title: Worklogs Analytics
+    description: |
+      Логи рабочего времени для анализа трудозатрат.
+      KPI: Time spent by week/project/author.
+    
+    meta:
+      keywords:
+        ru: ["worklogs", "время", "трудозатраты", "кто сколько работал", "топ по времени"]
+        en: ["worklogs", "time", "effort", "who worked", "top by time"]
+      intent: analytics
+
+    dimensions:
+      - name: worklog_id
+        sql: worklog_id
+        type: number
+        primary_key: true
+
+      - name: issue_id
+        sql: issue_id
+        type: number
+
+      - name: issue_key
+        sql: issue_key
+        type: string
+        title: Issue Key
+
+      - name: issue_summary
+        sql: issue_summary
+        type: string
+        title: Issue Summary
+
+      - name: project_id
+        sql: project_id
+        type: number
+
+      - name: project_key
+        sql: project_key
+        type: string
+        title: Project Key
+        meta:
+          keywords:
+            ru: ["проект", "по проекту"]
+            en: ["project", "by project"]
+          filter: true
+
+      - name: project_name
+        sql: project_name
+        type: string
+        title: Project Name
+
+      - name: author_id
+        sql: author_id
+        type: number
+
+      - name: author_name
+        sql: author_name
+        type: string
+        title: Author
+        meta:
+          keywords:
+            ru: ["автор", "кто списал", "исполнитель", "по авторам", "топ авторов"]
+            en: ["author", "who logged", "by author", "top authors"]
+          filter: true
+
+      - name: author_email
+        sql: author_email
+        type: string
+        title: Author Email
+
+      - name: work_description
+        sql: work_description
+        type: string
+        title: Work Description
+
+      - name: started_at
+        sql: started_at
+        type: time
+        title: Started At
+        meta:
+          keywords:
+            ru: ["за период", "за неделю", "за месяц", "когда"]
+            en: ["for period", "last week", "last month", "when"]
+          supports_date_range: true
+
+      - name: work_week
+        sql: work_week
+        type: time
+        title: Work Week
+        meta:
+          keywords:
+            ru: ["по неделям", "понедельно"]
+            en: ["by week", "weekly"]
+
+      - name: work_month
+        sql: work_month
+        type: time
+        title: Work Month
+
+    measures:
+      - name: worklog_count
+        type: count
+        title: Worklog Entries
+        meta:
+          keywords:
+            ru: ["количество записей", "сколько логов"]
+            en: ["entry count", "how many logs"]
+
+      - name: total_time_spent_seconds
+        sql: time_spent_seconds
+        type: sum
+        title: Total Time Spent (seconds)
+
+      - name: total_time_spent_hours
+        sql: time_spent_hours
+        type: sum
+        title: Total Time Spent (hours)
+        meta:
+          keywords:
+            ru: ["часов", "сколько часов", "время в часах", "затрачено времени"]
+            en: ["hours", "how many hours", "time in hours", "time spent"]
+          question_templates:
+            - "сколько часов потратили"
+            - "топ по времени"
+            - "time spent by author"
+
+      - name: total_time_spent_days
+        sql: time_spent_days
+        type: sum
+        title: Total Time Spent (days)
+
+      - name: avg_time_per_entry_hours
+        sql: time_spent_hours
+        type: avg
+        title: Avg Time per Entry (hours)
+
+      - name: unique_authors
+        sql: author_id
+        type: count_distinct
+        title: Unique Authors
+
+      - name: unique_issues_logged
+        sql: issue_id
+        type: count_distinct
+        title: Unique Issues Logged

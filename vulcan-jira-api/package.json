@@ -1,0 +1,24 @@
+{
+  "name": "vulcan-jira-api",
+  "version": "1.0.0",
+  "description": "JIRA-like REST API for AI Agent using VulcanSQL",
+  "main": "index.js",
+  "scripts": {
+    "build": "vulcan build",
+    "start": "vulcan start",
+    "dev": "vulcan start --watch"
+  },
+  "keywords": [
+    "vulcansql",
+    "jira",
+    "api",
+    "ai-agent"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vulcan-sql/core": "^0.10.4",
+    "@vulcan-sql/extension-driver-pg": "^0.10.4",
+    "@vulcan-sql/serve": "^0.10.4"
+  }
+}
