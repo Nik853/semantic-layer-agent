@@ -8,128 +8,115 @@
 Вопрос → FAISS (семантический поиск) → GigaChat (генерация запроса) → Cube (выполнение) → Ответ
 ```
 
-**Компоненты:**
-- **Cube** — семантический слой над PostgreSQL (уже установлен)
-- **FAISS** — локальная векторная БД для поиска по метаданным
-- **GigaChat** — LLM для генерации Cube-запросов из естественного языка
-- **JupyterLab** — интерфейс для работы с агентом
-
 ## Структура файлов
 
 ```
 closed-env-package/
 ├── config.yml              ← ЗАПОЛНИТЬ: подключения к БД, Cube, GigaChat
 ├── requirements.txt        ← Зависимости Python
-├── 01_data_loader.py       ← Шаг 1: Чтение БД → описания GigaChat → YAML Cube
+│
+├── 01_data_loader.py       ← Шаг 1: БД → GigaChat описания → YAML-модели Cube
 ├── 02_build_faiss.py       ← Шаг 2: Метаданные Cube → FAISS-индекс
 ├── 03_agent.ipynb          ← Шаг 3: Jupyter-ноутбук для вопросов
+│
+├── kb/                     ← Knowledge Base (опционально)
+│   ├── jira_kb.yml         ←   Готовая KB для JIRA (22 таблицы)
+│   └── template_kb.yml     ←   Шаблон для создания своей KB
+│
 ├── config/                 ← Создаётся автоматически шагом 1
-│   ├── glossary.yml        ← Бизнес-глоссарий (можно редактировать)
-│   ├── examples.yml        ← Примеры запросов (можно редактировать)
-│   └── semantic_layer.yml  ← Конфигурация
+│   ├── glossary.yml        ←   Бизнес-глоссарий
+│   ├── examples.yml        ←   Примеры запросов
+│   └── semantic_layer.yml  ←   Конфигурация
 ├── cube_models/            ← Создаётся автоматически шагом 1
-│   ├── table1.yml          ← YAML-модель для Cube
-│   └── ...
-└── faiss_index/            ← Создаётся автоматически шагом 2
-    ├── index.faiss         ← Векторный индекс
-    ├── index.pkl           ← Метаданные
-    └── members.json        ← Cube-мемберы
+│
+├── db_sources.py           ← Коннекторы GreenPlum / Hive + Kerberos
+├── kerberos_auth.py        ← Утилита Kerberos-аутентификации
+├── embedding_utils.py      ← Фабрика эмбеддингов (HuggingFace / GigaChat)
+├── 00_load_duckdb.py       ← Вспомогательный: загрузка CSV/Parquet → DuckDB
+└── validate.py             ← Валидация окружения
 ```
 
 ## Пошаговая установка
 
-### Шаг 0: Подготовка (один раз)
+### Шаг 0: Подготовка
 
-**Автоматический режим (рекомендуется):**
-
-Все три скрипта (`01_data_loader.py`, `02_build_faiss.py`, `03_agent.ipynb`) автоматически
-проверяют наличие зависимостей и устанавливают недостающие при первом запуске.
-Просто запустите нужный скрипт — он сам скачает всё необходимое, включая:
-- `faiss-cpu` — векторная БД
-- `sentence-transformers` + `torch` (CPU) — модель эмбеддингов
-- `langchain-gigachat` — клиент GigaChat
-- `psycopg2-binary` — PostgreSQL-драйвер
-
-PyTorch устанавливается в CPU-версии (экономия ~2 ГБ по сравнению с CUDA).
-
-**Ручной режим (если нужна предустановка):**
-```bash
-pip install -r requirements.txt
-```
+Скрипты автоматически устанавливают зависимости при первом запуске.
+Для ручной установки: `pip install -r requirements.txt`
 
 **Закрытый контур (нет интернета):**
-
-На машине с интернетом скачайте пакеты:
 ```bash
+# На машине с интернетом:
 pip download -r requirements.txt -d ./wheels
 pip download torch --index-url https://download.pytorch.org/whl/cpu -d ./wheels
-```
-Скопируйте папку `wheels/` на закрытый сервер:
-```bash
+
+# На закрытом сервере:
 pip install --no-index --find-links=./wheels -r requirements.txt
 ```
 
-**Модель эмбеддингов (закрытый контур):**
-
-На машине с интернетом:
-```python
-from sentence_transformers import SentenceTransformer
-model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-model.save("./embedding_model")
-```
-
-Скопируйте папку `embedding_model/` на закрытый сервер и в `config.yml` укажите:
-```yaml
-faiss:
-  embedding_model: "./embedding_model"
-```
-
-### Шаг 1: Настройка конфигурации
-
-Откройте `config.yml` и заполните:
+### Шаг 1: Настройка config.yml
 
 ```yaml
 database:
-  host: "адрес_сервера_postgresql"
+  driver: "postgresql"     # postgresql / greenplum / hive / duckdb / cube
+  host: "адрес_сервера"
   port: 5432
-  name: "имя_базы_данных"
+  name: "имя_базы"
   user: "пользователь"
   password: "пароль"
 
 cube:
   api_url: "http://localhost:4000/cubejs-api/v1"
-  api_token: ""              # Если Cube требует токен
   model_path: "./cube_models"
 
 gigachat:
-  credentials: "ваш_ключ_gigachat"
-  model: "GigaChat"
-  verify_ssl: false
+  credentials: "ваш_ключ"   # Вариант 1: SberCloud
+  # base_url: "http://..."   # Вариант 2: внутренний прокси
 ```
 
-### Шаг 2: Загрузка данных в Cube
+### Шаг 2: Генерация моделей
 
 ```bash
+# Базовая генерация (БД + GigaChat)
 python 01_data_loader.py
+
+# С Knowledge Base (лучше описания для известного домена)
+python 01_data_loader.py --kb ./kb/jira_kb.yml
+
+# С ETL plan (обогащение из Excel с метаданными ETL-процессов)
+python 01_data_loader.py --etl-plan ./plan.xlsx
+
+# Всё вместе
+python 01_data_loader.py --kb ./kb/jira_kb.yml --etl-plan ./plan.xlsx
 ```
 
 **Что делает:**
-1. Читает все таблицы из PostgreSQL
-2. Для каждой таблицы отправляет структуру + примеры данных в GigaChat
-3. GigaChat генерирует русские описания (title, description)
-4. Создаёт YAML-модели для Cube в папке `cube_models/`
-5. Генерирует `glossary.yml` и `examples.yml`
+1. Читает все таблицы из БД
+2. Анализирует реальные данные: enum-значения, NULL-статистику, типы
+3. GigaChat генерирует русские описания на основе структуры + данных
+4. Дополняет описания из KB и ETL plan (если указаны)
+5. Создаёт YAML-модели для Cube + glossary + examples
 
-**После выполнения:**
-1. Скопируйте файлы из `cube_models/` в папку `model/cubes/` вашего Cube-проекта
-2. Перезапустите Cube:
+### Шаг 2а: Обогащение уже существующих моделей
+
+Если модели уже сгенерированы и вы получили ETL plan позже:
+
 ```bash
-npx cubejs-server
+# Быстрое обогащение (без GigaChat, только метаданные ETL)
+python 01_data_loader.py --enrich-etl --etl-plan ./plan.xlsx
+
+# Полное обогащение (GigaChat переописывает колонки с учётом ETL + данных)
+python 01_data_loader.py --enrich-etl --etl-plan ./plan.xlsx --enrich-with-llm
+
+# Указать папку с моделями явно
+python 01_data_loader.py --enrich-etl --etl-plan ./plan.xlsx --model-dir ./cube_models
 ```
-3. Проверьте что Cube работает:
-```bash
-curl http://localhost:4000/cubejs-api/v1/meta
-```
+
+**Что делает `--enrich-etl`:**
+- Парсит Spark execution plan из ETL файла (исходные таблицы, JOINы, колонки)
+- Сопоставляет ETL-записи с существующими Cube-моделями по имени
+- Дописывает в description модели: целевую таблицу ETL, источники, связи
+- Показывает колонки из ETL, отсутствующие в модели
+- С флагом `--enrich-with-llm`: подключается к БД за sample data и просит GigaChat переописать всё с учётом ETL-контекста
 
 ### Шаг 3: Построение FAISS-индекса
 
@@ -137,108 +124,100 @@ curl http://localhost:4000/cubejs-api/v1/meta
 python 02_build_faiss.py
 ```
 
-**Что делает:**
-1. Загружает метаданные из Cube REST API `/meta`
-2. Создаёт эмбеддинги для каждого поля (measure + dimension)
-3. Строит FAISS-индекс и сохраняет в `faiss_index/`
-
 ### Шаг 4: Работа с агентом
 
-Откройте JupyterLab и ноутбук `03_agent.ipynb`.
-
-1. Выполните первые 3 ячейки (инициализация) — один раз
-2. В ячейке "ЗАДАВАЙТЕ ВОПРОСЫ" пишите:
-
+Откройте `03_agent.ipynb` в JupyterLab:
 ```python
 print(ask("Сколько задач по проектам?"))
-print(ask("Покажи задачи по проекту AI"))
-print(ask("Сколько открытых задач с исполнителем Lisa"))
+print(ask("Покажи открытые задачи с исполнителем Lisa"))
 ```
 
-Для отладки используйте `verbose=True`:
-```python
-print(ask("Ваш вопрос", verbose=True))
-```
+## Knowledge Base (KB)
 
-## Настройка взаимодействия компонентов
+### Зачем нужна
 
-### Cube ↔ PostgreSQL
-Cube подключается к БД через `.env` файл в его проекте:
-```env
-CUBEJS_DB_TYPE=postgres
-CUBEJS_DB_HOST=localhost
-CUBEJS_DB_PORT=5432
-CUBEJS_DB_NAME=your_database
-CUBEJS_DB_USER=your_user
-CUBEJS_DB_PASS=your_password
-```
+KB — это **ваши экспертные знания о данных**, оформленные в YAML-файл. Без KB скрипт полагается только на GigaChat, который описывает таблицы по именам колонок и sample data. Это работает, но:
 
-### Agent ↔ Cube
-Агент общается с Cube по HTTP REST API. URL указывается в `config.yml → cube.api_url`.
-По умолчанию: `http://localhost:4000/cubejs-api/v1`
+- GigaChat не знает доменную специфику (что `pkey` — это "ключ задачи PROJECT-123")
+- GigaChat не знает какие метрики имеют бизнес-смысл (открытые задачи = `resolution IS NULL`)
+- GigaChat может вернуть невалидный JSON → описание будет generic fallback
 
-### Agent ↔ FAISS
-FAISS — это локальная библиотека, файлы индекса хранятся на диске.
-Путь указывается в `config.yml → faiss.index_path`. Сетевое подключение не нужно.
+KB решает все три проблемы, давая точные описания и рекомендуемые меры.
 
-### Agent ↔ GigaChat
-Агент отправляет промпт в GigaChat API и получает JSON-запрос для Cube.
-Ключ указывается в `config.yml → gigachat.credentials`.
-Если GigaChat доступен через внутренний прокси, убедитесь что `verify_ssl: false`.
+### Когда нужна, когда нет
 
-## Как улучшить качество ответов
+| Ситуация | Нужна KB? |
+|----------|-----------|
+| Первый раз подключаете неизвестное хранилище | Нет — начните без KB, посмотрите результат |
+| Описания GigaChat слишком общие | Да — добавьте column_hints для проблемных таблиц |
+| Нужны бизнес-метрики (open/closed count) | Да — добавьте suggested_measures |
+| У вас JIRA | Да — используйте готовую `kb/jira_kb.yml` |
+| Повторная генерация для того же домена | Да — KB ускоряет и улучшает результат |
 
-### 1. Отредактируйте glossary.yml
-Добавьте бизнес-термины вашей предметной области:
-```yaml
-клиент:
-  aliases: [клиент, клиента, заказчик, customer]
-  semantic_type: entity
-  fields: ["customers.name"]
-  filter_operator: contains
-  description: "Клиент компании"
-```
+### Как создать свою KB
 
-### 2. Добавьте примеры в examples.yml
-Чем больше примеров — тем лучше LLM генерирует запросы:
-```yaml
-- question: "сколько клиентов по регионам"
-  intent: analytics
-  query:
-    measures: ["customers.count"]
-    dimensions: ["customers.region"]
-    limit: 100
-  tags: [count, customer, region]
-```
-
-### 3. Улучшите описания в Cube-моделях
-В YAML-файлах кубов добавляйте подробные `description`:
-```yaml
-- name: revenue
-  sql: revenue
-  type: sum
-  title: Выручка
-  description: >
-    Суммарная выручка в рублях. Используйте для анализа
-    по клиентам, регионам, периодам
-```
-
-### 4. Перестройте FAISS после изменений
-После редактирования Cube-моделей:
+1. Скопируйте шаблон:
 ```bash
-# Перезапустите Cube
-npx cubejs-server
-# Перестройте индекс
-python 02_build_faiss.py
+cp kb/template_kb.yml kb/my_domain_kb.yml
 ```
+
+2. Заполните для ваших таблиц:
+```yaml
+# Имя паттерна — имя таблицы (или часть имени, без схемы)
+orders:
+  title: "Заказы"
+  description: "Таблица заказов клиентов с суммами и статусами."
+  column_hints:
+    order_date: "Дата оформления заказа"
+    total_amount: "Сумма заказа в рублях"
+    status: "Статус: new, processing, shipped, delivered, cancelled"
+  suggested_measures:
+    - name: total_revenue
+      sql: "total_amount"
+      type: sum
+      title: "Выручка"
+      description: "Суммарная выручка по заказам"
+    - name: cancelled_count
+      sql: "CASE WHEN {CUBE}.status = 'cancelled' THEN 1 END"
+      type: count
+      title: "Отменённые заказы"
+      description: "Количество отменённых заказов"
+```
+
+3. Подключите:
+```yaml
+# config.yml
+knowledge_base_path: "./kb/my_domain_kb.yml"
+```
+или через CLI: `python 01_data_loader.py --kb ./kb/my_domain_kb.yml`
+
+### Что заполнять в KB
+
+| Поле | Обязательно | Описание |
+|------|-------------|----------|
+| `title` | Да | Русское название таблицы (2-3 слова) |
+| `description` | Да | Что хранит таблица (1-2 предложения) |
+| `column_hints` | Нет | Описания колонок, которые GigaChat не угадает |
+| `suggested_measures` | Нет | Бизнес-метрики с SQL-выражениями для Cube |
+
+Не нужно описывать каждую колонку — только те, где имя неочевидно (pkey, pname, cfname) или есть бизнес-логика (resolution IS NULL = открытая задача).
+
+## ETL Execution Plan
+
+Файл Excel/CSV с метаданными ETL-процессов. Содержит Spark execution plans — скрипт парсит из них:
+- Исходные таблицы и колонки
+- JOIN-связи между таблицами
+- Целевые таблицы и их структуру
+
+Подключение: `--etl-plan ./file.xlsx` или `etl_plan_path` в config.yml
 
 ## Решение проблем
 
 | Проблема | Решение |
 |----------|---------|
-| `Connection refused` к Cube | Проверьте что Cube запущен: `ps aux \| grep cube` |
-| GigaChat timeout | Увеличьте `gigachat.timeout` в config.yml |
-| FAISS не находит нужные поля | Улучшите `description` в Cube-моделях и перестройте индекс |
-| LLM генерирует неправильный запрос | Добавьте похожий пример в `examples.yml` |
+| `Connection refused` к Cube | Проверьте что Cube запущен |
+| GigaChat timeout / 429 | Скрипт автоматически делает retry (3 попытки) |
+| GigaChat возвращает невалидный JSON | Встроена автокоррекция: запятые, скобки, кавычки |
+| Описания слишком общие | Добавьте Knowledge Base или используйте `--enrich-with-llm` |
+| FAISS не находит нужные поля | Улучшите description в моделях → перестройте индекс |
 | `No module named 'faiss'` | `pip install faiss-cpu` |
-| Модель эмбеддингов не найдена | Скачайте модель и укажите локальный путь в config.yml |
