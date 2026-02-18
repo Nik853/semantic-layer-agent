@@ -12,13 +12,19 @@
   - duckdb                  — локальный DuckDB-файл
   - cube                    — чтение из работающего Cube API (без БД)
 
+Knowledge Base (опционально):
+  config.yml → knowledge_base_path: "./kb/jira_kb.yml"
+  Внешний YAML-файл с описаниями таблиц, подсказками по колонкам
+  и рекомендуемыми мерами для конкретного домена.
+
 Дополнительно:
-  --jira-plan <file.xlsx>   — обогатить модели из JIRA execution plan файла
+  --kb <file.yml>           — путь к Knowledge Base (переопределяет config.yml)
+  --etl-plan <file.xlsx>    — обогатить модели из ETL execution plan файла
 
 Запуск: python 01_data_loader.py
         python 01_data_loader.py --source cube
-        python 01_data_loader.py --source duckdb
-        python 01_data_loader.py --jira-plan sample_execution.xlsx
+        python 01_data_loader.py --kb ./kb/jira_kb.yml
+        python 01_data_loader.py --etl-plan sample_execution.xlsx
 =================================================================
 """
 
@@ -486,272 +492,33 @@ class _PsycopgSource:
 
 
 # ============================================================
-# JIRA Knowledge Base — улучшение описаний для JIRA-таблиц
+# Knowledge Base — загрузка внешних подсказок для таблиц
 # ============================================================
 
-JIRA_TABLE_HINTS = {
-    "jiraissue": {
-        "title": "Задачи JIRA",
-        "description": "Основная таблица задач JIRA. Содержит все issues с ключами, описаниями, статусами и датами.",
-        "suggested_measures": [
-            {"name": "open_count", "sql": "CASE WHEN {CUBE}.resolution IS NULL THEN 1 END",
-             "type": "count", "title": "Открытые задачи", "description": "Количество нерешённых задач"},
-            {"name": "resolved_count", "sql": "CASE WHEN {CUBE}.resolution IS NOT NULL THEN 1 END",
-             "type": "count", "title": "Закрытые задачи", "description": "Количество решённых задач"},
-        ],
-        "column_hints": {
-            "pkey": "Ключ задачи (PROJECT-123)",
-            "summary": "Заголовок задачи",
-            "description": "Подробное описание",
-            "created": "Дата создания задачи",
-            "updated": "Дата последнего обновления",
-            "resolutiondate": "Дата решения задачи",
-            "duedate": "Плановый срок выполнения",
-            "reporter": "Автор задачи (ID пользователя)",
-            "assignee": "Исполнитель задачи (ID пользователя)",
-            "priority": "Приоритет (ID)",
-            "issuestatus": "Статус задачи (ID)",
-            "issuetype": "Тип задачи (ID)",
-            "project": "Проект (ID)",
-            "resolution": "Резолюция (ID). NULL = задача открыта",
-            "story_points": "Оценка сложности в Story Points",
-            "timeoriginalestimate": "Первоначальная оценка времени (секунды)",
-            "timeestimate": "Текущая оценка времени (секунды)",
-            "timespent": "Затраченное время (секунды)",
-        },
-    },
-    "issuestatus": {
-        "title": "Статусы задач",
-        "description": "Справочник статусов JIRA (Open, In Progress, Done и т.д.)",
-        "column_hints": {
-            "pname": "Название статуса",
-            "description": "Описание статуса",
-            "statuscategory": "Категория (todo/in_progress/done)",
-        },
-    },
-    "issuelink": {
-        "title": "Связи между задачами",
-        "description": "Связи между задачами JIRA (blocks, is blocked by, duplicates, relates to и др.)",
-        "suggested_measures": [
-            {"name": "link_count", "type": "count", "title": "Количество связей",
-             "description": "Общее число связей между задачами"},
-        ],
-        "column_hints": {
-            "source": "ID задачи-источника связи",
-            "destination": "ID задачи-назначения связи",
-            "linktype": "Тип связи (ID из issuelinktype)",
-        },
-    },
-    "nodeassociation": {
-        "title": "Привязки сущностей",
-        "description": "Связи между узлами JIRA: задача↔компонент, задача↔версия, проект↔категория и др.",
-        "column_hints": {
-            "source_node_id": "ID исходной сущности (обычно задачи)",
-            "source_node_entity": "Тип исходной сущности (Issue)",
-            "sink_node_id": "ID целевой сущности (компонент, версия)",
-            "sink_node_entity": "Тип целевой сущности (Component, Version)",
-            "association_type": "Тип привязки",
-        },
-    },
-    "project": {
-        "title": "Проекты JIRA",
-        "description": "Список проектов с ключами, названиями и руководителями.",
-        "column_hints": {
-            "pkey": "Уникальный ключ проекта (AUTH, PAY, CRM)",
-            "pname": "Название проекта",
-            "lead": "Руководитель проекта (ID пользователя)",
-            "description": "Описание проекта",
-            "projecttype": "Тип проекта (software, business)",
-        },
-    },
-    "issuetype": {
-        "title": "Типы задач",
-        "description": "Справочник типов задач (Bug, Story, Task, Epic и т.д.)",
-        "column_hints": {
-            "pname": "Название типа задачи",
-            "description": "Описание типа",
-        },
-    },
-    "priority": {
-        "title": "Приоритеты задач",
-        "description": "Справочник приоритетов (Blocker, Critical, High, Medium, Low, Trivial).",
-        "column_hints": {
-            "pname": "Название приоритета",
-            "description": "Описание приоритета",
-            "sequence": "Порядковый номер (чем меньше, тем приоритетнее)",
-        },
-    },
-    "resolution": {
-        "title": "Резолюции задач",
-        "description": "Справочник резолюций (Fixed, Won't Fix, Duplicate, Cannot Reproduce и др.)",
-        "column_hints": {
-            "pname": "Название резолюции",
-            "description": "Описание резолюции",
-        },
-    },
-    "cwd_user": {
-        "title": "Пользователи JIRA",
-        "description": "Пользователи системы JIRA с логинами и именами.",
-        "column_hints": {
-            "user_name": "Логин пользователя",
-            "display_name": "Отображаемое имя (ФИО)",
-            "email_address": "E-mail пользователя",
-            "active": "Активен ли пользователь",
-        },
-    },
-    "component": {
-        "title": "Компоненты проектов",
-        "description": "Компоненты (модули) проектов для категоризации задач.",
-        "column_hints": {
-            "cname": "Название компонента",
-            "description": "Описание компонента",
-            "project": "ID проекта",
-            "lead": "Ответственный за компонент (ID пользователя)",
-        },
-    },
-    "projectversion": {
-        "title": "Версии проектов",
-        "description": "Версии (релизы) проектов — для планирования и отслеживания.",
-        "column_hints": {
-            "vname": "Название версии (1.0, 2.0-RC1)",
-            "description": "Описание версии",
-            "startdate": "Дата начала версии",
-            "releasedate": "Дата релиза",
-            "released": "Флаг: версия выпущена",
-            "archived": "Флаг: версия архивирована",
-            "project": "ID проекта",
-        },
-    },
-    "worklog": {
-        "title": "Учёт рабочего времени",
-        "description": "Записи логирования рабочего времени по задачам.",
-        "suggested_measures": [
-            {"name": "total_time_spent", "sql": "timeworked", "type": "sum",
-             "title": "Суммарное время (секунды)", "description": "Общее затраченное время"},
-        ],
-        "column_hints": {
-            "issueid": "ID задачи",
-            "author": "Автор записи (ID пользователя)",
-            "timeworked": "Затраченное время (секунды)",
-            "startdate": "Дата начала работы",
-            "created": "Дата создания записи",
-        },
-    },
-    "changegroup": {
-        "title": "Группы изменений",
-        "description": "Группы изменений полей задач (история). Каждая группа = один акт редактирования.",
-        "column_hints": {
-            "issueid": "ID задачи",
-            "author": "Автор изменения (ID пользователя)",
-            "created": "Дата изменения",
-        },
-    },
-    "changeitem": {
-        "title": "Элементы изменений",
-        "description": "Детали каждого изменения: какое поле, старое и новое значение.",
-        "column_hints": {
-            "groupid": "ID группы изменений (changegroup)",
-            "field": "Название изменённого поля (status, assignee, priority...)",
-            "oldvalue": "Старое значение (ID)",
-            "oldstring": "Старое значение (текст)",
-            "newvalue": "Новое значение (ID)",
-            "newstring": "Новое значение (текст)",
-            "fieldtype": "Тип поля (jira, custom)",
-        },
-    },
-    "customfield": {
-        "title": "Кастомные поля",
-        "description": "Определения пользовательских полей JIRA.",
-        "column_hints": {
-            "cfname": "Название поля",
-            "customfieldtypekey": "Тип поля (строка, число, дата...)",
-            "description": "Описание поля",
-        },
-    },
-    "customfieldvalue": {
-        "title": "Значения кастомных полей",
-        "description": "Значения пользовательских полей для задач.",
-        "column_hints": {
-            "issue": "ID задачи",
-            "customfield": "ID кастомного поля",
-            "stringvalue": "Строковое значение",
-            "numbervalue": "Числовое значение",
-            "textvalue": "Текстовое значение (большой текст)",
-            "datevalue": "Значение даты",
-        },
-    },
-    "issuelinktype": {
-        "title": "Типы связей задач",
-        "description": "Справочник типов связей (Blocks, Is blocked by, Duplicates и т.д.)",
-        "column_hints": {
-            "linkname": "Название связи (направление вперёд)",
-            "inward": "Описание связи (обратное направление)",
-            "outward": "Описание связи (прямое направление)",
-        },
-    },
-    "label": {
-        "title": "Метки задач",
-        "description": "Метки (label) задач для произвольной категоризации.",
-        "column_hints": {
-            "issue": "ID задачи",
-            "label": "Текст метки",
-        },
-    },
-    "sprint": {
-        "title": "Спринты",
-        "description": "Спринты Agile-досок — итерации разработки.",
-        "column_hints": {
-            "name": "Название спринта",
-            "start_date": "Дата начала спринта",
-            "end_date": "Дата окончания спринта",
-            "complete_date": "Дата фактического завершения",
-            "state": "Состояние (active, closed, future)",
-        },
-    },
-    "issue_history": {
-        "title": "История изменений задач",
-        "description": "Журнал изменений полей задач: смены статуса, исполнителя, приоритета и др.",
-        "suggested_measures": [
-            {"name": "status_change_count",
-             "sql": "CASE WHEN {CUBE}.field = 'status' THEN 1 END",
-             "type": "count", "title": "Смены статуса",
-             "description": "Количество смен статуса задач"},
-        ],
-        "column_hints": {
-            "issue_id": "ID задачи",
-            "author_id": "Автор изменения (ID пользователя)",
-            "field": "Название изменённого поля (status, assignee, priority...)",
-            "old_value": "Старое значение",
-            "new_value": "Новое значение",
-            "created_at": "Дата изменения",
-        },
-    },
-    "issue_comment": {
-        "title": "Комментарии к задачам",
-        "description": "Комментарии пользователей к задачам JIRA.",
-        "column_hints": {
-            "issue_id": "ID задачи",
-            "author_id": "Автор комментария (ID пользователя)",
-            "body": "Текст комментария",
-            "created_at": "Дата создания комментария",
-            "updated_at": "Дата обновления комментария",
-        },
-    },
-    "user": {
-        "title": "Пользователи JIRA",
-        "description": "Пользователи системы JIRA с логинами, именами и ролями.",
-        "column_hints": {
-            "username": "Логин пользователя",
-            "display_name": "Отображаемое имя (ФИО)",
-            "email": "E-mail пользователя",
-            "is_active": "Активен ли пользователь",
-        },
-    },
-}
+_KNOWLEDGE_BASE = {}  # Загружается из внешнего YAML-файла
 
 
-def load_jira_plan(plan_path: str) -> dict:
-    """Загрузить JIRA execution plan файл (xlsx/csv).
+def load_knowledge_base(kb_path: str) -> dict:
+    """Загрузить Knowledge Base из YAML-файла.
+    Возвращает dict: pattern_name → {title, description, column_hints, suggested_measures}.
+    """
+    global _KNOWLEDGE_BASE
+    try:
+        with open(kb_path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f) or {}
+        _KNOWLEDGE_BASE = data
+        print(f"✅ Knowledge Base загружена: {len(data)} паттернов из {kb_path}")
+        return data
+    except FileNotFoundError:
+        print(f"⚠️  KB файл не найден: {kb_path}")
+        return {}
+    except Exception as e:
+        print(f"⚠️  Ошибка загрузки KB: {e}")
+        return {}
+
+
+def load_etl_plan(plan_path: str) -> dict:
+    """Загрузить ETL execution plan файл (xlsx/csv).
     Возвращает dict: source_table_name → {columns from plan}.
     """
     info = {}
@@ -789,16 +556,16 @@ def load_jira_plan(plan_path: str) -> dict:
                             "last_updated": rec.get("last_updated_time", ""),
                         }
         else:
-            print(f"⚠️  Неподдерживаемый формат: {plan_path}. Используйте .xlsx или .csv")
+            print(f"⚠️  Неподдерживаемый формат ETL plan: {plan_path}. Используйте .xlsx или .csv")
             return {}
 
-        print(f"✅ JIRA plan загружен: {len(info)} source-таблиц из {plan_path}")
+        print(f"✅ ETL plan загружен: {len(info)} source-таблиц из {plan_path}")
         for t in info:
             print(f"   - {t}")
         return info
 
     except Exception as e:
-        print(f"⚠️  Ошибка загрузки JIRA plan: {e}")
+        print(f"⚠️  Ошибка загрузки ETL plan: {e}")
         return {}
 
 
@@ -816,8 +583,8 @@ def _singularize(word: str) -> set:
     return forms
 
 
-def match_jira_hints(table_name: str, jira_plan: dict = None) -> dict:
-    """Найти подсказки из JIRA Knowledge Base для таблицы.
+def match_kb_hints(table_name: str, etl_plan: dict = None) -> dict:
+    """Найти подсказки из Knowledge Base для таблицы.
     Сопоставление учитывает подчёркивания (issue_links ↔ issuelink),
     множественное число (priorities ↔ priority), префиксы (jiraissue ↔ issues).
     """
@@ -825,7 +592,7 @@ def match_jira_hints(table_name: str, jira_plan: dict = None) -> dict:
     tl_no_sep = tl.replace("_", "").replace("-", "")
     tl_singulars = _singularize(tl_no_sep)
 
-    for pattern, hints in JIRA_TABLE_HINTS.items():
+    for pattern, hints in _KNOWLEDGE_BASE.items():
         pat_no_sep = pattern.replace("_", "")
         pat_singulars = _singularize(pat_no_sep)
 
@@ -859,13 +626,13 @@ def match_jira_hints(table_name: str, jira_plan: dict = None) -> dict:
             if len(pf) >= 6 and pf in tl_no_sep:
                 return hints
 
-    if jira_plan:
-        for src_table, plan_info in jira_plan.items():
+    if etl_plan:
+        for src_table, plan_info in etl_plan.items():
             src_no_sep = src_table.lower().replace("_", "")
             src_singulars = _singularize(src_no_sep)
             if tl_singulars & src_singulars:
                 return {
-                    "title": f"Таблица из JIRA ({src_table})",
+                    "title": f"Таблица из ETL ({src_table})",
                     "description": f"Источник: {plan_info.get('source_schema', '')}.{src_table}. "
                                    f"Целевая: {plan_info.get('target_table', '')}.",
                 }
@@ -873,10 +640,10 @@ def match_jira_hints(table_name: str, jira_plan: dict = None) -> dict:
     return {}
 
 
-def enrich_descriptions_with_jira(descriptions: dict, table_name: str,
-                                   columns: list, jira_plan: dict = None) -> dict:
-    """Дополнить GigaChat-описания подсказками из JIRA Knowledge Base."""
-    hints = match_jira_hints(table_name, jira_plan)
+def enrich_descriptions_with_kb(descriptions: dict, table_name: str,
+                                columns: list, etl_plan: dict = None) -> dict:
+    """Дополнить GigaChat-описания подсказками из Knowledge Base."""
+    hints = match_kb_hints(table_name, etl_plan)
     if not hints:
         return descriptions
 
@@ -900,9 +667,9 @@ def enrich_descriptions_with_jira(descriptions: dict, table_name: str,
     return descriptions
 
 
-def get_jira_suggested_measures(table_name: str) -> list:
-    """Получить дополнительные меры из JIRA Knowledge Base."""
-    hints = match_jira_hints(table_name)
+def get_kb_suggested_measures(table_name: str) -> list:
+    """Получить дополнительные меры из Knowledge Base."""
+    hints = match_kb_hints(table_name)
     return hints.get("suggested_measures", [])
 
 
@@ -1244,11 +1011,11 @@ def pg_type_to_cube(pg_type, column_name):
 # ============================================================
 
 def generate_cube_yaml(table_name, columns, enriched_joins, pk, descriptions,
-                       schema="public", jira_plan=None):
+                       schema="public", etl_plan=None):
     """
     Сгенерировать YAML-модель Cube для одной таблицы.
     enriched_joins — результат build_all_relationships + описания от LLM.
-    jira_plan — данные из JIRA execution plan (для доп. мер).
+    etl_plan — данные из ETL execution plan (для доп. мер).
     """
     
     desc = descriptions
@@ -1350,8 +1117,8 @@ def generate_cube_yaml(table_name, columns, enriched_joins, pk, descriptions,
                 "description": f"Среднее значение поля {col_name}"
             })
     
-    # JIRA-специфичные меры из Knowledge Base
-    jira_measures = get_jira_suggested_measures(table_name)
+    # Дополнительные меры из Knowledge Base
+    jira_measures = get_kb_suggested_measures(table_name)
     existing_names = {m["name"] for m in measures}
     for jm in jira_measures:
         if jm["name"] not in existing_names:
@@ -1450,8 +1217,10 @@ def main():
     parser = argparse.ArgumentParser(description="Загрузчик данных в Cube")
     parser.add_argument("--source", choices=["postgresql", "greenplum", "hive", "duckdb", "cube"],
                         help="Переопределить database.driver из config.yml")
-    parser.add_argument("--jira-plan", metavar="FILE",
-                        help="Путь к файлу JIRA execution plan (xlsx/csv) для обогащения моделей")
+    parser.add_argument("--kb", metavar="FILE",
+                        help="Путь к Knowledge Base YAML (переопределяет config.yml)")
+    parser.add_argument("--etl-plan", metavar="FILE",
+                        help="Путь к ETL execution plan (xlsx/csv) для обогащения моделей")
     args = parser.parse_args()
 
     print("=" * 60)
@@ -1469,20 +1238,29 @@ def main():
     schema = config.get("database", {}).get("schema", "public")
     print(f"   Источник: {driver_name}, Схема: {schema}")
     
-    # 3. Загрузить JIRA plan (если указан)
-    jira_plan = {}
-    plan_file = args.jira_plan or config.get("jira_plan_path")
-    if plan_file and Path(plan_file).exists():
-        jira_plan = load_jira_plan(plan_file)
-    elif plan_file:
-        print(f"⚠️  JIRA plan файл не найден: {plan_file}")
+    # 3. Загрузить Knowledge Base (если указана)
+    kb_path = args.kb or config.get("knowledge_base_path")
+    if kb_path and Path(kb_path).exists():
+        load_knowledge_base(kb_path)
+    elif kb_path:
+        print(f"⚠️  KB файл не найден: {kb_path}")
+    else:
+        print("ℹ️  Knowledge Base не указана (--kb или knowledge_base_path в config.yml)")
 
-    # 4. Подключить GigaChat
+    # 4. Загрузить ETL plan (если указан)
+    etl_plan = {}
+    plan_file = args.etl_plan or config.get("etl_plan_path")
+    if plan_file and Path(plan_file).exists():
+        etl_plan = load_etl_plan(plan_file)
+    elif plan_file:
+        print(f"⚠️  ETL plan файл не найден: {plan_file}")
+
+    # 5. Подключить GigaChat
     print("🔄 Подключение к GigaChat...")
     llm = create_gigachat(config)
     print("✅ GigaChat готов")
     
-    # 4. Получить список таблиц
+    # 6. Получить список таблиц
     tables = source.get_tables()
     print(f"\n📋 Найдено таблиц: {len(tables)}")
     for t in tables:
@@ -1561,22 +1339,22 @@ def main():
             llm, table, columns, fks, sample_cols, sample_rows, row_count
         )
 
-        # Обогащаем описания из JIRA Knowledge Base
-        jira_hints = match_jira_hints(table, jira_plan)
-        if jira_hints:
-            print(f"   📚 JIRA KB: {jira_hints.get('title', 'match found')}")
-            descriptions = enrich_descriptions_with_jira(descriptions, table, columns, jira_plan)
+        # Обогащаем описания из Knowledge Base
+        kb_hints = match_kb_hints(table, etl_plan)
+        if kb_hints:
+            print(f"   📚 KB: {kb_hints.get('title', 'match found')}")
+            descriptions = enrich_descriptions_with_kb(descriptions, table, columns, etl_plan)
             if not descriptions.get("table_description") or len(descriptions["table_description"]) < 10:
-                descriptions["table_description"] = jira_hints.get("description", descriptions.get("table_description", ""))
+                descriptions["table_description"] = kb_hints.get("description", descriptions.get("table_description", ""))
             if not descriptions.get("table_title") or descriptions["table_title"] == table:
-                descriptions["table_title"] = jira_hints.get("title", descriptions.get("table_title", table))
+                descriptions["table_title"] = kb_hints.get("title", descriptions.get("table_title", table))
 
         print(f"   ✅ Описания: {descriptions.get('table_title', '?')}")
         
         # Генерируем Cube YAML
         cube_schema = schema if driver_name != "duckdb" else "main"
         cube_yaml = generate_cube_yaml(table, columns, enriched_joins, pk, descriptions,
-                                        cube_schema, jira_plan)
+                                        cube_schema, etl_plan)
         
         # Сохраняем
         yaml_path = model_path / f"{table}.yml"

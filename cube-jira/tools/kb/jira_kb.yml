@@ -1,0 +1,256 @@
+# ============================================================
+# Knowledge Base: JIRA
+# ============================================================
+# Подсказки для автогенерации Cube-моделей из таблиц JIRA.
+# Формат: имя_паттерна → title, description, column_hints, suggested_measures.
+#
+# Имена паттернов сопоставляются с реальными таблицами БД нечётко:
+#   jiraissue   → matches: jiraissue, jira_issue, issues, jira_issues
+#   issuestatus → matches: issuestatus, issue_statuses, issue_status
+#   priority    → matches: priority, priorities, issue_priorities
+#
+# Файл подключается через config.yml → knowledge_base_path: "./kb/jira_kb.yml"
+# ============================================================
+
+jiraissue:
+  title: "Задачи JIRA"
+  description: "Основная таблица задач JIRA. Содержит все issues с ключами, описаниями, статусами и датами."
+  column_hints:
+    pkey: "Ключ задачи (PROJECT-123)"
+    summary: "Заголовок задачи"
+    description: "Подробное описание"
+    created: "Дата создания задачи"
+    updated: "Дата последнего обновления"
+    resolutiondate: "Дата решения задачи"
+    duedate: "Плановый срок выполнения"
+    reporter: "Автор задачи (ID пользователя)"
+    assignee: "Исполнитель задачи (ID пользователя)"
+    priority: "Приоритет (ID)"
+    issuestatus: "Статус задачи (ID)"
+    issuetype: "Тип задачи (ID)"
+    project: "Проект (ID)"
+    resolution: "Резолюция (ID). NULL = задача открыта"
+    story_points: "Оценка сложности в Story Points"
+    timeoriginalestimate: "Первоначальная оценка времени (секунды)"
+    timeestimate: "Текущая оценка времени (секунды)"
+    timespent: "Затраченное время (секунды)"
+  suggested_measures:
+    - name: open_count
+      sql: "CASE WHEN {CUBE}.resolution IS NULL THEN 1 END"
+      type: count
+      title: "Открытые задачи"
+      description: "Количество нерешённых задач"
+    - name: resolved_count
+      sql: "CASE WHEN {CUBE}.resolution IS NOT NULL THEN 1 END"
+      type: count
+      title: "Закрытые задачи"
+      description: "Количество решённых задач"
+
+issuestatus:
+  title: "Статусы задач"
+  description: "Справочник статусов JIRA (Open, In Progress, Done и т.д.)"
+  column_hints:
+    pname: "Название статуса"
+    description: "Описание статуса"
+    statuscategory: "Категория (todo/in_progress/done)"
+
+issuelink:
+  title: "Связи между задачами"
+  description: "Связи между задачами JIRA (blocks, is blocked by, duplicates, relates to и др.)"
+  column_hints:
+    source: "ID задачи-источника связи"
+    destination: "ID задачи-назначения связи"
+    linktype: "Тип связи (ID из issuelinktype)"
+  suggested_measures:
+    - name: link_count
+      type: count
+      title: "Количество связей"
+      description: "Общее число связей между задачами"
+
+nodeassociation:
+  title: "Привязки сущностей"
+  description: "Связи между узлами JIRA: задача↔компонент, задача↔версия, проект↔категория и др."
+  column_hints:
+    source_node_id: "ID исходной сущности (обычно задачи)"
+    source_node_entity: "Тип исходной сущности (Issue)"
+    sink_node_id: "ID целевой сущности (компонент, версия)"
+    sink_node_entity: "Тип целевой сущности (Component, Version)"
+    association_type: "Тип привязки"
+
+project:
+  title: "Проекты JIRA"
+  description: "Список проектов с ключами, названиями и руководителями."
+  column_hints:
+    pkey: "Уникальный ключ проекта (AUTH, PAY, CRM)"
+    pname: "Название проекта"
+    lead: "Руководитель проекта (ID пользователя)"
+    description: "Описание проекта"
+    projecttype: "Тип проекта (software, business)"
+
+issuetype:
+  title: "Типы задач"
+  description: "Справочник типов задач (Bug, Story, Task, Epic и т.д.)"
+  column_hints:
+    pname: "Название типа задачи"
+    description: "Описание типа"
+
+priority:
+  title: "Приоритеты задач"
+  description: "Справочник приоритетов (Blocker, Critical, High, Medium, Low, Trivial)."
+  column_hints:
+    pname: "Название приоритета"
+    description: "Описание приоритета"
+    sequence: "Порядковый номер (чем меньше, тем приоритетнее)"
+
+resolution:
+  title: "Резолюции задач"
+  description: "Справочник резолюций (Fixed, Won't Fix, Duplicate, Cannot Reproduce и др.)"
+  column_hints:
+    pname: "Название резолюции"
+    description: "Описание резолюции"
+
+cwd_user:
+  title: "Пользователи JIRA"
+  description: "Пользователи системы JIRA с логинами и именами."
+  column_hints:
+    user_name: "Логин пользователя"
+    display_name: "Отображаемое имя (ФИО)"
+    email_address: "E-mail пользователя"
+    active: "Активен ли пользователь"
+
+component:
+  title: "Компоненты проектов"
+  description: "Компоненты (модули) проектов для категоризации задач."
+  column_hints:
+    cname: "Название компонента"
+    description: "Описание компонента"
+    project: "ID проекта"
+    lead: "Ответственный за компонент (ID пользователя)"
+
+projectversion:
+  title: "Версии проектов"
+  description: "Версии (релизы) проектов — для планирования и отслеживания."
+  column_hints:
+    vname: "Название версии (1.0, 2.0-RC1)"
+    description: "Описание версии"
+    startdate: "Дата начала версии"
+    releasedate: "Дата релиза"
+    released: "Флаг: версия выпущена"
+    archived: "Флаг: версия архивирована"
+    project: "ID проекта"
+
+worklog:
+  title: "Учёт рабочего времени"
+  description: "Записи логирования рабочего времени по задачам."
+  column_hints:
+    issueid: "ID задачи"
+    author: "Автор записи (ID пользователя)"
+    timeworked: "Затраченное время (секунды)"
+    startdate: "Дата начала работы"
+    created: "Дата создания записи"
+  suggested_measures:
+    - name: total_time_spent
+      sql: "timeworked"
+      type: sum
+      title: "Суммарное время (секунды)"
+      description: "Общее затраченное время"
+
+changegroup:
+  title: "Группы изменений"
+  description: "Группы изменений полей задач (история). Каждая группа = один акт редактирования."
+  column_hints:
+    issueid: "ID задачи"
+    author: "Автор изменения (ID пользователя)"
+    created: "Дата изменения"
+
+changeitem:
+  title: "Элементы изменений"
+  description: "Детали каждого изменения: какое поле, старое и новое значение."
+  column_hints:
+    groupid: "ID группы изменений (changegroup)"
+    field: "Название изменённого поля (status, assignee, priority...)"
+    oldvalue: "Старое значение (ID)"
+    oldstring: "Старое значение (текст)"
+    newvalue: "Новое значение (ID)"
+    newstring: "Новое значение (текст)"
+    fieldtype: "Тип поля (jira, custom)"
+
+customfield:
+  title: "Кастомные поля"
+  description: "Определения пользовательских полей JIRA."
+  column_hints:
+    cfname: "Название поля"
+    customfieldtypekey: "Тип поля (строка, число, дата...)"
+    description: "Описание поля"
+
+customfieldvalue:
+  title: "Значения кастомных полей"
+  description: "Значения пользовательских полей для задач."
+  column_hints:
+    issue: "ID задачи"
+    customfield: "ID кастомного поля"
+    stringvalue: "Строковое значение"
+    numbervalue: "Числовое значение"
+    textvalue: "Текстовое значение (большой текст)"
+    datevalue: "Значение даты"
+
+issuelinktype:
+  title: "Типы связей задач"
+  description: "Справочник типов связей (Blocks, Is blocked by, Duplicates и т.д.)"
+  column_hints:
+    linkname: "Название связи (направление вперёд)"
+    inward: "Описание связи (обратное направление)"
+    outward: "Описание связи (прямое направление)"
+
+label:
+  title: "Метки задач"
+  description: "Метки (label) задач для произвольной категоризации."
+  column_hints:
+    issue: "ID задачи"
+    label: "Текст метки"
+
+sprint:
+  title: "Спринты"
+  description: "Спринты Agile-досок — итерации разработки."
+  column_hints:
+    name: "Название спринта"
+    start_date: "Дата начала спринта"
+    end_date: "Дата окончания спринта"
+    complete_date: "Дата фактического завершения"
+    state: "Состояние (active, closed, future)"
+
+issue_history:
+  title: "История изменений задач"
+  description: "Журнал изменений полей задач: смены статуса, исполнителя, приоритета и др."
+  column_hints:
+    issue_id: "ID задачи"
+    author_id: "Автор изменения (ID пользователя)"
+    field: "Название изменённого поля (status, assignee, priority...)"
+    old_value: "Старое значение"
+    new_value: "Новое значение"
+    created_at: "Дата изменения"
+  suggested_measures:
+    - name: status_change_count
+      sql: "CASE WHEN {CUBE}.field = 'status' THEN 1 END"
+      type: count
+      title: "Смены статуса"
+      description: "Количество смен статуса задач"
+
+issue_comment:
+  title: "Комментарии к задачам"
+  description: "Комментарии пользователей к задачам JIRA."
+  column_hints:
+    issue_id: "ID задачи"
+    author_id: "Автор комментария (ID пользователя)"
+    body: "Текст комментария"
+    created_at: "Дата создания комментария"
+    updated_at: "Дата обновления комментария"
+
+user:
+  title: "Пользователи JIRA"
+  description: "Пользователи системы JIRA с логинами, именами и ролями."
+  column_hints:
+    username: "Логин пользователя"
+    display_name: "Отображаемое имя (ФИО)"
+    email: "E-mail пользователя"
+    is_active: "Активен ли пользователь"

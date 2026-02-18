@@ -89,7 +89,13 @@ agent:
 #   glossary_path: "/absolute/path/to/glossary.yml"
 #   examples_path: "/absolute/path/to/examples.yml"
 
-# --- JIRA execution plan (опционально) ---
-# Путь к файлу с метаданными ETL-процессов JIRA (xlsx/csv).
-# Используется для обогащения описаний Cube-моделей.
-# jira_plan_path: "./sample_execution.xlsx"
+# --- Knowledge Base (опционально) ---
+# YAML-файл с описаниями таблиц и колонок вашего домена.
+# Для JIRA: knowledge_base_path: "./kb/jira_kb.yml"
+# Для другого домена: создайте свой файл по шаблону kb/template_kb.yml
+# knowledge_base_path: "./kb/jira_kb.yml"
+
+# --- ETL execution plan (опционально) ---
+# Файл с метаданными ETL-процессов (xlsx/csv).
+# Используется для дополнительного обогащения описаний Cube-моделей.
+# etl_plan_path: "./sample_execution.xlsx"

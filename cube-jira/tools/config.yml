@@ -37,5 +37,8 @@ agent:
   language: "ru"
   max_rows_display: 15
 
-# --- JIRA execution plan (опционально) ---
-# jira_plan_path: "./sample_execution.xlsx"
+# --- Knowledge Base (опционально) ---
+# knowledge_base_path: "./kb/jira_kb.yml"
+
+# --- ETL execution plan (опционально) ---
+# etl_plan_path: "./sample_execution.xlsx"

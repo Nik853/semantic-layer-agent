@@ -1,0 +1,30 @@
+# ============================================================
+# Knowledge Base: <ваш домен>
+# ============================================================
+# Шаблон файла подсказок для генерации Cube-моделей.
+# Скопируйте, переименуйте и заполните под свои таблицы.
+#
+# Подключение: config.yml → knowledge_base_path: "./kb/<имя>.yml"
+# ============================================================
+
+# Пример: таблица заказов
+# orders:
+#   title: "Заказы"
+#   description: "Таблица заказов интернет-магазина."
+#   column_hints:
+#     order_id: "Уникальный номер заказа"
+#     customer_id: "ID покупателя"
+#     total_amount: "Сумма заказа в рублях"
+#     status: "Статус заказа (new, processing, shipped, delivered, cancelled)"
+#     created_at: "Дата создания заказа"
+#   suggested_measures:
+#     - name: total_revenue
+#       sql: "total_amount"
+#       type: sum
+#       title: "Выручка"
+#       description: "Суммарная выручка по заказам"
+#     - name: avg_order_value
+#       sql: "total_amount"
+#       type: avg
+#       title: "Средний чек"
+#       description: "Средняя сумма заказа"
