@@ -121,21 +121,28 @@ def check_config():
             V.fail("database.path не указан для DuckDB")
     elif driver == "cube":
         V.ok("database.driver=cube — БД не нужна, метаданные из Cube API")
-    elif driver in ("postgresql", "greenplum", "postgres"):
+    elif driver in ("postgresql", "greenplum", "postgres", "hive"):
         if db.get("host") and db.get("host") != "localhost":
             V.ok(f"database.host: {db['host']}")
         elif db.get("host") == "localhost":
             V.warn("database.host = localhost", "Убедитесь что БД доступна в целевом окружении")
         else:
             V.fail("database.host не указан")
-        
-        if db.get("name") and db["name"] != "your_database":
-            V.ok(f"database.name: {db['name']}")
+        if driver == "hive":
+            if db.get("schema") or db.get("name"):
+                V.ok(f"database.schema/name: {db.get('schema') or db.get('name', 'default')}")
+            else:
+                V.warn("database.schema не указан", "Будет использована база default")
         else:
-            V.fail("database.name", "Укажите реальное имя БД")
+            if db.get("name") and db["name"] != "your_database":
+                V.ok(f"database.name: {db['name']}")
+            else:
+                V.fail("database.name", "Укажите реальное имя БД")
+        if driver in ("greenplum", "hive") and (db.get("kerberos") or {}).get("enabled"):
+            V.ok("Kerberos включён для источника")
     else:
         V.fail(f"Неизвестный database.driver: {driver}",
-               "Допустимые: postgresql, greenplum, duckdb, cube")
+               "Допустимые: postgresql, greenplum, hive, duckdb, cube")
     
     if db.get("schema"):
         V.ok(f"database.schema: {db['schema']}")
@@ -165,12 +172,20 @@ def check_config():
     else:
         V.fail("cube.api_url не указан")
     
-    # Проверка FAISS
+    # Проверка FAISS и эмбеддеров
     faiss_cfg = config.get("faiss", {})
-    if faiss_cfg.get("embedding_model"):
-        V.ok(f"faiss.embedding_model: {faiss_cfg['embedding_model']}")
+    provider = (faiss_cfg.get("embedding_provider") or "huggingface").strip().lower()
+    if provider not in ("huggingface", "gigachat"):
+        V.fail("faiss.embedding_provider", f"Допустимые: huggingface, gigachat (указано: {provider})")
     else:
-        V.fail("faiss.embedding_model не указан")
+        V.ok(f"faiss.embedding_provider: {provider}")
+    if provider == "huggingface":
+        if faiss_cfg.get("embedding_model"):
+            V.ok(f"faiss.embedding_model: {faiss_cfg['embedding_model']}")
+        else:
+            V.fail("faiss.embedding_model не указан (нужен для provider=huggingface)")
+    else:
+        V.ok("GigaChat-эмбеддер — учётные данные из секции gigachat")
     
     return True
 
@@ -188,6 +203,7 @@ def check_files():
         ("01_data_loader.py", "Скрипт загрузки данных"),
         ("02_build_faiss.py", "Скрипт построения FAISS"),
         ("03_agent.ipynb",    "Jupyter-ноутбук агента"),
+        ("embedding_utils.py", "Фабрика эмбеддеров (HuggingFace / GigaChat)"),
         ("config.yml",        "Конфигурация"),
         ("cube.env.example",  "Шаблон .env для Cube"),
     ]
@@ -300,7 +316,38 @@ def check_database():
             V.fail(f"DuckDB: {e}")
         return
     
-    # PostgreSQL / GreenPlum
+    # Greenplum / Hive — через SQLAlchemy (db_sources)
+    if driver == "greenplum":
+        try:
+            from db_sources import GreenplumSource
+            src = GreenplumSource(config)
+            tables = src.get_tables()
+            V.ok(f"Подключение к Greenplum: {db.get('host')}")
+            V.ok(f"Схема '{src.schema}': {len(tables)} таблиц")
+            src.close()
+        except ImportError as e:
+            V.warn("SQLAlchemy или зависимости не установлены", str(e))
+        except Exception as e:
+            err = str(e).strip().split("\n")[0]
+            V.fail("Подключение к Greenplum", err)
+        return
+
+    if driver == "hive":
+        try:
+            from db_sources import HiveSource
+            src = HiveSource(config)
+            tables = src.get_tables()
+            V.ok(f"Подключение к Hive: {db.get('host')}")
+            V.ok(f"Схема '{src.schema}': {len(tables)} таблиц")
+            src.close()
+        except ImportError as e:
+            V.warn("PyHive или зависимости не установлены", str(e))
+        except Exception as e:
+            err = str(e).strip().split("\n")[0]
+            V.fail("Подключение к Hive", err)
+        return
+
+    # PostgreSQL
     if db.get("name") == "your_database" or not db.get("name"):
         V.skip("Подключение к БД", "Используются значения по умолчанию")
         return
@@ -532,10 +579,9 @@ def check_faiss():
     # Пробуем загрузить FAISS
     try:
         from langchain_community.vectorstores import FAISS
-        from langchain_community.embeddings import HuggingFaceEmbeddings
+        from embedding_utils import create_embeddings
         
-        model_name = config["faiss"]["embedding_model"]
-        embeddings = HuggingFaceEmbeddings(model_name=model_name)
+        embeddings = create_embeddings(config)
         store = FAISS.load_local(str(index_path), embeddings, allow_dangerous_deserialization=True)
         
         # Тестовый поиск
@@ -548,8 +594,8 @@ def check_faiss():
             V.warn("FAISS-поиск: 0 результатов")
     
     except ImportError:
-        V.warn("FAISS/sentence-transformers не установлены",
-               "pip install faiss-cpu sentence-transformers")
+        V.warn("FAISS или эмбеддеры не установлены",
+               "pip install faiss-cpu и sentence-transformers (huggingface) или langchain-gigachat (gigachat)")
     except Exception as e:
         err = str(e).strip().split("\n")[0][:100]
         V.fail(f"FAISS загрузка: {err}")
@@ -658,12 +704,11 @@ def check_e2e():
     
     try:
         from langchain_community.vectorstores import FAISS
-        from langchain_community.embeddings import HuggingFaceEmbeddings
+        from embedding_utils import create_embeddings
         from langchain_gigachat import GigaChat
         
         # Загружаем компоненты
-        model_name = config["faiss"]["embedding_model"]
-        embeddings = HuggingFaceEmbeddings(model_name=model_name)
+        embeddings = create_embeddings(config)
         store = FAISS.load_local(str(index_path), embeddings, allow_dangerous_deserialization=True)
         
         if gc.get("base_url"):

@@ -1,9 +1,0 @@
-urlPath: /sprint-issues
-description: Get issues grouped by sprint
-profiles:
-  - pg
-request:
-  - fieldName: sprint_status
-    fieldIn: query
-    description: Filter by sprint status (active, closed, future)
-    type: string

@@ -5,9 +5,11 @@
 
 # --- Подключение к данным ---
 # Поддерживаемые driver:
-#   postgresql / greenplum — прямое подключение (psycopg2)
-#   duckdb                 — локальный DuckDB-файл
-#   cube                   — чтение метаданных из работающего Cube API (без БД)
+#   postgresql              — прямое подключение (psycopg2)
+#   greenplum               — Greenplum через SQLAlchemy (Kerberos опционально)
+#   hive                    — Hive через SQLAlchemy/PyHive (Kerberos)
+#   duckdb                  — локальный DuckDB-файл
+#   cube                    — чтение метаданных из работающего Cube API (без БД)
 database:
   driver: "duckdb"             # <-- измените на нужный
   schema: "main"               # main (DuckDB) / dbo / public / ваша_схема
@@ -15,12 +17,35 @@ database:
   # --- Для DuckDB ---
   path: "./data.duckdb"        # Путь к файлу DuckDB
 
-  # --- Для PostgreSQL / GreenPlum ---
+  # --- Для PostgreSQL ---
   # host: "localhost"
   # port: 5432
   # name: "your_database"
   # user: "your_user"
   # password: "your_password"
+
+  # --- Для GreenPlum (driver: greenplum) ---
+  # host: "gp_host.domain.ru"
+  # port: 5432
+  # name: "your_db"
+  # schema: "your_schema"
+  # user: "your_user"
+  # password: ""
+  # kerberos:
+  #   enabled: true
+  #   ticket_path: "/home/datalab/krb_ticket"
+  #   krb5_config_path: "/home/datalab/nfs/krb5.conf"
+
+  # --- Для Hive (driver: hive) ---
+  # host: "hive_host.domain.ru"
+  # port: 10000
+  # schema: "default"
+  # user: "your_user"
+  # kerberos:
+  #   enabled: true
+  #   ticket_path: "/home/datalab/krb_ticket"
+  #   krb5_config_path: "/home/datalab/nfs/krb5.conf"
+  #   kerberos_service_name: "hive"
 
 # --- Подключение к Cube ---
 cube:
@@ -37,18 +62,19 @@ gigachat:
   # Вариант 1: прямой доступ через credentials
   # credentials: "your_key_here"
   # verify_ssl: false
-  # timeout: 60
 
   # Вариант 2: через прокси (закрытый контур, JupyterHub)
   base_url: "http://liveaccess-sig/v1/gc"
   access_token_env: "JPY_API_TOKEN"
 
-  # Модель GigaChat
   model: "GigaChat-2-Max"
+  timeout: 300
 
 # --- Настройки FAISS ---
 faiss:
   index_path: "./faiss_index"
+  # Провайдер эмбеддингов: "huggingface" (default) или "gigachat"
+  embedding_provider: "huggingface"
   embedding_model: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
   search_k: 20
 
@@ -62,3 +88,8 @@ agent:
 # semantic:
 #   glossary_path: "/absolute/path/to/glossary.yml"
 #   examples_path: "/absolute/path/to/examples.yml"
+
+# --- JIRA execution plan (опционально) ---
+# Путь к файлу с метаданными ETL-процессов JIRA (xlsx/csv).
+# Используется для обогащения описаний Cube-моделей.
+# jira_plan_path: "./sample_execution.xlsx"

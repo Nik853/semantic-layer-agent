@@ -21,6 +21,15 @@ faiss-cpu>=1.7.4
 # Embeddings model
 sentence-transformers>=2.2.0
 
+# Database sources (for direct SQL execution mode)
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+
+# Kerberos (for GreenPlum/Hive in closed environments)
+# gssapi
+
 # Utilities
 jinja2>=3.1.0
 pyyaml>=6.0
+tabulate>=0.9.0
+pandas>=2.0.0

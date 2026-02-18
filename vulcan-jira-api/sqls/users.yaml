@@ -1,4 +1,0 @@
-urlPath: /users
-description: Get all active users with their profiles
-profiles:
-  - pg

@@ -1,4 +1,0 @@
-urlPath: /projects
-description: Get all projects with issue counts
-profiles:
-  - pg

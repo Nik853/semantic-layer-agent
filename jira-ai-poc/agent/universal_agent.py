@@ -18,6 +18,13 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 
+# Flexible embeddings (HuggingFace or GigaChat)
+try:
+    from embedding_utils import create_embeddings
+    _EMBEDDING_UTILS_AVAILABLE = True
+except ImportError:
+    _EMBEDDING_UTILS_AVAILABLE = False
+
 # LLM
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate

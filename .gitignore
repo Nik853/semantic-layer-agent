@@ -31,6 +31,7 @@ Thumbs.db
 
 # Temp / personal files
 neggo/
+cubejs_diff/
 instr*
 instru
 Recom_ex
@@ -41,6 +42,12 @@ jira_data.sql
 jira_schema.csv
 jira_schema.sql
 jira_tables_summary.csv
+sample_execution.xlsx
+test_jira_plan/
+
+# Old experiments (removed from repo)
+jira-api-express/
+vulcan-jira-api/
 
 # Test results
 test_results_*.json

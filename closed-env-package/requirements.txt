@@ -23,8 +23,14 @@ sentence-transformers>=2.2.0
 # HTTP-клиент (для Cube API)
 httpx>=0.25.0
 
-# PostgreSQL
+# PostgreSQL / GreenPlum
 psycopg2-binary>=2.9.0
+
+# SQLAlchemy (для Greenplum/Hive через db_sources)
+sqlalchemy
+
+# Kerberos (для Greenplum/Hive в закрытом контуре)
+gssapi
 
 # Конфигурация
 pyyaml>=6.0
