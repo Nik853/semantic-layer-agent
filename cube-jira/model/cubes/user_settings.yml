@@ -1,0 +1,63 @@
+cubes:
+- name: user_settings
+  sql_table: public.user_settings
+  title: User Settings
+  description: Таблица user_settings
+  joins:
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Информация о зарегистрированном пользователе
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: notification_email
+    sql: notification_email
+    type: boolean
+    title: Notification Email
+    description: notification_email (boolean)
+  - name: notification_push
+    sql: notification_push
+    type: boolean
+    title: Notification Push
+    description: notification_push (boolean)
+  - name: notification_slack
+    sql: notification_slack
+    type: boolean
+    title: Notification Slack
+    description: notification_slack (boolean)
+  - name: theme
+    sql: theme
+    type: string
+    title: Theme
+    description: theme (character varying)
+  - name: default_project_id
+    sql: default_project_id
+    type: number
+    title: Default Project
+    description: default_project_id (integer)
+  - name: dashboard_layout
+    sql: dashboard_layout
+    type: string
+    title: Dashboard Layout
+    description: dashboard_layout (jsonb)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице User Settings

@@ -1,0 +1,44 @@
+cubes:
+- name: project_roles
+  sql_table: public.project_roles
+  title: Роли проекта
+  description: Таблица определяет роли участников проекта, связывая пользователей,
+    проекты, команды и конкретные роли.
+  joins:
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+    title: Проект
+    description: Идентификатор проекта
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Пользователь, назначенный на роль
+  - name: teams
+    sql: '{CUBE}.team_id = {teams}.id'
+    relationship: many_to_one
+    title: Команда
+    description: К какой команде относится проектная роль
+  - name: roles
+    sql: '{CUBE}.role_id = {roles}.id'
+    relationship: many_to_one
+    title: Роль
+    description: Наименование роли в проекте
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор каждой строки
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления записи о роли
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Роли проекта

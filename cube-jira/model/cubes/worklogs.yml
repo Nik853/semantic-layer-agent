@@ -1,0 +1,63 @@
+cubes:
+- name: worklogs
+  sql_table: public.worklogs
+  title: Worklogs
+  description: Таблица worklogs
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Идентификатор задачи
+    description: Уникальный идентификатор связанной задачи
+  - name: users
+    sql: '{CUBE}.author_id = {users}.id'
+    relationship: many_to_one
+    title: Автор работы
+    description: Пользователь, зарегистрировавший или выполняющий работу
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: time_spent
+    sql: time_spent
+    type: number
+    title: Time Spent
+    description: time_spent (integer)
+  - name: work_description
+    sql: work_description
+    type: string
+    title: Work Description
+    description: work_description (text)
+  - name: started_at
+    sql: started_at
+    type: time
+    title: Started At
+    description: started_at (timestamp without time zone)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Worklogs
+  - name: total_time_spent
+    sql: time_spent
+    type: sum
+    title: Сумма Time Spent
+    description: Сумма значений поля time_spent
+  - name: avg_time_spent
+    sql: time_spent
+    type: avg
+    title: Среднее Time Spent
+    description: Среднее значение поля time_spent

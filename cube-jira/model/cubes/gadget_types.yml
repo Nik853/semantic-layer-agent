@@ -1,0 +1,43 @@
+cubes:
+- name: gadget_types
+  sql_table: public.gadget_types
+  title: Типы гаджетов аналитики
+  description: Таблица содержит основные типы аналитических гаджетов и их характеристики.
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор типа гаджета
+    description: Уникальный идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Наименование
+    description: Краткое наименование типа гаджета
+  - name: description
+    sql: description
+    type: string
+    title: Описание
+    description: Детальное описание назначения и области применения гаджета
+  - name: thumbnail_url
+    sql: thumbnail_url
+    type: string
+    title: Ссылка на миниатюру
+    description: URL изображения миниатюрной иконки, представляющей гаджет
+  - name: configuration_schema
+    sql: configuration_schema
+    type: string
+    title: Схема конфигурации
+    description: JSON-схема настройки конфигурации гаджета, содержащая список настраиваемых
+      полей и параметры
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления записи в базу данных
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Типы гаджетов аналитики

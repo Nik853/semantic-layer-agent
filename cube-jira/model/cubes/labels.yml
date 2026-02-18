@@ -1,0 +1,41 @@
+cubes:
+- name: labels
+  sql_table: public.labels
+  title: Labels
+  description: Таблица labels
+  joins:
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: color
+    sql: color
+    type: string
+    title: Color
+    description: color (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Labels

@@ -1,0 +1,38 @@
+cubes:
+- name: screen_scheme_items
+  sql_table: public.screen_scheme_items
+  title: Screen Scheme Items
+  description: Таблица screen_scheme_items
+  joins:
+  - name: permission_schemes
+    sql: '{CUBE}.scheme_id = {permission_schemes}.id'
+    relationship: many_to_one
+    title: Схема прав доступа
+    description: Идентификатор схемы, определяющей права доступа
+  - name: screens
+    sql: '{CUBE}.screen_id = {screens}.id'
+    relationship: many_to_one
+    title: Экран
+    description: Идентификатор экрана, отображаемого на схеме
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: operation
+    sql: operation
+    type: string
+    title: Operation
+    description: operation (character varying)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Screen Scheme Items

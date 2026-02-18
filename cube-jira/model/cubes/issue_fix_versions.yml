@@ -1,0 +1,35 @@
+cubes:
+- name: issue_fix_versions
+  sql_table: public.issue_fix_versions
+  title: Исправления версий багов (Issue Fix Versions)
+  description: Таблица содержит привязки идентификаторов фиксов багов к версиям продукта.
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Идентификатор задачи
+    description: Уникальный идентификатор конкретной задачи
+  - name: versions
+    sql: '{CUBE}.version_id = {versions}.id'
+    relationship: many_to_one
+    title: Версия продукта
+    description: Номер версии программного продукта, к которой относится задача
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный числовой идентификатор строки
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания связи
+    description: Дата добавления связи между багом и версией, когда было решено включить
+      баг в данную версию
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Исправления версий багов (Issue
+      Fix Versions)

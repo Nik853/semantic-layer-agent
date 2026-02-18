@@ -1,0 +1,48 @@
+cubes:
+- name: issue_comments
+  sql_table: public.issue_comments
+  title: Issue Comments
+  description: Таблица issue_comments
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Идентификатор задачи/запроса
+    description: Уникальный идентификатор задачи или запроса в системе
+  - name: users
+    sql: '{CUBE}.author_id = {users}.id'
+    relationship: many_to_one
+    title: Автор комментария
+    description: Пользователь, оставивший комментарий к задаче или запросу
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: body
+    sql: body
+    type: string
+    title: Body
+    description: body (text)
+  - name: is_internal
+    sql: is_internal
+    type: boolean
+    title: Is Internal
+    description: is_internal (boolean)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Issue Comments

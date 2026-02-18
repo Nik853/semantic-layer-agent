@@ -1,0 +1,41 @@
+cubes:
+- name: issue_link_types
+  sql_table: public.issue_link_types
+  title: Issue Link Types
+  description: Таблица issue_link_types
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: inward_description
+    sql: inward_description
+    type: string
+    title: Inward Description
+    description: inward_description (character varying)
+  - name: outward_description
+    sql: outward_description
+    type: string
+    title: Outward Description
+    description: outward_description (character varying)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Issue Link Types
+  - name: link_count
+    type: count
+    title: Количество связей
+    description: Общее число связей между задачами

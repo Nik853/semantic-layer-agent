@@ -1,0 +1,50 @@
+cubes:
+- name: screen_tab_fields
+  sql_table: public.screen_tab_fields
+  title: Поля экранной вкладки
+  description: Таблица содержит поля экранных вкладок с указанием их позиции и связей
+    с основной вкладкой.
+  joins:
+  - name: screen_tabs
+    sql: '{CUBE}.tab_id = {screen_tabs}.id'
+    relationship: many_to_one
+    title: Таблица экрана
+    description: Идентификатор страницы или экрана, которому принадлежит поле
+  - name: custom_field_contexts
+    sql: '{CUBE}.field_id = {custom_field_contexts}.id'
+    relationship: many_to_one
+    title: Контекст поля
+    description: Тип контекста, в котором используется данное поле (например, список
+      экранов, страниц)
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор строки
+  - name: position
+    sql: position
+    type: number
+    title: Позиция отображения
+    description: Порядок расположения полей внутри вкладки
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления поля во вкладку
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Поля экранной вкладки
+  - name: total_position
+    sql: position
+    type: sum
+    title: Сумма Позиция отображения
+    description: Сумма значений поля position
+  - name: avg_position
+    sql: position
+    type: avg
+    title: Среднее Позиция отображения
+    description: Среднее значение поля position

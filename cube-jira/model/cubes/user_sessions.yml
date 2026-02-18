@@ -1,0 +1,48 @@
+cubes:
+- name: user_sessions
+  sql_table: public.user_sessions
+  title: User Sessions
+  description: Таблица user_sessions
+  joins:
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Идентификатор зарегистрированного пользователя
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: session_token
+    sql: session_token
+    type: string
+    title: Session Token
+    description: session_token (character varying)
+  - name: ip_address
+    sql: ip_address
+    type: string
+    title: Ip Address
+    description: ip_address (inet)
+  - name: user_agent
+    sql: user_agent
+    type: string
+    title: User Agent
+    description: user_agent (text)
+  - name: expires_at
+    sql: expires_at
+    type: time
+    title: Expires At
+    description: expires_at (timestamp without time zone)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице User Sessions

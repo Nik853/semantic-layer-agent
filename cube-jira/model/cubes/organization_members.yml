@@ -1,0 +1,38 @@
+cubes:
+- name: organization_members
+  sql_table: public.organization_members
+  title: Organization Members
+  description: Таблица organization_members
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Информация о компании или организации
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Данные зарегистрированного пользователя
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: role
+    sql: role
+    type: string
+    title: Role
+    description: role (character varying)
+  - name: joined_at
+    sql: joined_at
+    type: time
+    title: Joined At
+    description: joined_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Organization Members

@@ -1,0 +1,58 @@
+cubes:
+- name: apps
+  sql_table: public.apps
+  title: Приложения организаций
+  description: Каталог установленных приложений организаций
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Идентификатор организации
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор
+    description: Уникальный идентификатор приложения
+  - name: name
+    sql: name
+    type: string
+    title: Название
+    description: Наименование приложения
+  - name: app_key
+    sql: app_key
+    type: string
+    title: Ключ приложения
+    description: Токен уникального ключа идентификации приложения
+  - name: description
+    sql: description
+    type: string
+    title: Описание
+    description: Краткое описание функциональности приложения
+  - name: vendor
+    sql: vendor
+    type: string
+    title: Разработчик
+    description: Компания-разработчик приложения
+  - name: icon_url
+    sql: icon_url
+    type: string
+    title: URL иконки
+    description: Ссылка на изображение иконки приложения
+  - name: is_enabled
+    sql: is_enabled
+    type: boolean
+    title: Активность
+    description: Признак активности установки приложения (да/нет)
+  - name: installed_at
+    sql: installed_at
+    type: time
+    title: Дата установки
+    description: Дата инсталляции приложения
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Приложения организаций

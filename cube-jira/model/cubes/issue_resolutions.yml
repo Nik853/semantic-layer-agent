@@ -1,0 +1,41 @@
+cubes:
+- name: issue_resolutions
+  sql_table: public.issue_resolutions
+  title: Issue Resolutions
+  description: Таблица issue_resolutions
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: is_default
+    sql: is_default
+    type: boolean
+    title: Is Default
+    description: is_default (boolean)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Issue Resolutions

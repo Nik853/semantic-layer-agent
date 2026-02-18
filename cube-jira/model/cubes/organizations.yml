@@ -1,0 +1,68 @@
+cubes:
+- name: organizations
+  sql_table: public.organizations
+  title: Organizations
+  description: Таблица organizations
+  joins:
+  - name: users
+    sql: '{CUBE}.owner_id = {users}.id'
+    relationship: many_to_one
+    title: Собственник
+    description: Пользователь, владеющий организацией
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: slug
+    sql: slug
+    type: string
+    title: Slug
+    description: slug (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: logo_url
+    sql: logo_url
+    type: string
+    title: Logo Url
+    description: logo_url (text)
+  - name: website
+    sql: website
+    type: string
+    title: Website
+    description: website (character varying)
+  - name: is_active
+    sql: is_active
+    type: boolean
+    title: Is Active
+    description: is_active (boolean)
+  - name: settings
+    sql: settings
+    type: string
+    title: Settings
+    description: settings (jsonb)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Organizations

@@ -1,0 +1,59 @@
+cubes:
+- name: dashboards
+  sql_table: public.dashboards
+  title: Панели инструментов
+  description: Таблица содержит основные параметры панелей мониторинга системы.
+  joins:
+  - name: users
+    sql: '{CUBE}.owner_id = {users}.id'
+    relationship: many_to_one
+    title: Собственник
+    description: Пользователь, ответственный за панель
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор панели
+    description: Уникальный идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Имя панели
+    description: Краткое наименование панели
+  - name: description
+    sql: description
+    type: string
+    title: Описание панели
+    description: Короткое описание назначения панели
+  - name: layout
+    sql: layout
+    type: string
+    title: Макет панели
+    description: JSON объект макета отображаемых элементов панели
+  - name: is_default
+    sql: is_default
+    type: boolean
+    title: Является ли основной панелью
+    description: Признак установки панели по умолчанию при создании нового пользователя
+  - name: share_permissions
+    sql: share_permissions
+    type: string
+    title: Разрешения совместного доступа
+    description: JSON объект разрешений на доступ к панели другим пользователям или
+      группам пользователей
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время создания панели
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Дата обновления
+    description: Дата и время последнего изменения панели
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Панели инструментов

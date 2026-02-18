@@ -1,0 +1,66 @@
+cubes:
+- name: issue_priorities
+  sql_table: public.issue_priorities
+  title: Issue Priorities
+  description: Таблица issue_priorities
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: icon_url
+    sql: icon_url
+    type: string
+    title: Icon Url
+    description: icon_url (text)
+  - name: color
+    sql: color
+    type: string
+    title: Color
+    description: color (character varying)
+  - name: priority_order
+    sql: priority_order
+    type: number
+    title: Priority Order
+    description: priority_order (integer)
+  - name: is_default
+    sql: is_default
+    type: boolean
+    title: Is Default
+    description: is_default (boolean)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Issue Priorities
+  - name: total_priority_order
+    sql: priority_order
+    type: sum
+    title: Сумма Priority Order
+    description: Сумма значений поля priority_order
+  - name: avg_priority_order
+    sql: priority_order
+    type: avg
+    title: Среднее Priority Order
+    description: Среднее значение поля priority_order

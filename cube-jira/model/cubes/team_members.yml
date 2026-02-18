@@ -1,0 +1,38 @@
+cubes:
+- name: team_members
+  sql_table: public.team_members
+  title: Участники команды
+  description: Таблица содержит информацию обо всех участниках команд проекта.
+  joins:
+  - name: teams
+    sql: '{CUBE}.team_id = {teams}.id'
+    relationship: many_to_one
+    title: Команда
+    description: Идентификатор команды сотрудника
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Идентификатор пользователя в команде
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор участника
+    description: Уникальный идентификатор строки записи участника
+  - name: role
+    sql: role
+    type: string
+    title: Роль участника
+    description: Роль участника внутри команды (например, менеджер, разработчик)
+  - name: joined_at
+    sql: joined_at
+    type: time
+    title: Дата присоединения
+    description: Дата и время, когда участник присоединился к команде
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Участники команды

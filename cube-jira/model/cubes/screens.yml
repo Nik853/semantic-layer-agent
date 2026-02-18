@@ -1,0 +1,38 @@
+cubes:
+- name: screens
+  sql_table: public.screens
+  title: Экран организации (screens)
+  description: Таблица экранов организаций с описанием, названием и датой создания
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Информация о компании или организации
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор экрана
+    description: Уникальный идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Наименование экрана
+    description: Краткое наименование функциональной страницы или интерфейса
+  - name: description
+    sql: description
+    type: string
+    title: Описание экрана
+    description: Подробное описание функционала и назначения экрана
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления экрана в систему
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Экран организации (screens)

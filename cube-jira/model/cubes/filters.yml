@@ -1,0 +1,58 @@
+cubes:
+- name: filters
+  sql_table: public.filters
+  title: Filters
+  description: Таблица filters
+  joins:
+  - name: users
+    sql: '{CUBE}.owner_id = {users}.id'
+    relationship: many_to_one
+    title: Собственник
+    description: Пользователь, владеющий фильтром
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: jql
+    sql: jql
+    type: string
+    title: Jql
+    description: jql (text)
+  - name: is_favorite
+    sql: is_favorite
+    type: boolean
+    title: Is Favorite
+    description: is_favorite (boolean)
+  - name: share_permissions
+    sql: share_permissions
+    type: string
+    title: Share Permissions
+    description: share_permissions (jsonb)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Filters

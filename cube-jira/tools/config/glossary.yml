@@ -1,0 +1,1440 @@
+app_settings:
+  aliases:
+  - настройки приложения
+  - app_settings
+  - app settings
+  semantic_type: entity
+  fields:
+  - app_settings.id
+  filter_operator: equals
+  description: Таблица содержит настройки приложений, привязанные к конкретному приложению.
+app_settings_count:
+  aliases:
+  - количество настройки приложения
+  - сколько настройки приложения
+  semantic_type: metric
+  measures:
+  - app_settings.count
+  description: Количество записей Настройки приложения
+apps:
+  aliases:
+  - приложения организаций
+  - apps
+  - apps
+  semantic_type: entity
+  fields:
+  - apps.id
+  filter_operator: equals
+  description: Каталог установленных приложений организаций
+apps_count:
+  aliases:
+  - количество приложения организаций
+  - сколько приложения организаций
+  semantic_type: metric
+  measures:
+  - apps.count
+  description: Количество записей Приложения организаций
+audit_log:
+  aliases:
+  - журнал аудита изменений
+  - audit_log
+  - audit log
+  semantic_type: entity
+  fields:
+  - audit_log.id
+  filter_operator: equals
+  description: Таблица регистрации действий пользователей, изменения сущностей и событий
+    в организации.
+audit_log_count:
+  aliases:
+  - количество журнал аудита изменений
+  - сколько журнал аудита изменений
+  semantic_type: metric
+  measures:
+  - audit_log.count
+  description: Количество записей Журнал аудита изменений
+board_columns:
+  aliases:
+  - структура колонок доски
+  - board_columns
+  - board columns
+  semantic_type: entity
+  fields:
+  - board_columns.id
+  filter_operator: equals
+  description: Таблица содержит данные о столбцах карточек на доске задач.
+board_columns_count:
+  aliases:
+  - количество структура колонок доски
+  - сколько структура колонок доски
+  semantic_type: metric
+  measures:
+  - board_columns.count
+  description: Количество записей Структура колонок доски
+board_swimlanes:
+  aliases:
+  - board swimlanes
+  - board_swimlanes
+  - board swimlanes
+  semantic_type: entity
+  fields:
+  - board_swimlanes.id
+  filter_operator: equals
+  description: Таблица board_swimlanes
+board_swimlanes_count:
+  aliases:
+  - количество board swimlanes
+  - сколько board swimlanes
+  semantic_type: metric
+  measures:
+  - board_swimlanes.count
+  description: Количество записей Board Swimlanes
+boards:
+  aliases:
+  - boards
+  - boards
+  - boards
+  semantic_type: entity
+  fields:
+  - boards.id
+  filter_operator: equals
+  description: Таблица boards
+boards_count:
+  aliases:
+  - количество boards
+  - сколько boards
+  semantic_type: metric
+  measures:
+  - boards.count
+  description: Количество записей Boards
+components:
+  aliases:
+  - компоненты проекта
+  - components
+  - components
+  semantic_type: entity
+  fields:
+  - components.id
+  filter_operator: equals
+  description: Таблица компонентов проекта с информацией о компонентах и ответственных
+    лицах
+components_count:
+  aliases:
+  - количество компоненты проекта
+  - сколько компоненты проекта
+  semantic_type: metric
+  measures:
+  - components.count
+  description: Количество записей Компоненты проекта
+custom_field_contexts:
+  aliases:
+  - custom field contexts
+  - custom_field_contexts
+  - custom field contexts
+  semantic_type: entity
+  fields:
+  - custom_field_contexts.id
+  filter_operator: equals
+  description: Таблица custom_field_contexts
+custom_field_contexts_count:
+  aliases:
+  - количество custom field contexts
+  - сколько custom field contexts
+  semantic_type: metric
+  measures:
+  - custom_field_contexts.count
+  description: Количество записей Custom Field Contexts
+custom_field_options:
+  aliases:
+  - опции кастомных полей
+  - custom_field_options
+  - custom field options
+  semantic_type: entity
+  fields:
+  - custom_field_options.id
+  filter_operator: equals
+  description: Параметры настроек кастомных полей проекта
+custom_field_options_count:
+  aliases:
+  - количество опции кастомных полей
+  - сколько опции кастомных полей
+  semantic_type: metric
+  measures:
+  - custom_field_options.count
+  description: Количество записей Опции кастомных полей
+custom_field_types:
+  aliases:
+  - типы кастомных полей
+  - custom_field_types
+  - custom field types
+  semantic_type: entity
+  fields:
+  - custom_field_types.id
+  filter_operator: equals
+  description: Таблица содержит основные типы кастомных полей для хранения различной
+    информации.
+custom_field_types_count:
+  aliases:
+  - количество типы кастомных полей
+  - сколько типы кастомных полей
+  semantic_type: metric
+  measures:
+  - custom_field_types.count
+  description: Количество записей Типы кастомных полей
+custom_fields:
+  aliases:
+  - пользовательские поля
+  - custom_fields
+  - custom fields
+  semantic_type: entity
+  fields:
+  - custom_fields.id
+  filter_operator: equals
+  description: Таблица содержит кастомизированные параметры полей организации, используемые
+    для сбора дополнительной информации.
+custom_fields_count:
+  aliases:
+  - количество пользовательские поля
+  - сколько пользовательские поля
+  semantic_type: metric
+  measures:
+  - custom_fields.count
+  description: Количество записей Пользовательские поля
+dashboard_gadgets:
+  aliases:
+  - панельные гаджеты
+  - dashboard_gadgets
+  - dashboard gadgets
+  semantic_type: entity
+  fields:
+  - dashboard_gadgets.id
+  filter_operator: equals
+  description: Таблица содержит список виджетов (гаджетов), отображаемых на панелях
+    дашбордов.
+dashboard_gadgets_count:
+  aliases:
+  - количество панельные гаджеты
+  - сколько панельные гаджеты
+  semantic_type: metric
+  measures:
+  - dashboard_gadgets.count
+  description: Количество записей Панельные гаджеты
+dashboards:
+  aliases:
+  - панели инструментов
+  - dashboards
+  - dashboards
+  semantic_type: entity
+  fields:
+  - dashboards.id
+  filter_operator: equals
+  description: Таблица содержит основные параметры панелей мониторинга системы.
+dashboards_count:
+  aliases:
+  - количество панели инструментов
+  - сколько панели инструментов
+  semantic_type: metric
+  measures:
+  - dashboards.count
+  description: Количество записей Панели инструментов
+field_configuration_items:
+  aliases:
+  - field configuration items
+  - field_configuration_items
+  - field configuration items
+  semantic_type: entity
+  fields:
+  - field_configuration_items.id
+  filter_operator: equals
+  description: Таблица field_configuration_items
+field_configuration_items_count:
+  aliases:
+  - количество field configuration items
+  - сколько field configuration items
+  semantic_type: metric
+  measures:
+  - field_configuration_items.count
+  description: Количество записей Field Configuration Items
+field_configurations:
+  aliases:
+  - field configurations
+  - field_configurations
+  - field configurations
+  semantic_type: entity
+  fields:
+  - field_configurations.id
+  filter_operator: equals
+  description: Таблица field_configurations
+field_configurations_count:
+  aliases:
+  - количество field configurations
+  - сколько field configurations
+  semantic_type: metric
+  measures:
+  - field_configurations.count
+  description: Количество записей Field Configurations
+filter_subscriptions:
+  aliases:
+  - filter subscriptions
+  - filter_subscriptions
+  - filter subscriptions
+  semantic_type: entity
+  fields:
+  - filter_subscriptions.id
+  filter_operator: equals
+  description: Таблица filter_subscriptions
+filter_subscriptions_count:
+  aliases:
+  - количество filter subscriptions
+  - сколько filter subscriptions
+  semantic_type: metric
+  measures:
+  - filter_subscriptions.count
+  description: Количество записей Filter Subscriptions
+filters:
+  aliases:
+  - filters
+  - filters
+  - filters
+  semantic_type: entity
+  fields:
+  - filters.id
+  filter_operator: equals
+  description: Таблица filters
+filters_count:
+  aliases:
+  - количество filters
+  - сколько filters
+  semantic_type: metric
+  measures:
+  - filters.count
+  description: Количество записей Filters
+gadget_types:
+  aliases:
+  - типы гаджетов аналитики
+  - gadget_types
+  - gadget types
+  semantic_type: entity
+  fields:
+  - gadget_types.id
+  filter_operator: equals
+  description: Таблица содержит основные типы аналитических гаджетов и их характеристики.
+gadget_types_count:
+  aliases:
+  - количество типы гаджетов аналитики
+  - сколько типы гаджетов аналитики
+  semantic_type: metric
+  measures:
+  - gadget_types.count
+  description: Количество записей Типы гаджетов аналитики
+issue_affected_versions:
+  aliases:
+  - версии затронутых проблем
+  - issue_affected_versions
+  - issue affected versions
+  semantic_type: entity
+  fields:
+  - issue_affected_versions.id
+  filter_operator: equals
+  description: Таблица содержит данные о версиях продуктов, затронутых проблемами.
+issue_affected_versions_count:
+  aliases:
+  - количество версии затронутых проблем
+  - сколько версии затронутых проблем
+  semantic_type: metric
+  measures:
+  - issue_affected_versions.count
+  description: Количество записей Версии затронутых проблем
+issue_attachments:
+  aliases:
+  - прикрепления к задачам
+  - issue_attachments
+  - issue attachments
+  semantic_type: entity
+  fields:
+  - issue_attachments.id
+  filter_operator: equals
+  description: Таблица содержит информацию обо всех прикрепленных файлах к задачам
+    системы.
+issue_attachments_count:
+  aliases:
+  - количество прикрепления к задачам
+  - сколько прикрепления к задачам
+  semantic_type: metric
+  measures:
+  - issue_attachments.count
+  description: Количество записей Прикрепления к задачам
+issue_comments:
+  aliases:
+  - issue comments
+  - issue_comments
+  - issue comments
+  semantic_type: entity
+  fields:
+  - issue_comments.id
+  filter_operator: equals
+  description: Таблица issue_comments
+issue_comments_count:
+  aliases:
+  - количество issue comments
+  - сколько issue comments
+  semantic_type: metric
+  measures:
+  - issue_comments.count
+  description: Количество записей Issue Comments
+issue_components:
+  aliases:
+  - компоненты проблем (issues)
+  - issue_components
+  - issue components
+  semantic_type: entity
+  fields:
+  - issue_components.id
+  filter_operator: equals
+  description: Таблица описывает связь между проблемами (issues) и компонентами системы.
+issue_components_count:
+  aliases:
+  - количество компоненты проблем (issues)
+  - сколько компоненты проблем (issues)
+  semantic_type: metric
+  measures:
+  - issue_components.count
+  description: Количество записей Компоненты проблем (issues)
+issue_custom_field_values:
+  aliases:
+  - пользовательские поля задач
+  - issue_custom_field_values
+  - issue custom field values
+  semantic_type: entity
+  fields:
+  - issue_custom_field_values.id
+  filter_operator: equals
+  description: Таблица содержит значения кастомизированных полей задач Redmine.
+issue_custom_field_values_count:
+  aliases:
+  - количество пользовательские поля задач
+  - сколько пользовательские поля задач
+  semantic_type: metric
+  measures:
+  - issue_custom_field_values.count
+  description: Количество записей Пользовательские поля задач
+issue_fix_versions:
+  aliases:
+  - исправления версий багов (issue fix versions)
+  - issue_fix_versions
+  - issue fix versions
+  semantic_type: entity
+  fields:
+  - issue_fix_versions.id
+  filter_operator: equals
+  description: Таблица содержит привязки идентификаторов фиксов багов к версиям продукта.
+issue_fix_versions_count:
+  aliases:
+  - количество исправления версий багов (issue fix versions)
+  - сколько исправления версий багов (issue fix versions)
+  semantic_type: metric
+  measures:
+  - issue_fix_versions.count
+  description: Количество записей Исправления версий багов (Issue Fix Versions)
+issue_history:
+  aliases:
+  - история изменений задач
+  - issue_history
+  - issue history
+  semantic_type: entity
+  fields:
+  - issue_history.id
+  filter_operator: equals
+  description: Таблица фиксирует изменения полей задач и соответствующих значений,
+    произведенные пользователями.
+issue_history_count:
+  aliases:
+  - количество история изменений задач
+  - сколько история изменений задач
+  semantic_type: metric
+  measures:
+  - issue_history.count
+  description: Количество записей История изменений задач
+issue_labels:
+  aliases:
+  - issue labels
+  - issue_labels
+  - issue labels
+  semantic_type: entity
+  fields:
+  - issue_labels.id
+  filter_operator: equals
+  description: Таблица issue_labels
+issue_labels_count:
+  aliases:
+  - количество issue labels
+  - сколько issue labels
+  semantic_type: metric
+  measures:
+  - issue_labels.count
+  description: Количество записей Issue Labels
+issue_link_types:
+  aliases:
+  - issue link types
+  - issue_link_types
+  - issue link types
+  semantic_type: entity
+  fields:
+  - issue_link_types.id
+  filter_operator: equals
+  description: Таблица issue_link_types
+issue_link_types_count:
+  aliases:
+  - количество issue link types
+  - сколько issue link types
+  semantic_type: metric
+  measures:
+  - issue_link_types.count
+  description: Количество записей Issue Link Types
+issue_links:
+  aliases:
+  - issue links
+  - issue_links
+  - issue links
+  semantic_type: entity
+  fields:
+  - issue_links.id
+  filter_operator: equals
+  description: Таблица issue_links
+issue_links_count:
+  aliases:
+  - количество issue links
+  - сколько issue links
+  semantic_type: metric
+  measures:
+  - issue_links.count
+  description: Количество записей Issue Links
+issue_priorities:
+  aliases:
+  - issue priorities
+  - issue_priorities
+  - issue priorities
+  semantic_type: entity
+  fields:
+  - issue_priorities.id
+  filter_operator: equals
+  description: Таблица issue_priorities
+issue_priorities_count:
+  aliases:
+  - количество issue priorities
+  - сколько issue priorities
+  semantic_type: metric
+  measures:
+  - issue_priorities.count
+  description: Количество записей Issue Priorities
+issue_resolutions:
+  aliases:
+  - issue resolutions
+  - issue_resolutions
+  - issue resolutions
+  semantic_type: entity
+  fields:
+  - issue_resolutions.id
+  filter_operator: equals
+  description: Таблица issue_resolutions
+issue_resolutions_count:
+  aliases:
+  - количество issue resolutions
+  - сколько issue resolutions
+  semantic_type: metric
+  measures:
+  - issue_resolutions.count
+  description: Количество записей Issue Resolutions
+issue_statuses:
+  aliases:
+  - issue statuses
+  - issue_statuses
+  - issue statuses
+  semantic_type: entity
+  fields:
+  - issue_statuses.id
+  filter_operator: equals
+  description: Таблица issue_statuses
+issue_statuses_count:
+  aliases:
+  - количество issue statuses
+  - сколько issue statuses
+  semantic_type: metric
+  measures:
+  - issue_statuses.count
+  description: Количество записей Issue Statuses
+issue_types:
+  aliases:
+  - issue types
+  - issue_types
+  - issue types
+  semantic_type: entity
+  fields:
+  - issue_types.id
+  filter_operator: equals
+  description: Таблица issue_types
+issue_types_count:
+  aliases:
+  - количество issue types
+  - сколько issue types
+  semantic_type: metric
+  measures:
+  - issue_types.count
+  description: Количество записей Issue Types
+issue_votes:
+  aliases:
+  - issue votes
+  - issue_votes
+  - issue votes
+  semantic_type: entity
+  fields:
+  - issue_votes.id
+  filter_operator: equals
+  description: Таблица issue_votes
+issue_votes_count:
+  aliases:
+  - количество issue votes
+  - сколько issue votes
+  semantic_type: metric
+  measures:
+  - issue_votes.count
+  description: Количество записей Issue Votes
+issue_watchers:
+  aliases:
+  - issue watchers
+  - issue_watchers
+  - issue watchers
+  semantic_type: entity
+  fields:
+  - issue_watchers.id
+  filter_operator: equals
+  description: Таблица issue_watchers
+issue_watchers_count:
+  aliases:
+  - количество issue watchers
+  - сколько issue watchers
+  semantic_type: metric
+  measures:
+  - issue_watchers.count
+  description: Количество записей Issue Watchers
+issues:
+  aliases:
+  - issues
+  - issues
+  - issues
+  semantic_type: entity
+  fields:
+  - issues.id
+  filter_operator: equals
+  description: Таблица issues
+issues_count:
+  aliases:
+  - количество issues
+  - сколько issues
+  semantic_type: metric
+  measures:
+  - issues.count
+  description: Количество записей Issues
+labels:
+  aliases:
+  - labels
+  - labels
+  - labels
+  semantic_type: entity
+  fields:
+  - labels.id
+  filter_operator: equals
+  description: Таблица labels
+labels_count:
+  aliases:
+  - количество labels
+  - сколько labels
+  semantic_type: metric
+  measures:
+  - labels.count
+  description: Количество записей Labels
+notification_events:
+  aliases:
+  - notification events
+  - notification_events
+  - notification events
+  semantic_type: entity
+  fields:
+  - notification_events.id
+  filter_operator: equals
+  description: Таблица notification_events
+notification_events_count:
+  aliases:
+  - количество notification events
+  - сколько notification events
+  semantic_type: metric
+  measures:
+  - notification_events.count
+  description: Количество записей Notification Events
+notification_scheme_entries:
+  aliases:
+  - notification scheme entries
+  - notification_scheme_entries
+  - notification scheme entries
+  semantic_type: entity
+  fields:
+  - notification_scheme_entries.id
+  filter_operator: equals
+  description: Таблица notification_scheme_entries
+notification_scheme_entries_count:
+  aliases:
+  - количество notification scheme entries
+  - сколько notification scheme entries
+  semantic_type: metric
+  measures:
+  - notification_scheme_entries.count
+  description: Количество записей Notification Scheme Entries
+notification_schemes:
+  aliases:
+  - notification schemes
+  - notification_schemes
+  - notification schemes
+  semantic_type: entity
+  fields:
+  - notification_schemes.id
+  filter_operator: equals
+  description: Таблица notification_schemes
+notification_schemes_count:
+  aliases:
+  - количество notification schemes
+  - сколько notification schemes
+  semantic_type: metric
+  measures:
+  - notification_schemes.count
+  description: Количество записей Notification Schemes
+notifications:
+  aliases:
+  - notifications
+  - notifications
+  - notifications
+  semantic_type: entity
+  fields:
+  - notifications.id
+  filter_operator: equals
+  description: Таблица notifications
+notifications_count:
+  aliases:
+  - количество notifications
+  - сколько notifications
+  semantic_type: metric
+  measures:
+  - notifications.count
+  description: Количество записей Notifications
+organization_members:
+  aliases:
+  - organization members
+  - organization_members
+  - organization members
+  semantic_type: entity
+  fields:
+  - organization_members.id
+  filter_operator: equals
+  description: Таблица organization_members
+organization_members_count:
+  aliases:
+  - количество organization members
+  - сколько organization members
+  semantic_type: metric
+  measures:
+  - organization_members.count
+  description: Количество записей Organization Members
+organizations:
+  aliases:
+  - organizations
+  - organizations
+  - organizations
+  semantic_type: entity
+  fields:
+  - organizations.id
+  filter_operator: equals
+  description: Таблица organizations
+organizations_count:
+  aliases:
+  - количество organizations
+  - сколько organizations
+  semantic_type: metric
+  measures:
+  - organizations.count
+  description: Количество записей Organizations
+permission_scheme_entries:
+  aliases:
+  - схема прав доступа
+  - permission_scheme_entries
+  - permission scheme entries
+  semantic_type: entity
+  fields:
+  - permission_scheme_entries.id
+  filter_operator: equals
+  description: Таблица содержит записи правил предоставления прав пользователям и
+    группам.
+permission_scheme_entries_count:
+  aliases:
+  - количество схема прав доступа
+  - сколько схема прав доступа
+  semantic_type: metric
+  measures:
+  - permission_scheme_entries.count
+  description: Количество записей Схема прав доступа
+permission_schemes:
+  aliases:
+  - permission schemes
+  - permission_schemes
+  - permission schemes
+  semantic_type: entity
+  fields:
+  - permission_schemes.id
+  filter_operator: equals
+  description: Таблица permission_schemes
+permission_schemes_count:
+  aliases:
+  - количество permission schemes
+  - сколько permission schemes
+  semantic_type: metric
+  measures:
+  - permission_schemes.count
+  description: Количество записей Permission Schemes
+permissions:
+  aliases:
+  - разрешения пользователей
+  - permissions
+  - permissions
+  semantic_type: entity
+  fields:
+  - permissions.id
+  filter_operator: equals
+  description: Таблица содержит список прав и привилегий, назначаемых пользователям
+    системы.
+permissions_count:
+  aliases:
+  - количество разрешения пользователей
+  - сколько разрешения пользователей
+  semantic_type: metric
+  measures:
+  - permissions.count
+  description: Количество записей Разрешения пользователей
+project_categories:
+  aliases:
+  - категории проектов
+  - project_categories
+  - project categories
+  semantic_type: entity
+  fields:
+  - project_categories.id
+  filter_operator: equals
+  description: Справочная таблица категорий проектов организации.
+project_categories_count:
+  aliases:
+  - количество категории проектов
+  - сколько категории проектов
+  semantic_type: metric
+  measures:
+  - project_categories.count
+  description: Количество записей Категории проектов
+project_members:
+  aliases:
+  - участники проекта
+  - project_members
+  - project members
+  semantic_type: entity
+  fields:
+  - project_members.id
+  filter_operator: equals
+  description: Таблица содержит информацию обо всех участниках проектов, включая их
+    роль, настройки уведомлений и дату присоединения.
+project_members_count:
+  aliases:
+  - количество участники проекта
+  - сколько участники проекта
+  semantic_type: metric
+  measures:
+  - project_members.count
+  description: Количество записей Участники проекта
+project_roles:
+  aliases:
+  - роли проекта
+  - project_roles
+  - project roles
+  semantic_type: entity
+  fields:
+  - project_roles.id
+  filter_operator: equals
+  description: Таблица определяет роли участников проекта, связывая пользователей,
+    проекты, команды и конкретные роли.
+project_roles_count:
+  aliases:
+  - количество роли проекта
+  - сколько роли проекта
+  semantic_type: metric
+  measures:
+  - project_roles.count
+  description: Количество записей Роли проекта
+project_settings:
+  aliases:
+  - project settings
+  - project_settings
+  - project settings
+  semantic_type: entity
+  fields:
+  - project_settings.id
+  filter_operator: equals
+  description: Таблица project_settings
+project_settings_count:
+  aliases:
+  - количество project settings
+  - сколько project settings
+  semantic_type: metric
+  measures:
+  - project_settings.count
+  description: Количество записей Project Settings
+projects:
+  aliases:
+  - projects
+  - projects
+  - projects
+  semantic_type: entity
+  fields:
+  - projects.id
+  filter_operator: equals
+  description: Таблица projects
+projects_count:
+  aliases:
+  - количество projects
+  - сколько projects
+  semantic_type: metric
+  measures:
+  - projects.count
+  description: Количество записей Projects
+role_permissions:
+  aliases:
+  - роли и разрешения
+  - role_permissions
+  - role permissions
+  semantic_type: entity
+  fields:
+  - role_permissions.id
+  filter_operator: equals
+  description: Таблица определяет права пользователей для каждой роли системы.
+role_permissions_count:
+  aliases:
+  - количество роли и разрешения
+  - сколько роли и разрешения
+  semantic_type: metric
+  measures:
+  - role_permissions.count
+  description: Количество записей Роли и разрешения
+roles:
+  aliases:
+  - roles
+  - roles
+  - roles
+  semantic_type: entity
+  fields:
+  - roles.id
+  filter_operator: equals
+  description: Таблица roles
+roles_count:
+  aliases:
+  - количество roles
+  - сколько roles
+  semantic_type: metric
+  measures:
+  - roles.count
+  description: Количество записей Roles
+screen_scheme_items:
+  aliases:
+  - screen scheme items
+  - screen_scheme_items
+  - screen scheme items
+  semantic_type: entity
+  fields:
+  - screen_scheme_items.id
+  filter_operator: equals
+  description: Таблица screen_scheme_items
+screen_scheme_items_count:
+  aliases:
+  - количество screen scheme items
+  - сколько screen scheme items
+  semantic_type: metric
+  measures:
+  - screen_scheme_items.count
+  description: Количество записей Screen Scheme Items
+screen_schemes:
+  aliases:
+  - схемы экранов организаций
+  - screen_schemes
+  - screen schemes
+  semantic_type: entity
+  fields:
+  - screen_schemes.id
+  filter_operator: equals
+  description: Таблица содержит схемы экранов для различных организаций с описанием
+    и идентификаторами
+screen_schemes_count:
+  aliases:
+  - количество схемы экранов организаций
+  - сколько схемы экранов организаций
+  semantic_type: metric
+  measures:
+  - screen_schemes.count
+  description: Количество записей Схемы экранов организаций
+screen_tab_fields:
+  aliases:
+  - поля экранной вкладки
+  - screen_tab_fields
+  - screen tab fields
+  semantic_type: entity
+  fields:
+  - screen_tab_fields.id
+  filter_operator: equals
+  description: Таблица содержит поля экранных вкладок с указанием их позиции и связей
+    с основной вкладкой.
+screen_tab_fields_count:
+  aliases:
+  - количество поля экранной вкладки
+  - сколько поля экранной вкладки
+  semantic_type: metric
+  measures:
+  - screen_tab_fields.count
+  description: Количество записей Поля экранной вкладки
+screen_tabs:
+  aliases:
+  - экраны вкладок приложения
+  - screen_tabs
+  - screen tabs
+  semantic_type: entity
+  fields:
+  - screen_tabs.id
+  filter_operator: equals
+  description: Таблица содержит список вкладок экранов приложения, где каждая вкладка
+    связана с конкретным экраном и имеет порядковый номер отображения.
+screen_tabs_count:
+  aliases:
+  - количество экраны вкладок приложения
+  - сколько экраны вкладок приложения
+  semantic_type: metric
+  measures:
+  - screen_tabs.count
+  description: Количество записей Экраны вкладок приложения
+screens:
+  aliases:
+  - экран организации (screens)
+  - screens
+  - screens
+  semantic_type: entity
+  fields:
+  - screens.id
+  filter_operator: equals
+  description: Таблица экранов организаций с описанием, названием и датой создания
+screens_count:
+  aliases:
+  - количество экран организации (screens)
+  - сколько экран организации (screens)
+  semantic_type: metric
+  measures:
+  - screens.count
+  description: Количество записей Экран организации (screens)
+sprint_reports:
+  aliases:
+  - отчёты спринта
+  - sprint_reports
+  - sprint reports
+  semantic_type: entity
+  fields:
+  - sprint_reports.id
+  filter_operator: equals
+  description: Таблица содержит отчёты о выполненных спринтах с показателями эффективности
+    команды.
+sprint_reports_count:
+  aliases:
+  - количество отчёты спринта
+  - сколько отчёты спринта
+  semantic_type: metric
+  measures:
+  - sprint_reports.count
+  description: Количество записей Отчёты спринта
+sprints:
+  aliases:
+  - sprints
+  - sprints
+  - sprints
+  semantic_type: entity
+  fields:
+  - sprints.id
+  filter_operator: equals
+  description: Таблица sprints
+sprints_count:
+  aliases:
+  - количество sprints
+  - сколько sprints
+  semantic_type: metric
+  measures:
+  - sprints.count
+  description: Количество записей Sprints
+team_members:
+  aliases:
+  - участники команды
+  - team_members
+  - team members
+  semantic_type: entity
+  fields:
+  - team_members.id
+  filter_operator: equals
+  description: Таблица содержит информацию обо всех участниках команд проекта.
+team_members_count:
+  aliases:
+  - количество участники команды
+  - сколько участники команды
+  semantic_type: metric
+  measures:
+  - team_members.count
+  description: Количество записей Участники команды
+teams:
+  aliases:
+  - teams
+  - teams
+  - teams
+  semantic_type: entity
+  fields:
+  - teams.id
+  filter_operator: equals
+  description: Таблица teams
+teams_count:
+  aliases:
+  - количество teams
+  - сколько teams
+  semantic_type: metric
+  measures:
+  - teams.count
+  description: Количество записей Teams
+time_tracking_settings:
+  aliases:
+  - настройки отслеживания времени
+  - time_tracking_settings
+  - time tracking settings
+  semantic_type: entity
+  fields:
+  - time_tracking_settings.id
+  filter_operator: equals
+  description: Параметры настройки учета рабочего времени сотрудников организации.
+time_tracking_settings_count:
+  aliases:
+  - количество настройки отслеживания времени
+  - сколько настройки отслеживания времени
+  semantic_type: metric
+  measures:
+  - time_tracking_settings.count
+  description: Количество записей Настройки отслеживания времени
+user_api_tokens:
+  aliases:
+  - user api tokens
+  - user_api_tokens
+  - user api tokens
+  semantic_type: entity
+  fields:
+  - user_api_tokens.id
+  filter_operator: equals
+  description: Таблица user_api_tokens
+user_api_tokens_count:
+  aliases:
+  - количество user api tokens
+  - сколько user api tokens
+  semantic_type: metric
+  measures:
+  - user_api_tokens.count
+  description: Количество записей User Api Tokens
+user_profiles:
+  aliases:
+  - user profiles
+  - user_profiles
+  - user profiles
+  semantic_type: entity
+  fields:
+  - user_profiles.id
+  filter_operator: equals
+  description: Таблица user_profiles
+user_profiles_count:
+  aliases:
+  - количество user profiles
+  - сколько user profiles
+  semantic_type: metric
+  measures:
+  - user_profiles.count
+  description: Количество записей User Profiles
+user_sessions:
+  aliases:
+  - user sessions
+  - user_sessions
+  - user sessions
+  semantic_type: entity
+  fields:
+  - user_sessions.id
+  filter_operator: equals
+  description: Таблица user_sessions
+user_sessions_count:
+  aliases:
+  - количество user sessions
+  - сколько user sessions
+  semantic_type: metric
+  measures:
+  - user_sessions.count
+  description: Количество записей User Sessions
+user_settings:
+  aliases:
+  - user settings
+  - user_settings
+  - user settings
+  semantic_type: entity
+  fields:
+  - user_settings.id
+  filter_operator: equals
+  description: Таблица user_settings
+user_settings_count:
+  aliases:
+  - количество user settings
+  - сколько user settings
+  semantic_type: metric
+  measures:
+  - user_settings.count
+  description: Количество записей User Settings
+users:
+  aliases:
+  - users
+  - users
+  - users
+  semantic_type: entity
+  fields:
+  - users.id
+  filter_operator: equals
+  description: Таблица users
+users_count:
+  aliases:
+  - количество users
+  - сколько users
+  semantic_type: metric
+  measures:
+  - users.count
+  description: Количество записей Users
+versions:
+  aliases:
+  - versions
+  - versions
+  - versions
+  semantic_type: entity
+  fields:
+  - versions.id
+  filter_operator: equals
+  description: Таблица versions
+versions_count:
+  aliases:
+  - количество versions
+  - сколько versions
+  semantic_type: metric
+  measures:
+  - versions.count
+  description: Количество записей Versions
+webhook_deliveries:
+  aliases:
+  - webhook deliveries
+  - webhook_deliveries
+  - webhook deliveries
+  semantic_type: entity
+  fields:
+  - webhook_deliveries.id
+  filter_operator: equals
+  description: Таблица webhook_deliveries
+webhook_deliveries_count:
+  aliases:
+  - количество webhook deliveries
+  - сколько webhook deliveries
+  semantic_type: metric
+  measures:
+  - webhook_deliveries.count
+  description: Количество записей Webhook Deliveries
+webhooks:
+  aliases:
+  - webhooks
+  - webhooks
+  - webhooks
+  semantic_type: entity
+  fields:
+  - webhooks.id
+  filter_operator: equals
+  description: Таблица webhooks
+webhooks_count:
+  aliases:
+  - количество webhooks
+  - сколько webhooks
+  semantic_type: metric
+  measures:
+  - webhooks.count
+  description: Количество записей Webhooks
+workflow_conditions:
+  aliases:
+  - условия рабочих процессов
+  - workflow_conditions
+  - workflow conditions
+  semantic_type: entity
+  fields:
+  - workflow_conditions.id
+  filter_operator: equals
+  description: Таблица содержит условия переходов между рабочими состояниями задач.
+workflow_conditions_count:
+  aliases:
+  - количество условия рабочих процессов
+  - сколько условия рабочих процессов
+  semantic_type: metric
+  measures:
+  - workflow_conditions.count
+  description: Количество записей Условия рабочих процессов
+workflow_post_functions:
+  aliases:
+  - функции рабочего процесса
+  - workflow_post_functions
+  - workflow post functions
+  semantic_type: entity
+  fields:
+  - workflow_post_functions.id
+  filter_operator: equals
+  description: Таблица содержит список функций, выполняемых после перехода состояния
+    задачи.
+workflow_post_functions_count:
+  aliases:
+  - количество функции рабочего процесса
+  - сколько функции рабочего процесса
+  semantic_type: metric
+  measures:
+  - workflow_post_functions.count
+  description: Количество записей Функции рабочего процесса
+workflow_scheme_mappings:
+  aliases:
+  - схемы рабочих процессов
+  - workflow_scheme_mappings
+  - workflow scheme mappings
+  semantic_type: entity
+  fields:
+  - workflow_scheme_mappings.id
+  filter_operator: equals
+  description: Таблица соответствия схем рабочих процессов, типов задач и идентификаторов
+    workflow.
+workflow_scheme_mappings_count:
+  aliases:
+  - количество схемы рабочих процессов
+  - сколько схемы рабочих процессов
+  semantic_type: metric
+  measures:
+  - workflow_scheme_mappings.count
+  description: Количество записей Схемы рабочих процессов
+workflow_schemes:
+  aliases:
+  - workflow schemes
+  - workflow_schemes
+  - workflow schemes
+  semantic_type: entity
+  fields:
+  - workflow_schemes.id
+  filter_operator: equals
+  description: Таблица workflow_schemes
+workflow_schemes_count:
+  aliases:
+  - количество workflow schemes
+  - сколько workflow schemes
+  semantic_type: metric
+  measures:
+  - workflow_schemes.count
+  description: Количество записей Workflow Schemes
+workflow_statuses:
+  aliases:
+  - состояния процессов
+  - workflow_statuses
+  - workflow statuses
+  semantic_type: entity
+  fields:
+  - workflow_statuses.id
+  filter_operator: equals
+  description: Информация о статусах рабочих процессов и их расположении.
+workflow_statuses_count:
+  aliases:
+  - количество состояния процессов
+  - сколько состояния процессов
+  semantic_type: metric
+  measures:
+  - workflow_statuses.count
+  description: Количество записей Состояния процессов
+workflow_transitions:
+  aliases:
+  - workflow transitions
+  - workflow_transitions
+  - workflow transitions
+  semantic_type: entity
+  fields:
+  - workflow_transitions.id
+  filter_operator: equals
+  description: Таблица workflow_transitions
+workflow_transitions_count:
+  aliases:
+  - количество workflow transitions
+  - сколько workflow transitions
+  semantic_type: metric
+  measures:
+  - workflow_transitions.count
+  description: Количество записей Workflow Transitions
+workflow_validators:
+  aliases:
+  - таблица валидаторов рабочих процессов
+  - workflow_validators
+  - workflow validators
+  semantic_type: entity
+  fields:
+  - workflow_validators.id
+  filter_operator: equals
+  description: Хранит данные валидаторов, используемых в переходах между этапами рабочего
+    процесса.
+workflow_validators_count:
+  aliases:
+  - количество таблица валидаторов рабочих процессов
+  - сколько таблица валидаторов рабочих процессов
+  semantic_type: metric
+  measures:
+  - workflow_validators.count
+  description: Количество записей Таблица валидаторов рабочих процессов
+workflows:
+  aliases:
+  - workflows
+  - workflows
+  - workflows
+  semantic_type: entity
+  fields:
+  - workflows.id
+  filter_operator: equals
+  description: Таблица workflows
+workflows_count:
+  aliases:
+  - количество workflows
+  - сколько workflows
+  semantic_type: metric
+  measures:
+  - workflows.count
+  description: Количество записей Workflows
+worklogs:
+  aliases:
+  - worklogs
+  - worklogs
+  - worklogs
+  semantic_type: entity
+  fields:
+  - worklogs.id
+  filter_operator: equals
+  description: Таблица worklogs
+worklogs_count:
+  aliases:
+  - количество worklogs
+  - сколько worklogs
+  semantic_type: metric
+  measures:
+  - worklogs.count
+  description: Количество записей Worklogs

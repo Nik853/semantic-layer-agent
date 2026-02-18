@@ -1,0 +1,59 @@
+cubes:
+- name: issue_links
+  sql_table: public.issue_links
+  title: Связи между issues
+  description: 'Таблица содержит связи между различными issues в системе JIRA, такие
+    как зависимости, дублирование, связь через комментарий и другие. | ETL целевая:
+    custom_t_vd_stg.t_raw_jira_sigma_issuelink | Колонки: ID, SOURCE, DESTINATION,
+    LINKTYPE | Источники: issuelink | Схема: internal_jira_sigma_public | Обновлено:
+    2026-02-11 05:18:19'
+  joins:
+  - name: issue_link_types
+    sql: '{CUBE}.link_type_id = {issue_link_types}.id'
+    relationship: many_to_one
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор каждой строки в таблице
+  - name: source_issue_id
+    sql: source_issue_id
+    type: number
+    title: Source Issue
+    description: Идентификатор исходного issue, с которого начинается связь
+  - name: target_issue_id
+    sql: target_issue_id
+    type: number
+    title: Target Issue
+    description: Идентификатор целевого issue, куда направлена связь
+  - name: created_by
+    sql: created_by
+    type: number
+    title: Создатель связи
+    description: Идентификатор пользователя, создавшего данную связь
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания связи
+    description: Дата и время создания данной связи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Issue Links
+  - name: total_created_by
+    sql: created_by
+    type: sum
+    title: Сумма Created By
+    description: Сумма значений поля created_by
+  - name: avg_created_by
+    sql: created_by
+    type: avg
+    title: Среднее Created By
+    description: Среднее значение поля created_by
+  - name: link_count
+    type: count
+    title: Количество связей
+    description: Общее число связей между задачами

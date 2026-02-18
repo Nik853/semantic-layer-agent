@@ -1,0 +1,63 @@
+cubes:
+- name: custom_field_options
+  sql_table: public.custom_field_options
+  title: Опции кастомных полей
+  description: Параметры настроек кастомных полей проекта
+  joins:
+  - name: custom_fields
+    sql: '{CUBE}.custom_field_id = {custom_fields}.id'
+    relationship: many_to_one
+    title: Настраиваемое поле
+    description: Определяет тип настраиваемого поля
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор
+    description: Уникальный идентификатор опции поля
+  - name: value
+    sql: value
+    type: string
+    title: Значение
+    description: Представляемое значение опции
+  - name: color
+    sql: color
+    type: string
+    title: Цвет
+    description: Шестнадцатеричный цвет опции
+  - name: position
+    sql: position
+    type: number
+    title: Позиция
+    description: Порядковый номер отображения опции
+  - name: is_default
+    sql: is_default
+    type: boolean
+    title: Стандартная
+    description: Признак стандартной опции
+  - name: is_disabled
+    sql: is_disabled
+    type: boolean
+    title: Заблокирована
+    description: Признак заблокированной опции
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Время добавления опции
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Опции кастомных полей
+  - name: total_position
+    sql: position
+    type: sum
+    title: Сумма Позиция
+    description: Сумма значений поля position
+  - name: avg_position
+    sql: position
+    type: avg
+    title: Среднее Позиция
+    description: Среднее значение поля position

@@ -1,0 +1,44 @@
+cubes:
+- name: permission_scheme_entries
+  sql_table: public.permission_scheme_entries
+  title: Схема прав доступа
+  description: Таблица содержит записи правил предоставления прав пользователям и
+    группам.
+  joins:
+  - name: permission_schemes
+    sql: '{CUBE}.scheme_id = {permission_schemes}.id'
+    relationship: many_to_one
+    title: Схема
+    description: Идентификатор схемы прав
+  - name: permissions
+    sql: '{CUBE}.permission_id = {permissions}.id'
+    relationship: many_to_one
+    title: Право
+    description: Уникальное право, представленное в схеме
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор каждой строки
+  - name: grant_type
+    sql: grant_type
+    type: string
+    title: Тип предоставления
+    description: 'Тип предоставляемого права: разрешение/запрет/ограничение'
+  - name: grant_value
+    sql: grant_value
+    type: string
+    title: Значение разрешения
+    description: Конкретное значение предоставленного права доступа
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Схема прав доступа

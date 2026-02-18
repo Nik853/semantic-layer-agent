@@ -1,0 +1,43 @@
+cubes:
+- name: filter_subscriptions
+  sql_table: public.filter_subscriptions
+  title: Filter Subscriptions
+  description: Таблица filter_subscriptions
+  joins:
+  - name: filters
+    sql: '{CUBE}.filter_id = {filters}.id'
+    relationship: many_to_one
+    title: Фильтр
+    description: Настройки выбранного фильтра
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Информация о подписчике/подписчике сервиса
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: schedule
+    sql: schedule
+    type: string
+    title: Schedule
+    description: schedule (character varying)
+  - name: last_sent_at
+    sql: last_sent_at
+    type: time
+    title: Last Sent At
+    description: last_sent_at (timestamp without time zone)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Filter Subscriptions

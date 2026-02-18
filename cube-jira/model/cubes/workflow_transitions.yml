@@ -1,0 +1,48 @@
+cubes:
+- name: workflow_transitions
+  sql_table: public.workflow_transitions
+  title: Workflow Transitions
+  description: Таблица workflow_transitions
+  joins:
+  - name: workflows
+    sql: '{CUBE}.workflow_id = {workflows}.id'
+    relationship: many_to_one
+    title: Workflow ID
+    description: Идентификатор рабочего процесса
+  - name: screens
+    sql: '{CUBE}.screen_id = {screens}.id'
+    relationship: many_to_one
+    title: Screen ID
+    description: Идентификатор экрана интерфейса
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: from_status_id
+    sql: from_status_id
+    type: number
+    title: From Status
+    description: from_status_id (integer)
+  - name: to_status_id
+    sql: to_status_id
+    type: number
+    title: To Status
+    description: to_status_id (integer)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Workflow Transitions

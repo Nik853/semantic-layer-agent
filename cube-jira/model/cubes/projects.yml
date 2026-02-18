@@ -1,86 +1,83 @@
 cubes:
-  - name: projects
-    sql_table: public.projects
-    title: Проекты JIRA
-    description: >
-      Проекты системы JIRA. Каждый проект объединяет задачи одной команды или продукта.
-      В системе 20 проектов: AUTH (аутентификация), PAY (платежи), PORTAL (портал),
-      AI (ИИ-ассистент), CRM (CRM-платформа), ECOM (интернет-магазин), K8S (Kubernetes),
-      ANDROID, IOS (мобильные приложения), ANALYTICS, MLPIPE, MONITOR и др.
-      Все проекты типа "software".
-
-    joins:
-      - name: organizations
-        sql: "{CUBE}.organization_id = {organizations}.id"
-        relationship: many_to_one
-
-      - name: users_lead
-        sql: "{CUBE}.lead_id = {users_lead}.id"
-        relationship: many_to_one
-
-    dimensions:
-      - name: id
-        sql: id
-        type: number
-        primary_key: true
-        title: ID проекта
-
-      - name: key
-        sql: key
-        type: string
-        title: Ключ проекта
-        description: >
-          Уникальный короткий ключ проекта (2-10 букв).
-          Примеры: AUTH, PAY, PORTAL, AI, CRM, ECOM, K8S, ANDROID, IOS, ANALYTICS
-
-      - name: name
-        sql: name
-        type: string
-        title: Название проекта
-        description: >
-          Полное название проекта.
-          Примеры: "User Authentication Service", "Payment Gateway", "Customer Portal"
-
-      - name: description
-        sql: description
-        type: string
-        title: Описание проекта
-        description: Подробное описание проекта, его целей и области ответственности
-
-      - name: project_type
-        sql: project_type
-        type: string
-        title: Тип проекта
-        description: >
-          Тип проекта в JIRA. В текущей системе все проекты имеют тип "software"
-
-      - name: is_private
-        sql: is_private
-        type: boolean
-        title: Приватный проект
-        description: true = проект доступен только членам команды, false = проект открытый
-
-      - name: is_archived
-        sql: is_archived
-        type: boolean
-        title: Архивный проект
-        description: true = проект в архиве (неактивный), false = активный проект
-
-      - name: created_at
-        sql: created_at
-        type: time
-        title: Дата создания
-        description: Когда проект был создан в системе
-
-    measures:
-      - name: count
-        type: count
-        title: Количество проектов
-        description: Общее число проектов. В системе 20 проектов
-
-      - name: active_count
-        type: count
-        title: Активные проекты
-        description: Количество проектов которые не в архиве (is_archived = false)
-        filters:
-          - sql: "{CUBE}.is_archived = false"
+- name: projects
+  sql_table: public.projects
+  title: Projects
+  description: Таблица projects
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Компания или организация проекта
+  - name: project_categories
+    sql: '{CUBE}.category_id = {project_categories}.id'
+    relationship: many_to_one
+    title: Категория проекта
+    description: Тематическая принадлежность проекта
+  - name: users
+    sql: '{CUBE}.lead_id = {users}.id'
+    relationship: many_to_one
+    title: Лидер проекта
+    description: Ответственный сотрудник проекта
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: key
+    sql: key
+    type: string
+    title: Key
+    description: key (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: default_assignee_id
+    sql: default_assignee_id
+    type: number
+    title: Default Assignee
+    description: default_assignee_id (integer)
+  - name: project_type
+    sql: project_type
+    type: string
+    title: Project Type
+    description: project_type (character varying)
+  - name: is_private
+    sql: is_private
+    type: boolean
+    title: Is Private
+    description: is_private (boolean)
+  - name: is_archived
+    sql: is_archived
+    type: boolean
+    title: Is Archived
+    description: is_archived (boolean)
+  - name: avatar_url
+    sql: avatar_url
+    type: string
+    title: Avatar Url
+    description: avatar_url (text)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Projects

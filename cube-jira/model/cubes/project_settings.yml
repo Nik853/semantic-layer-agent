@@ -1,0 +1,88 @@
+cubes:
+- name: project_settings
+  sql_table: public.project_settings
+  title: Project Settings
+  description: Таблица project_settings
+  joins:
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+    title: Проект
+    description: Идентификатор проекта
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: issue_key_prefix
+    sql: issue_key_prefix
+    type: string
+    title: Issue Key Prefix
+    description: issue_key_prefix (character varying)
+  - name: default_issue_type_id
+    sql: default_issue_type_id
+    type: number
+    title: Default Issue Type
+    description: default_issue_type_id (integer)
+  - name: default_priority_id
+    sql: default_priority_id
+    type: number
+    title: Default Priority
+    description: default_priority_id (integer)
+  - name: estimation_type
+    sql: estimation_type
+    type: string
+    title: Estimation Type
+    description: estimation_type (character varying)
+  - name: time_tracking_enabled
+    sql: time_tracking_enabled
+    type: boolean
+    title: Time Tracking Enabled
+    description: time_tracking_enabled (boolean)
+  - name: sprint_duration_weeks
+    sql: sprint_duration_weeks
+    type: number
+    title: Sprint Duration Weeks
+    description: sprint_duration_weeks (integer)
+  - name: working_hours_per_day
+    sql: working_hours_per_day
+    type: number
+    title: Working Hours Per Day
+    description: working_hours_per_day (numeric)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Project Settings
+  - name: total_sprint_duration_weeks
+    sql: sprint_duration_weeks
+    type: sum
+    title: Сумма Sprint Duration Weeks
+    description: Сумма значений поля sprint_duration_weeks
+  - name: avg_sprint_duration_weeks
+    sql: sprint_duration_weeks
+    type: avg
+    title: Среднее Sprint Duration Weeks
+    description: Среднее значение поля sprint_duration_weeks
+  - name: total_working_hours_per_day
+    sql: working_hours_per_day
+    type: sum
+    title: Сумма Working Hours Per Day
+    description: Сумма значений поля working_hours_per_day
+  - name: avg_working_hours_per_day
+    sql: working_hours_per_day
+    type: avg
+    title: Среднее Working Hours Per Day
+    description: Среднее значение поля working_hours_per_day

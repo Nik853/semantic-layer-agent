@@ -1,0 +1,58 @@
+cubes:
+- name: versions
+  sql_table: public.versions
+  title: Versions
+  description: Таблица versions
+  joins:
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+    title: Проект
+    description: Идентификатор проекта
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: start_date
+    sql: start_date
+    type: time
+    title: Start Date
+    description: start_date (date)
+  - name: release_date
+    sql: release_date
+    type: time
+    title: Release Date
+    description: release_date (date)
+  - name: is_released
+    sql: is_released
+    type: boolean
+    title: Is Released
+    description: is_released (boolean)
+  - name: is_archived
+    sql: is_archived
+    type: boolean
+    title: Is Archived
+    description: is_archived (boolean)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Versions

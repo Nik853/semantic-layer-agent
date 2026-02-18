@@ -1,0 +1,68 @@
+cubes:
+- name: user_profiles
+  sql_table: public.user_profiles
+  title: User Profiles
+  description: Таблица user_profiles
+  joins:
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Идентификатор зарегистрированного пользователя
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: job_title
+    sql: job_title
+    type: string
+    title: Job Title
+    description: job_title (character varying)
+  - name: department
+    sql: department
+    type: string
+    title: Department
+    description: department (character varying)
+  - name: phone
+    sql: phone
+    type: string
+    title: Phone
+    description: phone (character varying)
+  - name: location
+    sql: location
+    type: string
+    title: Location
+    description: location (character varying)
+  - name: bio
+    sql: bio
+    type: string
+    title: Bio
+    description: bio (text)
+  - name: skills
+    sql: skills
+    type: string
+    title: Skills
+    description: skills (ARRAY)
+  - name: social_links
+    sql: social_links
+    type: string
+    title: Social Links
+    description: social_links (jsonb)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице User Profiles

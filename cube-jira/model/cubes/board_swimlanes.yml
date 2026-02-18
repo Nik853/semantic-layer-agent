@@ -1,0 +1,58 @@
+cubes:
+- name: board_swimlanes
+  sql_table: public.board_swimlanes
+  title: Board Swimlanes
+  description: Таблица board_swimlanes
+  joins:
+  - name: boards
+    sql: '{CUBE}.board_id = {boards}.id'
+    relationship: many_to_one
+    title: Плитка доски
+    description: Относится к конкретной доске
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: swimlane_type
+    sql: swimlane_type
+    type: string
+    title: Swimlane Type
+    description: swimlane_type (character varying)
+  - name: query
+    sql: query
+    type: string
+    title: Query
+    description: query (text)
+  - name: position
+    sql: position
+    type: number
+    title: Position
+    description: position (integer)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Board Swimlanes
+  - name: total_position
+    sql: position
+    type: sum
+    title: Сумма Position
+    description: Сумма значений поля position
+  - name: avg_position
+    sql: position
+    type: avg
+    title: Среднее Position
+    description: Среднее значение поля position

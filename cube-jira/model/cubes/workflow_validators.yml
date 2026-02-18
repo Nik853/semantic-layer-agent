@@ -1,0 +1,39 @@
+cubes:
+- name: workflow_validators
+  sql_table: public.workflow_validators
+  title: Таблица валидаторов рабочих процессов
+  description: Хранит данные валидаторов, используемых в переходах между этапами рабочего
+    процесса.
+  joins:
+  - name: workflow_transitions
+    sql: '{CUBE}.transition_id = {workflow_transitions}.id'
+    relationship: many_to_one
+    title: Переключение процесса
+    description: Идентификатор шага перехода текущего процесса
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор строки
+  - name: validator_type
+    sql: validator_type
+    type: string
+    title: Тип валидатора
+    description: 'Тип используемого валидатора: правило, условие или алгоритм проверки'
+  - name: configuration
+    sql: configuration
+    type: string
+    title: Конфигурация валидатора
+    description: Параметры конфигурации валидатора в формате jsonb
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления валидатора в систему
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Таблица валидаторов рабочих процессов

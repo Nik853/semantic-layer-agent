@@ -1,0 +1,43 @@
+cubes:
+- name: custom_field_contexts
+  sql_table: public.custom_field_contexts
+  title: Custom Field Contexts
+  description: Таблица custom_field_contexts
+  joins:
+  - name: custom_fields
+    sql: '{CUBE}.custom_field_id = {custom_fields}.id'
+    relationship: many_to_one
+    title: Поле настройки контекста
+    description: Настраиваемое поле, связанное с контекстом
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+    title: Проект
+    description: С каким проектом связан контекст?
+  - name: issue_types
+    sql: '{CUBE}.issue_type_id = {issue_types}.id'
+    relationship: many_to_one
+    title: Тип задачи
+    description: Какой тип задачи относится к данному контексту?
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: is_global
+    sql: is_global
+    type: boolean
+    title: Is Global
+    description: is_global (boolean)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Custom Field Contexts

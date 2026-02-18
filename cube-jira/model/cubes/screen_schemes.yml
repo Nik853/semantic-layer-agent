@@ -1,0 +1,39 @@
+cubes:
+- name: screen_schemes
+  sql_table: public.screen_schemes
+  title: Схемы экранов организаций
+  description: Таблица содержит схемы экранов для различных организаций с описанием
+    и идентификаторами
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Информация о компании или организации
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор схемы экрана
+    description: Уникальный числовой идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Наименование схемы экрана
+    description: Имя или наименование схемы экрана
+  - name: description
+    sql: description
+    type: string
+    title: Описание схемы экрана
+    description: Краткое описание назначения или содержания схемы экрана
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания схемы экрана
+    description: Дата и время создания данной схемы экрана
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Схемы экранов организаций

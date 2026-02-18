@@ -1,0 +1,69 @@
+cubes:
+- name: time_tracking_settings
+  sql_table: public.time_tracking_settings
+  title: Настройки отслеживания времени
+  description: Параметры настройки учета рабочего времени сотрудников организации.
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Ссылка на организацию
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор
+    description: Уникальный идентификатор записи.
+  - name: hours_per_day
+    sql: hours_per_day
+    type: number
+    title: Часы в день
+    description: Количество часов работы в сутки.
+  - name: days_per_week
+    sql: days_per_week
+    type: number
+    title: Рабочие дни недели
+    description: Количество рабочих дней в неделе.
+  - name: time_format
+    sql: time_format
+    type: string
+    title: Формат времени
+    description: Формат отображения времени (например, 12/24 часа).
+  - name: default_unit
+    sql: default_unit
+    type: string
+    title: Единица измерения
+    description: По умолчанию используемая единица измерения времени (часы, минуты,
+      секунды).
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время создания записи.
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Настройки отслеживания времени
+  - name: total_hours_per_day
+    sql: hours_per_day
+    type: sum
+    title: Сумма Часы в день
+    description: Сумма значений поля hours_per_day
+  - name: avg_hours_per_day
+    sql: hours_per_day
+    type: avg
+    title: Среднее Часы в день
+    description: Среднее значение поля hours_per_day
+  - name: total_days_per_week
+    sql: days_per_week
+    type: sum
+    title: Сумма Рабочие дни недели
+    description: Сумма значений поля days_per_week
+  - name: avg_days_per_week
+    sql: days_per_week
+    type: avg
+    title: Среднее Рабочие дни недели
+    description: Среднее значение поля days_per_week

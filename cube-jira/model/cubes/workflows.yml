@@ -1,0 +1,68 @@
+cubes:
+- name: workflows
+  sql_table: public.workflows
+  title: Workflows
+  description: Таблица workflows
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Идентификатор организации, связанной с рабочим процессом
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: is_default
+    sql: is_default
+    type: boolean
+    title: Is Default
+    description: is_default (boolean)
+  - name: is_active
+    sql: is_active
+    type: boolean
+    title: Is Active
+    description: is_active (boolean)
+  - name: created_by
+    sql: created_by
+    type: number
+    title: Created By
+    description: created_by (integer)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Workflows
+  - name: total_created_by
+    sql: created_by
+    type: sum
+    title: Сумма Created By
+    description: Сумма значений поля created_by
+  - name: avg_created_by
+    sql: created_by
+    type: avg
+    title: Среднее Created By
+    description: Среднее значение поля created_by

@@ -1,0 +1,63 @@
+cubes:
+- name: notifications
+  sql_table: public.notifications
+  title: Notifications
+  description: Таблица notifications
+  joins:
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь уведомлений
+    description: Ссылка на пользователя, которому отправлено уведомление
+  - name: notification_events
+    sql: '{CUBE}.event_id = {notification_events}.id'
+    relationship: many_to_one
+    title: Событие уведомления
+    description: Тип события, вызвавшего уведомление
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Задача/проблема уведомления
+    description: Уведомление связано с конкретной задачей или проблемой проекта
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+    title: Проект уведомления
+    description: Уведомление относится к конкретному проекту компании
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: title
+    sql: title
+    type: string
+    title: Title
+    description: title (character varying)
+  - name: message
+    sql: message
+    type: string
+    title: Message
+    description: message (text)
+  - name: is_read
+    sql: is_read
+    type: boolean
+    title: Is Read
+    description: is_read (boolean)
+  - name: read_at
+    sql: read_at
+    type: time
+    title: Read At
+    description: read_at (timestamp without time zone)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Notifications

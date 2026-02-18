@@ -1,0 +1,37 @@
+cubes:
+- name: notification_events
+  sql_table: public.notification_events
+  title: Notification Events
+  description: Таблица notification_events
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: description
+    sql: description
+    type: string
+    title: Description
+    description: description (text)
+  - name: category
+    sql: category
+    type: string
+    title: Category
+    description: category (character varying)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Notification Events

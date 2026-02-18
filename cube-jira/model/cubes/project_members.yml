@@ -1,0 +1,46 @@
+cubes:
+- name: project_members
+  sql_table: public.project_members
+  title: Участники проекта
+  description: Таблица содержит информацию обо всех участниках проектов, включая их
+    роль, настройки уведомлений и дату присоединения.
+  joins:
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+    title: Проект
+    description: Информация о проекте
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Информация о сотруднике проекта
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор участника
+    description: Уникальный числовой идентификатор записи
+  - name: role
+    sql: role
+    type: string
+    title: Роль участника
+    description: Занимаемая должность или роль участника внутри проекта (например,
+      администратор, разработчик)
+  - name: notifications_enabled
+    sql: notifications_enabled
+    type: boolean
+    title: Разрешено получение уведомлений
+    description: Флаг, указывающий, разрешено ли участнику получать уведомления от
+      проекта
+  - name: joined_at
+    sql: joined_at
+    type: time
+    title: Дата присоединения
+    description: Дата и время, когда участник присоединился к проекту
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Участники проекта

@@ -1,0 +1,49 @@
+cubes:
+- name: screen_tabs
+  sql_table: public.screen_tabs
+  title: Экраны вкладок приложения
+  description: Таблица содержит список вкладок экранов приложения, где каждая вкладка
+    связана с конкретным экраном и имеет порядковый номер отображения.
+  joins:
+  - name: screens
+    sql: '{CUBE}.screen_id = {screens}.id'
+    relationship: many_to_one
+    title: Экран
+    description: Идентификатор экрана, к которому привязан таб
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор вкладки экрана
+    description: Уникальный идентификатор каждой вкладки экрана
+  - name: name
+    sql: name
+    type: string
+    title: Имя вкладки
+    description: Наименование вкладки экрана, видимое пользователю
+  - name: position
+    sql: position
+    type: number
+    title: Порядковый номер вкладки
+    description: Порядок отображения вкладок на экране
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата и время создания вкладки
+    description: Дата и время добавления новой вкладки в систему
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Экраны вкладок приложения
+  - name: total_position
+    sql: position
+    type: sum
+    title: Сумма Порядковый номер вкладки
+    description: Сумма значений поля position
+  - name: avg_position
+    sql: position
+    type: avg
+    title: Среднее Порядковый номер вкладки
+    description: Среднее значение поля position

@@ -1,0 +1,73 @@
+cubes:
+- name: webhook_deliveries
+  sql_table: public.webhook_deliveries
+  title: Webhook Deliveries
+  description: Таблица webhook_deliveries
+  joins:
+  - name: webhooks
+    sql: '{CUBE}.webhook_id = {webhooks}.id'
+    relationship: many_to_one
+    title: Уведомление
+    description: Событие или уведомление вебхука
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: event_type
+    sql: event_type
+    type: string
+    title: Event Type
+    description: event_type (character varying)
+  - name: payload
+    sql: payload
+    type: string
+    title: Payload
+    description: payload (jsonb)
+  - name: response_status
+    sql: response_status
+    type: number
+    title: Response Status
+    description: response_status (integer)
+  - name: response_body
+    sql: response_body
+    type: string
+    title: Response Body
+    description: response_body (text)
+  - name: delivered_at
+    sql: delivered_at
+    type: time
+    title: Delivered At
+    description: delivered_at (timestamp without time zone)
+  - name: retry_count
+    sql: retry_count
+    type: number
+    title: Retry Count
+    description: retry_count (integer)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Webhook Deliveries
+  - name: total_response_status
+    sql: response_status
+    type: sum
+    title: Сумма Response Status
+    description: Сумма значений поля response_status
+  - name: avg_response_status
+    sql: response_status
+    type: avg
+    title: Среднее Response Status
+    description: Среднее значение поля response_status
+  - name: total_retry_count
+    sql: retry_count
+    type: sum
+    title: Сумма Retry Count
+    description: Сумма значений поля retry_count
+  - name: avg_retry_count
+    sql: retry_count
+    type: avg
+    title: Среднее Retry Count
+    description: Среднее значение поля retry_count

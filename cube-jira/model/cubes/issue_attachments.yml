@@ -1,0 +1,84 @@
+cubes:
+- name: issue_attachments
+  sql_table: public.issue_attachments
+  title: Прикрепления к задачам
+  description: Таблица содержит информацию обо всех прикрепленных файлах к задачам
+    системы.
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Идентификатор задачи
+    description: Уникальный идентификатор задачи, связанной с вложением
+  - name: issue_comments
+    sql: '{CUBE}.comment_id = {issue_comments}.id'
+    relationship: many_to_one
+    title: Комментарий задачи
+    description: Комментарий, к которому прикреплено вложение
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор строки
+  - name: filename
+    sql: filename
+    type: string
+    title: Имя файла
+    description: Исходное имя загруженного файла
+  - name: file_path
+    sql: file_path
+    type: string
+    title: Путь к файлу
+    description: Полный путь до сохранённого файла
+  - name: file_size
+    sql: file_size
+    type: number
+    title: Размер файла
+    description: Объём файла в байтах
+  - name: mime_type
+    sql: mime_type
+    type: string
+    title: Тип MIME
+    description: Медиатип файла согласно стандарту MIME
+  - name: thumbnail_url
+    sql: thumbnail_url
+    type: string
+    title: URL миниатюры
+    description: Сгенерированный URL миниатюрной версии файла
+  - name: uploaded_by
+    sql: uploaded_by
+    type: number
+    title: Загрузивший пользователь
+    description: Идентификатор пользователя, загрузившего файл
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата загрузки
+    description: Дата и время добавления файла
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Прикрепления к задачам
+  - name: total_file_size
+    sql: file_size
+    type: sum
+    title: Сумма Размер файла
+    description: Сумма значений поля file_size
+  - name: avg_file_size
+    sql: file_size
+    type: avg
+    title: Среднее Размер файла
+    description: Среднее значение поля file_size
+  - name: total_uploaded_by
+    sql: uploaded_by
+    type: sum
+    title: Сумма Загрузивший пользователь
+    description: Сумма значений поля uploaded_by
+  - name: avg_uploaded_by
+    sql: uploaded_by
+    type: avg
+    title: Среднее Загрузивший пользователь
+    description: Среднее значение поля uploaded_by

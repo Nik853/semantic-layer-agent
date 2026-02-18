@@ -1,0 +1,66 @@
+cubes:
+- name: custom_fields
+  sql_table: public.custom_fields
+  title: Пользовательские поля
+  description: Таблица содержит кастомизированные параметры полей организации, используемые
+    для сбора дополнительной информации.
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Идентификатор организации
+  - name: custom_field_types
+    sql: '{CUBE}.field_type_id = {custom_field_types}.id'
+    relationship: many_to_one
+    title: Тип поля
+    description: Тип кастомного поля
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Имя поля
+    description: Наименование поля, отображаемое пользователям
+  - name: description
+    sql: description
+    type: string
+    title: Описание
+    description: Краткое описание назначения данного поля
+  - name: is_required
+    sql: is_required
+    type: boolean
+    title: Обязательно к заполнению
+    description: Признак обязательности заполнения поля пользователем
+  - name: is_searchable
+    sql: is_searchable
+    type: boolean
+    title: Индексируемое для поиска
+    description: Признак индексирования значения поля для последующего поиска
+  - name: default_value
+    sql: default_value
+    type: string
+    title: Значение по умолчанию
+    description: Предустановленное значение, используемое по умолчанию при создании
+      новой записи
+  - name: validation_regex
+    sql: validation_regex
+    type: string
+    title: Регулярное выражение проверки
+    description: Регулярное выражение, задающее правила проверки корректности вводимых
+      значений
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время создания записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Пользовательские поля

@@ -1,0 +1,38 @@
+cubes:
+- name: custom_field_types
+  sql_table: public.custom_field_types
+  title: Типы кастомных полей
+  description: Таблица содержит основные типы кастомных полей для хранения различной
+    информации.
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор типа поля
+    description: Уникальный идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Наименование поля
+    description: Краткое наименование типа поля
+  - name: field_type
+    sql: field_type
+    type: string
+    title: Тип поля
+    description: Техническое обозначение типа поля
+  - name: description
+    sql: description
+    type: string
+    title: Описание поля
+    description: Детальное описание формата данных и назначения поля
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления нового типа поля
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Типы кастомных полей

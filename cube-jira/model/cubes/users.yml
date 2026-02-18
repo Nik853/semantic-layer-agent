@@ -1,108 +1,77 @@
 cubes:
-  - name: users
-    sql_table: public.users
-    title: Пользователи
-    description: >
-      Пользователи системы JIRA. Каждый пользователь имеет логин, email,
-      отображаемое имя (display_name) и может быть активным или неактивным.
-      Пользователи выступают в ролях: исполнитель (assignee), автор (reporter),
-      руководитель проекта (lead). Примеры: John Smith, Sarah Connor, Mike Johnson, Emily Davis.
-
-    dimensions:
-      - name: id
-        sql: id
-        type: number
-        primary_key: true
-        title: ID пользователя
-
-      - name: username
-        sql: username
-        type: string
-        title: Логин
-        description: Уникальный логин пользователя для входа в систему
-
-      - name: email
-        sql: email
-        type: string
-        title: Email
-        description: Электронная почта пользователя
-
-      - name: display_name
-        sql: display_name
-        type: string
-        title: Имя
-        description: >
-          Отображаемое имя пользователя (ФИО или имя фамилия).
-          Используйте это поле для фильтрации по имени (оператор contains).
-          Примеры: "John Smith", "Lisa Martinez", "Mike Johnson", "Emily Davis"
-
-      - name: is_active
-        sql: is_active
-        type: boolean
-        title: Активный
-        description: true = пользователь активен и может работать в системе, false = деактивирован
-
-      - name: is_admin
-        sql: is_admin
-        type: boolean
-        title: Администратор
-        description: true = пользователь является администратором системы
-
-      - name: timezone
-        sql: timezone
-        type: string
-        title: Часовой пояс
-        description: Часовой пояс пользователя (например "UTC", "Europe/Moscow")
-
-      - name: created_at
-        sql: created_at
-        type: time
-        title: Дата регистрации
-        description: Когда пользователь был создан в системе
-
-      - name: last_login_at
-        sql: last_login_at
-        type: time
-        title: Последний вход
-        description: Дата и время последнего входа пользователя в систему
-
-    measures:
-      - name: count
-        type: count
-        title: Количество пользователей
-        description: Общее число пользователей в системе
-
-      - name: active_count
-        type: count
-        title: Активные пользователи
-        description: Количество активных пользователей (is_active = true)
-        filters:
-          - sql: "{CUBE}.is_active = true"
-
-      - name: inactive_count
-        type: count
-        title: Неактивные пользователи
-        description: Количество деактивированных пользователей
-        filters:
-          - sql: "{CUBE}.is_active = false"
-
-  # Алиас для reporter
-  - name: users_reporter
-    extends: users
-    title: Автор задачи (Reporter)
-    description: Пользователь создавший задачу. Алиас куба users для join по полю reporter_id
-
-  # Алиас для assignee  
-  - name: users_assignee
-    extends: users
-    title: Исполнитель
-    description: >
-      Исполнитель задачи (assignee) — пользователь назначенный на выполнение.
-      Используется для фильтрации и группировки задач по исполнителю.
-      Основное поле: display_name (имя пользователя, напр. "Lisa Martinez")
-
-  # Алиас для lead
-  - name: users_lead
-    extends: users
-    title: Руководитель проекта (Lead)
-    description: Руководитель проекта. Алиас куба users для join по полю lead_id
+- name: users
+  sql_table: public.users
+  title: Users
+  description: Таблица users
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: username
+    sql: username
+    type: string
+    title: Username
+    description: username (character varying)
+  - name: email
+    sql: email
+    type: string
+    title: Email
+    description: email (character varying)
+  - name: password_hash
+    sql: password_hash
+    type: string
+    title: Password Hash
+    description: password_hash (character varying)
+  - name: display_name
+    sql: display_name
+    type: string
+    title: Display Name
+    description: display_name (character varying)
+  - name: avatar_url
+    sql: avatar_url
+    type: string
+    title: Avatar Url
+    description: avatar_url (text)
+  - name: is_active
+    sql: is_active
+    type: boolean
+    title: Is Active
+    description: is_active (boolean)
+  - name: is_admin
+    sql: is_admin
+    type: boolean
+    title: Is Admin
+    description: is_admin (boolean)
+  - name: timezone
+    sql: timezone
+    type: string
+    title: Timezone
+    description: timezone (character varying)
+  - name: locale
+    sql: locale
+    type: string
+    title: Locale
+    description: locale (character varying)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  - name: last_login_at
+    sql: last_login_at
+    type: time
+    title: Last Login At
+    description: last_login_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Users

@@ -1,0 +1,93 @@
+cubes:
+- name: issue_custom_field_values
+  sql_table: public.issue_custom_field_values
+  title: Пользовательские поля задач
+  description: Таблица содержит значения кастомизированных полей задач Redmine.
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Идентификатор задачи
+    description: Уникальный идентификатор задачи из таблицы issues
+  - name: custom_fields
+    sql: '{CUBE}.custom_field_id = {custom_fields}.id'
+    relationship: many_to_one
+    title: Поле настройки задачи
+    description: Ссылка на настраиваемое поле задачи из таблицы custom_fields
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор строки
+  - name: text_value
+    sql: text_value
+    type: string
+    title: Текстовое значение
+    description: Хранит текстовые данные кастомного поля
+  - name: number_value
+    sql: number_value
+    type: number
+    title: Числовое значение
+    description: Хранит числовые данные кастомного поля
+  - name: date_value
+    sql: date_value
+    type: time
+    title: Дата/время
+    description: Хранит временные метки даты и времени кастомного поля
+  - name: option_value
+    sql: option_value
+    type: number
+    title: Значение опции
+    description: Хранит выбранную опцию кастомного поля типа список значений
+  - name: user_value
+    sql: user_value
+    type: number
+    title: Идентификатор пользователя
+    description: Хранит ссылку на автора или исполнителя кастомного поля
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Создано
+    description: Дата и время добавления записи
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Обновлено
+    description: Дата и время последнего изменения записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Пользовательские поля задач
+  - name: total_number_value
+    sql: number_value
+    type: sum
+    title: Сумма Числовое значение
+    description: Сумма значений поля number_value
+  - name: avg_number_value
+    sql: number_value
+    type: avg
+    title: Среднее Числовое значение
+    description: Среднее значение поля number_value
+  - name: total_option_value
+    sql: option_value
+    type: sum
+    title: Сумма Значение опции
+    description: Сумма значений поля option_value
+  - name: avg_option_value
+    sql: option_value
+    type: avg
+    title: Среднее Значение опции
+    description: Среднее значение поля option_value
+  - name: total_user_value
+    sql: user_value
+    type: sum
+    title: Сумма Идентификатор пользователя
+    description: Сумма значений поля user_value
+  - name: avg_user_value
+    sql: user_value
+    type: avg
+    title: Среднее Идентификатор пользователя
+    description: Среднее значение поля user_value

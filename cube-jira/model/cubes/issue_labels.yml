@@ -1,0 +1,29 @@
+cubes:
+- name: issue_labels
+  sql_table: public.issue_labels
+  title: Issue Labels
+  description: Таблица issue_labels
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+  - name: labels
+    sql: '{CUBE}.label_id = {labels}.id'
+    relationship: many_to_one
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Issue Labels

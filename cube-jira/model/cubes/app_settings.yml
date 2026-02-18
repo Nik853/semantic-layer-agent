@@ -1,0 +1,44 @@
+cubes:
+- name: app_settings
+  sql_table: public.app_settings
+  title: Настройки приложения
+  description: Таблица содержит настройки приложений, привязанные к конкретному приложению.
+  joins:
+  - name: apps
+    sql: '{CUBE}.app_id = {apps}.id'
+    relationship: many_to_one
+    title: Приложение
+    description: Идентификатор приложения
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор каждой строки
+  - name: setting_key
+    sql: setting_key
+    type: string
+    title: Ключ настройки
+    description: 'Наименование ключа настройки (например: api_key, webhook_url)'
+  - name: setting_value
+    sql: setting_value
+    type: string
+    title: Значение настройки
+    description: 'Конкретное значение, связанное с ключом настройки (например: API-ключи,
+      URL вебхуков)'
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления новой записи
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Дата обновления
+    description: Дата и время последнего изменения записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Настройки приложения

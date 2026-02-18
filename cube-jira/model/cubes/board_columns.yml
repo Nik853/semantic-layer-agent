@@ -1,0 +1,84 @@
+cubes:
+- name: board_columns
+  sql_table: public.board_columns
+  title: Структура колонок доски
+  description: Таблица содержит данные о столбцах карточек на доске задач.
+  joins:
+  - name: boards
+    sql: '{CUBE}.board_id = {boards}.id'
+    relationship: many_to_one
+    title: Идентификатор доски
+    description: Уникальный идентификатор связанной доски
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор столбца
+    description: Уникальный идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Имя столбца
+    description: Наименование столбца (например, 'Готово', 'В работе')
+  - name: status_mapping
+    sql: status_mapping
+    type: string
+    title: Сопоставление статусов
+    description: Массив целочисленных значений, определяющих статусы карточек внутри
+      данного столбца
+  - name: position
+    sql: position
+    type: number
+    title: Позиция столбца
+    description: Порядковый номер столбца относительно других столбцов данной доски
+  - name: min_issues
+    sql: min_issues
+    type: number
+    title: Минимальное количество карточек
+    description: Минимально допустимое число карточек в столбце
+  - name: max_issues
+    sql: max_issues
+    type: number
+    title: Максимальное количество карточек
+    description: Максимально допустимое число карточек в столбце
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания столбца
+    description: Дата и время добавления столбца на доску
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Структура колонок доски
+  - name: total_position
+    sql: position
+    type: sum
+    title: Сумма Позиция столбца
+    description: Сумма значений поля position
+  - name: avg_position
+    sql: position
+    type: avg
+    title: Среднее Позиция столбца
+    description: Среднее значение поля position
+  - name: total_min_issues
+    sql: min_issues
+    type: sum
+    title: Сумма Минимальное количество карточек
+    description: Сумма значений поля min_issues
+  - name: avg_min_issues
+    sql: min_issues
+    type: avg
+    title: Среднее Минимальное количество карточек
+    description: Среднее значение поля min_issues
+  - name: total_max_issues
+    sql: max_issues
+    type: sum
+    title: Сумма Максимальное количество карточек
+    description: Сумма значений поля max_issues
+  - name: avg_max_issues
+    sql: max_issues
+    type: avg
+    title: Среднее Максимальное количество карточек
+    description: Среднее значение поля max_issues

@@ -1,0 +1,61 @@
+cubes:
+- name: issue_statuses
+  sql_table: public.issue_statuses
+  title: Состояния issues
+  description: 'Таблица состояний issues проекта, включая описание статуса, цветовое
+    обозначение и категорию состояния. | ETL целевая: custom_t_aspp_stg.initiative_oc_sigma
+    | Колонки: id, issuenum, created, updated, assignee_fio, issue_type, issue_status,
+    issue_labels, link_issuenum, link_issue_status, domain_link, planned_end, pse_jira,
+    comment_effect, customfield_update | Схема: internal_jira_sigma_public | Обновлено:
+    2026-02-10 13:39:50'
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор
+    description: 'Уникальный идентификатор строки, целочисленный тип (например: 1,
+      2, 3)'
+  - name: name
+    sql: name
+    type: string
+    title: Имя статуса
+    description: 'Наименование статуса, перечисляемое значение (например: Blocked,
+      Closed, Done)'
+  - name: description
+    sql: description
+    type: string
+    title: Описание статуса
+    description: Описание статуса
+  - name: color
+    sql: color
+    type: string
+    title: Цветовая метка
+    description: 'Шестнадцатеричный код цвета, представляющий состояние (например:
+      #0052cc, #36b37e)'
+  - name: category
+    sql: category
+    type: string
+    title: Категория статуса
+    description: 'Тип категории состояния (например: done, in_progress, todo)'
+  - name: is_default
+    sql: is_default
+    type: boolean
+    title: Является ли статусом по умолчанию?
+    description: Логический признак (True/False), является ли статус установленным
+      по умолчанию
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: 'Дата и время создания записи, тип timestamp (например: 2026-02-01
+      12:52:30.156650)'
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Issue Statuses

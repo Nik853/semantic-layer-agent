@@ -1,0 +1,39 @@
+cubes:
+- name: permissions
+  sql_table: public.permissions
+  title: Разрешения пользователей
+  description: Таблица содержит список прав и привилегий, назначаемых пользователям
+    системы.
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор разрешения
+    description: Уникальный идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Название разрешения
+    description: Краткое наименование права или привилегии
+  - name: description
+    sql: description
+    type: string
+    title: Описание
+    description: Детальное описание назначения и области действия данного разрешения
+  - name: category
+    sql: category
+    type: string
+    title: Категория разрешения
+    description: Классификация разрешений по функциональному назначению (например,
+      проект, задача)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время присвоения данного разрешения пользователю
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Разрешения пользователей

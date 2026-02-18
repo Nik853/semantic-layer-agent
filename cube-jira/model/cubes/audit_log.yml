@@ -1,0 +1,69 @@
+cubes:
+- name: audit_log
+  sql_table: public.audit_log
+  title: Журнал аудита изменений
+  description: Таблица регистрации действий пользователей, изменения сущностей и событий
+    в организации.
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Идентификатор организации
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Идентификатор пользователя
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор строки
+  - name: action
+    sql: action
+    type: string
+    title: Действие
+    description: 'Тип совершенного действия: create, update, delete и другие'
+  - name: entity_type
+    sql: entity_type
+    type: string
+    title: Тип сущности
+    description: Тип объекта, который был изменён (например, проект, пользователь)
+  - name: entity_id
+    sql: entity_id
+    type: number
+    title: Сущность
+    description: Идентификатор сущности, над которой выполнено действие
+  - name: old_data
+    sql: old_data
+    type: string
+    title: Старое значение
+    description: JSONB представление старого состояния поля до изменения
+  - name: new_data
+    sql: new_data
+    type: string
+    title: Новое значение
+    description: JSONB представление нового состояния поля после изменения
+  - name: ip_address
+    sql: ip_address
+    type: string
+    title: IP адрес
+    description: IP адрес устройства, с которого выполнен доступ к системе
+  - name: user_agent
+    sql: user_agent
+    type: string
+    title: User-Agent
+    description: Информация о браузере или устройстве, которым выполнен доступ
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время выполнения действия
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Журнал аудита изменений

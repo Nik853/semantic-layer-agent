@@ -1,0 +1,111 @@
+cubes:
+- name: dashboard_gadgets
+  sql_table: public.dashboard_gadgets
+  title: Панельные гаджеты
+  description: Таблица содержит список виджетов (гаджетов), отображаемых на панелях
+    дашбордов.
+  joins:
+  - name: dashboards
+    sql: '{CUBE}.dashboard_id = {dashboards}.id'
+    relationship: many_to_one
+    title: Дашборд
+    description: Идентификатор дашборда
+  - name: gadget_types
+    sql: '{CUBE}.gadget_type_id = {gadget_types}.id'
+    relationship: many_to_one
+    title: Тип гаджета
+    description: Тип отображаемого элемента интерфейса
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор гаджета
+    description: Уникальный идентификатор записи
+  - name: title
+    sql: title
+    type: string
+    title: Заголовок гаджета
+    description: Краткое название гаджета
+  - name: configuration
+    sql: configuration
+    type: string
+    title: Настройки гаджета
+    description: JSON объект настроек гаджета (интервал обновления, цветовая схема
+      и другие параметры)
+  - name: position_x
+    sql: position_x
+    type: number
+    title: Позиция Х
+    description: Координата X расположения гаджета на панели
+  - name: position_y
+    sql: position_y
+    type: number
+    title: Позиция Y
+    description: Координата Y расположения гаджета на панели
+  - name: width
+    sql: width
+    type: number
+    title: Ширина гаджета
+    description: Количество колонок таблицы или единиц ширины дашборда, занимаемое
+      гаджетом
+  - name: height
+    sql: height
+    type: number
+    title: Высота гаджета
+    description: Количество рядов таблицы или единиц высоты дашборда, занимаемое гаджетом
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время создания записи
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Дата изменения
+    description: Дата и время последнего изменения записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Панельные гаджеты
+  - name: total_position_x
+    sql: position_x
+    type: sum
+    title: Сумма Позиция Х
+    description: Сумма значений поля position_x
+  - name: avg_position_x
+    sql: position_x
+    type: avg
+    title: Среднее Позиция Х
+    description: Среднее значение поля position_x
+  - name: total_position_y
+    sql: position_y
+    type: sum
+    title: Сумма Позиция Y
+    description: Сумма значений поля position_y
+  - name: avg_position_y
+    sql: position_y
+    type: avg
+    title: Среднее Позиция Y
+    description: Среднее значение поля position_y
+  - name: total_width
+    sql: width
+    type: sum
+    title: Сумма Ширина гаджета
+    description: Сумма значений поля width
+  - name: avg_width
+    sql: width
+    type: avg
+    title: Среднее Ширина гаджета
+    description: Среднее значение поля width
+  - name: total_height
+    sql: height
+    type: sum
+    title: Сумма Высота гаджета
+    description: Сумма значений поля height
+  - name: avg_height
+    sql: height
+    type: avg
+    title: Среднее Высота гаджета
+    description: Среднее значение поля height

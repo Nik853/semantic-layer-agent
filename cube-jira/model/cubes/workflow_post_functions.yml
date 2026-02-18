@@ -1,0 +1,55 @@
+cubes:
+- name: workflow_post_functions
+  sql_table: public.workflow_post_functions
+  title: Функции рабочего процесса
+  description: Таблица содержит список функций, выполняемых после перехода состояния
+    задачи.
+  joins:
+  - name: workflow_transitions
+    sql: '{CUBE}.transition_id = {workflow_transitions}.id'
+    relationship: many_to_one
+    title: Переход процесса
+    description: Идентификатор текущего этапа выполнения функции
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор функции
+  - name: function_type
+    sql: function_type
+    type: string
+    title: Тип функции
+    description: 'Тип выполняемой функции (например: уведомление, обновление статуса)'
+  - name: configuration
+    sql: configuration
+    type: string
+    title: Конфигурация
+    description: Параметры конфигурации функции, сохраненные в формате jsonb
+  - name: execution_order
+    sql: execution_order
+    type: number
+    title: Порядок выполнения
+    description: Порядковый номер выполнения функции относительно других функций данного
+      перехода
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Функции рабочего процесса
+  - name: total_execution_order
+    sql: execution_order
+    type: sum
+    title: Сумма Порядок выполнения
+    description: Сумма значений поля execution_order
+  - name: avg_execution_order
+    sql: execution_order
+    type: avg
+    title: Среднее Порядок выполнения
+    description: Среднее значение поля execution_order

@@ -1,0 +1,33 @@
+cubes:
+- name: issue_affected_versions
+  sql_table: public.issue_affected_versions
+  title: Версии затронутых проблем
+  description: Таблица содержит данные о версиях продуктов, затронутых проблемами.
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Идентификатор проблемы
+    description: Уникальный идентификатор записи о возникшей проблеме
+  - name: versions
+    sql: '{CUBE}.version_id = {versions}.id'
+    relationship: many_to_one
+    title: Версия продукта
+    description: Номер версии программного обеспечения или продукта, затронутого проблемой
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор каждой строки
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата добавления записи
+    description: Дата и время создания записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Версии затронутых проблем

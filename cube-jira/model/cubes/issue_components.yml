@@ -1,0 +1,33 @@
+cubes:
+- name: issue_components
+  sql_table: public.issue_components
+  title: Компоненты проблем (issues)
+  description: Таблица описывает связь между проблемами (issues) и компонентами системы.
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Идентификатор задачи
+    description: Уникальный идентификатор задачи в системе
+  - name: components
+    sql: '{CUBE}.component_id = {components}.id'
+    relationship: many_to_one
+    title: Компонент
+    description: Идентификатор компонента, связанного с задачей
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор каждой строки
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления связи между проблемой и компонентом
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Компоненты проблем (issues)

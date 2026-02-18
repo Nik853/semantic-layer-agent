@@ -1,0 +1,129 @@
+cubes:
+- name: sprint_reports
+  sql_table: public.sprint_reports
+  title: Отчёты спринта
+  description: Таблица содержит отчёты о выполненных спринтах с показателями эффективности
+    команды.
+  joins:
+  - name: sprints
+    sql: '{CUBE}.sprint_id = {sprints}.id'
+    relationship: many_to_one
+    title: Идентификатор спринта
+    description: Уникальный идентификатор текущего спринта проекта
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор отчёта
+    description: Уникальный идентификатор записи
+  - name: committed_points
+    sql: committed_points
+    type: number
+    title: Обещанные баллы
+    description: Сумма баллов запланированных задач перед началом спринта
+  - name: completed_points
+    sql: completed_points
+    type: number
+    title: Закрытые баллы
+    description: Количество закрытых задач после завершения спринта
+  - name: added_points
+    sql: added_points
+    type: number
+    title: Добавленные баллы
+    description: Дополнительные баллы, добавленные во время спринта
+  - name: removed_points
+    sql: removed_points
+    type: number
+    title: Удалённые баллы
+    description: Баллы удалённых задач во время спринта
+  - name: issues_completed
+    sql: issues_completed
+    type: number
+    title: Решённые проблемы
+    description: Количество завершённых проблем/задач в рамках спринта
+  - name: issues_not_completed
+    sql: issues_not_completed
+    type: number
+    title: Незавершённые проблемы
+    description: Количество незакрытых проблем/задач в конце спринта
+  - name: burndown_data
+    sql: burndown_data
+    type: string
+    title: Данные графика сгорания
+    description: JSON данные графика сгорания работы над задачей за спринт
+  - name: velocity_data
+    sql: velocity_data
+    type: string
+    title: Данные скорости выполнения
+    description: JSON данные о производительности команды за спринт
+  - name: generated_at
+    sql: generated_at
+    type: time
+    title: Дата формирования отчёта
+    description: Дата и время формирования отчёта
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Отчёты спринта
+  - name: total_committed_points
+    sql: committed_points
+    type: sum
+    title: Сумма Обещанные баллы
+    description: Сумма значений поля committed_points
+  - name: avg_committed_points
+    sql: committed_points
+    type: avg
+    title: Среднее Обещанные баллы
+    description: Среднее значение поля committed_points
+  - name: total_completed_points
+    sql: completed_points
+    type: sum
+    title: Сумма Закрытые баллы
+    description: Сумма значений поля completed_points
+  - name: avg_completed_points
+    sql: completed_points
+    type: avg
+    title: Среднее Закрытые баллы
+    description: Среднее значение поля completed_points
+  - name: total_added_points
+    sql: added_points
+    type: sum
+    title: Сумма Добавленные баллы
+    description: Сумма значений поля added_points
+  - name: avg_added_points
+    sql: added_points
+    type: avg
+    title: Среднее Добавленные баллы
+    description: Среднее значение поля added_points
+  - name: total_removed_points
+    sql: removed_points
+    type: sum
+    title: Сумма Удалённые баллы
+    description: Сумма значений поля removed_points
+  - name: avg_removed_points
+    sql: removed_points
+    type: avg
+    title: Среднее Удалённые баллы
+    description: Среднее значение поля removed_points
+  - name: total_issues_completed
+    sql: issues_completed
+    type: sum
+    title: Сумма Решённые проблемы
+    description: Сумма значений поля issues_completed
+  - name: avg_issues_completed
+    sql: issues_completed
+    type: avg
+    title: Среднее Решённые проблемы
+    description: Среднее значение поля issues_completed
+  - name: total_issues_not_completed
+    sql: issues_not_completed
+    type: sum
+    title: Сумма Незавершённые проблемы
+    description: Сумма значений поля issues_not_completed
+  - name: avg_issues_not_completed
+    sql: issues_not_completed
+    type: avg
+    title: Среднее Незавершённые проблемы
+    description: Среднее значение поля issues_not_completed

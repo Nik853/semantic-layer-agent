@@ -3,6 +3,8 @@
 .env.server
 .env.local
 .env.production
+*.local
+config.yml.local
 
 # Node
 node_modules/
@@ -48,6 +50,9 @@ test_jira_plan/
 # Old experiments (removed from repo)
 jira-api-express/
 vulcan-jira-api/
+
+# Model backups (local only)
+cubes_backup/
 
 # Test results
 test_results_*.json

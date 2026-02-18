@@ -1,0 +1,44 @@
+cubes:
+- name: notification_scheme_entries
+  sql_table: public.notification_scheme_entries
+  title: Notification Scheme Entries
+  description: Таблица notification_scheme_entries
+  joins:
+  - name: permission_schemes
+    sql: '{CUBE}.scheme_id = {permission_schemes}.id'
+    relationship: many_to_one
+  - name: notification_events
+    sql: '{CUBE}.event_id = {notification_events}.id'
+    relationship: many_to_one
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: notification_type
+    sql: notification_type
+    type: string
+    title: Notification Type
+    description: notification_type (character varying)
+  - name: recipient_type
+    sql: recipient_type
+    type: string
+    title: Recipient Type
+    description: recipient_type (character varying)
+  - name: recipient_value
+    sql: recipient_value
+    type: string
+    title: Recipient Value
+    description: recipient_value (character varying)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Notification Scheme Entries

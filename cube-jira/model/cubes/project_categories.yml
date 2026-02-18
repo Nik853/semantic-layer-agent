@@ -1,0 +1,43 @@
+cubes:
+- name: project_categories
+  sql_table: public.project_categories
+  title: Категории проектов
+  description: Справочная таблица категорий проектов организации.
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Информация о компании или организации
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор
+    description: Уникальный идентификатор записи
+  - name: name
+    sql: name
+    type: string
+    title: Название
+    description: Наименование категории проекта
+  - name: description
+    sql: description
+    type: string
+    title: Описание
+    description: Краткое описание категории проекта
+  - name: color
+    sql: color
+    type: string
+    title: Цвет
+    description: Цветовая метка категории проекта
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата добавления категории проекта
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Категории проектов

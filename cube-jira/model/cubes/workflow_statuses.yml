@@ -1,0 +1,68 @@
+cubes:
+- name: workflow_statuses
+  sql_table: public.workflow_statuses
+  title: Состояния процессов
+  description: Информация о статусах рабочих процессов и их расположении.
+  joins:
+  - name: workflows
+    sql: '{CUBE}.workflow_id = {workflows}.id'
+    relationship: many_to_one
+    title: Workflow идентификатор
+    description: Идентификация процесса рабочего потока
+  - name: issue_statuses
+    sql: '{CUBE}.status_id = {issue_statuses}.id'
+    relationship: many_to_one
+    title: Статус выполнения задачи
+    description: Текущий статус активности текущего этапа работы
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор
+    description: Уникальный идентификатор строки
+  - name: is_initial
+    sql: is_initial
+    type: boolean
+    title: Начальное состояние
+    description: Признак начального этапа процесса
+  - name: position_x
+    sql: position_x
+    type: number
+    title: Позиция X
+    description: Координата X расположения иконки состояния
+  - name: position_y
+    sql: position_y
+    type: number
+    title: Позиция Y
+    description: Координата Y расположения иконки состояния
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Состояния процессов
+  - name: total_position_x
+    sql: position_x
+    type: sum
+    title: Сумма Позиция X
+    description: Сумма значений поля position_x
+  - name: avg_position_x
+    sql: position_x
+    type: avg
+    title: Среднее Позиция X
+    description: Среднее значение поля position_x
+  - name: total_position_y
+    sql: position_y
+    type: sum
+    title: Сумма Позиция Y
+    description: Сумма значений поля position_y
+  - name: avg_position_y
+    sql: position_y
+    type: avg
+    title: Среднее Позиция Y
+    description: Среднее значение поля position_y

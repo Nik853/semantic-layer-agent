@@ -1,0 +1,68 @@
+cubes:
+- name: boards
+  sql_table: public.boards
+  title: Boards
+  description: Таблица boards
+  joins:
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+    title: Проект
+    description: Информация о проекте, которому принадлежит доска
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: board_type
+    sql: board_type
+    type: string
+    title: Board Type
+    description: board_type (character varying)
+  - name: filter_jql
+    sql: filter_jql
+    type: string
+    title: Filter Jql
+    description: filter_jql (text)
+  - name: is_default
+    sql: is_default
+    type: boolean
+    title: Is Default
+    description: is_default (boolean)
+  - name: created_by
+    sql: created_by
+    type: number
+    title: Created By
+    description: created_by (integer)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  - name: updated_at
+    sql: updated_at
+    type: time
+    title: Updated At
+    description: updated_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Boards
+  - name: total_created_by
+    sql: created_by
+    type: sum
+    title: Сумма Created By
+    description: Сумма значений поля created_by
+  - name: avg_created_by
+    sql: created_by
+    type: avg
+    title: Среднее Created By
+    description: Среднее значение поля created_by

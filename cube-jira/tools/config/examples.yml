@@ -1,0 +1,1662 @@
+- question: сколько настройки приложения
+  intent: analytics
+  query:
+    measures:
+    - app_settings.count
+    limit: 100
+  tags:
+  - count
+  - app_settings
+- question: список настройки приложения
+  intent: analytics
+  query:
+    measures:
+    - app_settings.count
+    dimensions:
+    - app_settings.setting_key
+    - app_settings.setting_value
+    - app_settings.created_at
+    limit: 100
+  tags:
+  - list
+  - app_settings
+- question: сколько приложения организаций
+  intent: analytics
+  query:
+    measures:
+    - apps.count
+    limit: 100
+  tags:
+  - count
+  - apps
+- question: список приложения организаций
+  intent: analytics
+  query:
+    measures:
+    - apps.count
+    dimensions:
+    - apps.name
+    - apps.app_key
+    - apps.description
+    limit: 100
+  tags:
+  - list
+  - apps
+- question: сколько журнал аудита изменений
+  intent: analytics
+  query:
+    measures:
+    - audit_log.count
+    limit: 100
+  tags:
+  - count
+  - audit_log
+- question: список журнал аудита изменений
+  intent: analytics
+  query:
+    measures:
+    - audit_log.count
+    dimensions:
+    - audit_log.action
+    - audit_log.entity_type
+    limit: 100
+  tags:
+  - list
+  - audit_log
+- question: сколько структура колонок доски
+  intent: analytics
+  query:
+    measures:
+    - board_columns.count
+    limit: 100
+  tags:
+  - count
+  - board_columns
+- question: список структура колонок доски
+  intent: analytics
+  query:
+    measures:
+    - board_columns.count
+    dimensions:
+    - board_columns.name
+    - board_columns.status_mapping
+    - board_columns.position
+    limit: 100
+  tags:
+  - list
+  - board_columns
+- question: сколько board swimlanes
+  intent: analytics
+  query:
+    measures:
+    - board_swimlanes.count
+    limit: 100
+  tags:
+  - count
+  - board_swimlanes
+- question: список board swimlanes
+  intent: analytics
+  query:
+    measures:
+    - board_swimlanes.count
+    dimensions:
+    - board_swimlanes.name
+    - board_swimlanes.swimlane_type
+    - board_swimlanes.query
+    limit: 100
+  tags:
+  - list
+  - board_swimlanes
+- question: сколько boards
+  intent: analytics
+  query:
+    measures:
+    - boards.count
+    limit: 100
+  tags:
+  - count
+  - boards
+- question: список boards
+  intent: analytics
+  query:
+    measures:
+    - boards.count
+    dimensions:
+    - boards.name
+    - boards.board_type
+    - boards.filter_jql
+    limit: 100
+  tags:
+  - list
+  - boards
+- question: сколько компоненты проекта
+  intent: analytics
+  query:
+    measures:
+    - components.count
+    limit: 100
+  tags:
+  - count
+  - components
+- question: список компоненты проекта
+  intent: analytics
+  query:
+    measures:
+    - components.count
+    dimensions:
+    - components.name
+    - components.description
+    limit: 100
+  tags:
+  - list
+  - components
+- question: сколько custom field contexts
+  intent: analytics
+  query:
+    measures:
+    - custom_field_contexts.count
+    limit: 100
+  tags:
+  - count
+  - custom_field_contexts
+- question: список custom field contexts
+  intent: analytics
+  query:
+    measures:
+    - custom_field_contexts.count
+    dimensions:
+    - custom_field_contexts.is_global
+    limit: 100
+  tags:
+  - list
+  - custom_field_contexts
+- question: сколько опции кастомных полей
+  intent: analytics
+  query:
+    measures:
+    - custom_field_options.count
+    limit: 100
+  tags:
+  - count
+  - custom_field_options
+- question: список опции кастомных полей
+  intent: analytics
+  query:
+    measures:
+    - custom_field_options.count
+    dimensions:
+    - custom_field_options.value
+    - custom_field_options.color
+    - custom_field_options.position
+    limit: 100
+  tags:
+  - list
+  - custom_field_options
+- question: сколько типы кастомных полей
+  intent: analytics
+  query:
+    measures:
+    - custom_field_types.count
+    limit: 100
+  tags:
+  - count
+  - custom_field_types
+- question: список типы кастомных полей
+  intent: analytics
+  query:
+    measures:
+    - custom_field_types.count
+    dimensions:
+    - custom_field_types.name
+    - custom_field_types.field_type
+    - custom_field_types.description
+    - custom_field_types.created_at
+    limit: 100
+  tags:
+  - list
+  - custom_field_types
+- question: сколько пользовательские поля
+  intent: analytics
+  query:
+    measures:
+    - custom_fields.count
+    limit: 100
+  tags:
+  - count
+  - custom_fields
+- question: список пользовательские поля
+  intent: analytics
+  query:
+    measures:
+    - custom_fields.count
+    dimensions:
+    - custom_fields.name
+    - custom_fields.description
+    limit: 100
+  tags:
+  - list
+  - custom_fields
+- question: сколько панельные гаджеты
+  intent: analytics
+  query:
+    measures:
+    - dashboard_gadgets.count
+    limit: 100
+  tags:
+  - count
+  - dashboard_gadgets
+- question: список панельные гаджеты
+  intent: analytics
+  query:
+    measures:
+    - dashboard_gadgets.count
+    dimensions:
+    - dashboard_gadgets.title
+    - dashboard_gadgets.configuration
+    limit: 100
+  tags:
+  - list
+  - dashboard_gadgets
+- question: сколько панели инструментов
+  intent: analytics
+  query:
+    measures:
+    - dashboards.count
+    limit: 100
+  tags:
+  - count
+  - dashboards
+- question: список панели инструментов
+  intent: analytics
+  query:
+    measures:
+    - dashboards.count
+    dimensions:
+    - dashboards.name
+    - dashboards.description
+    - dashboards.layout
+    limit: 100
+  tags:
+  - list
+  - dashboards
+- question: сколько field configuration items
+  intent: analytics
+  query:
+    measures:
+    - field_configuration_items.count
+    limit: 100
+  tags:
+  - count
+  - field_configuration_items
+- question: список field configuration items
+  intent: analytics
+  query:
+    measures:
+    - field_configuration_items.count
+    dimensions:
+    - field_configuration_items.is_hidden
+    - field_configuration_items.is_required
+    limit: 100
+  tags:
+  - list
+  - field_configuration_items
+- question: сколько field configurations
+  intent: analytics
+  query:
+    measures:
+    - field_configurations.count
+    limit: 100
+  tags:
+  - count
+  - field_configurations
+- question: список field configurations
+  intent: analytics
+  query:
+    measures:
+    - field_configurations.count
+    dimensions:
+    - field_configurations.name
+    - field_configurations.description
+    - field_configurations.created_at
+    limit: 100
+  tags:
+  - list
+  - field_configurations
+- question: сколько filter subscriptions
+  intent: analytics
+  query:
+    measures:
+    - filter_subscriptions.count
+    limit: 100
+  tags:
+  - count
+  - filter_subscriptions
+- question: список filter subscriptions
+  intent: analytics
+  query:
+    measures:
+    - filter_subscriptions.count
+    dimensions:
+    - filter_subscriptions.schedule
+    - filter_subscriptions.last_sent_at
+    limit: 100
+  tags:
+  - list
+  - filter_subscriptions
+- question: сколько filters
+  intent: analytics
+  query:
+    measures:
+    - filters.count
+    limit: 100
+  tags:
+  - count
+  - filters
+- question: список filters
+  intent: analytics
+  query:
+    measures:
+    - filters.count
+    dimensions:
+    - filters.name
+    - filters.description
+    - filters.jql
+    limit: 100
+  tags:
+  - list
+  - filters
+- question: сколько типы гаджетов аналитики
+  intent: analytics
+  query:
+    measures:
+    - gadget_types.count
+    limit: 100
+  tags:
+  - count
+  - gadget_types
+- question: список типы гаджетов аналитики
+  intent: analytics
+  query:
+    measures:
+    - gadget_types.count
+    dimensions:
+    - gadget_types.name
+    - gadget_types.description
+    - gadget_types.thumbnail_url
+    - gadget_types.configuration_schema
+    limit: 100
+  tags:
+  - list
+  - gadget_types
+- question: сколько версии затронутых проблем
+  intent: analytics
+  query:
+    measures:
+    - issue_affected_versions.count
+    limit: 100
+  tags:
+  - count
+  - issue_affected_versions
+- question: список версии затронутых проблем
+  intent: analytics
+  query:
+    measures:
+    - issue_affected_versions.count
+    dimensions:
+    - issue_affected_versions.created_at
+    limit: 100
+  tags:
+  - list
+  - issue_affected_versions
+- question: сколько прикрепления к задачам
+  intent: analytics
+  query:
+    measures:
+    - issue_attachments.count
+    limit: 100
+  tags:
+  - count
+  - issue_attachments
+- question: список прикрепления к задачам
+  intent: analytics
+  query:
+    measures:
+    - issue_attachments.count
+    dimensions:
+    - issue_attachments.filename
+    - issue_attachments.file_path
+    limit: 100
+  tags:
+  - list
+  - issue_attachments
+- question: сколько issue comments
+  intent: analytics
+  query:
+    measures:
+    - issue_comments.count
+    limit: 100
+  tags:
+  - count
+  - issue_comments
+- question: список issue comments
+  intent: analytics
+  query:
+    measures:
+    - issue_comments.count
+    dimensions:
+    - issue_comments.body
+    - issue_comments.is_internal
+    limit: 100
+  tags:
+  - list
+  - issue_comments
+- question: сколько компоненты проблем (issues)
+  intent: analytics
+  query:
+    measures:
+    - issue_components.count
+    limit: 100
+  tags:
+  - count
+  - issue_components
+- question: список компоненты проблем (issues)
+  intent: analytics
+  query:
+    measures:
+    - issue_components.count
+    dimensions:
+    - issue_components.created_at
+    limit: 100
+  tags:
+  - list
+  - issue_components
+- question: сколько пользовательские поля задач
+  intent: analytics
+  query:
+    measures:
+    - issue_custom_field_values.count
+    limit: 100
+  tags:
+  - count
+  - issue_custom_field_values
+- question: список пользовательские поля задач
+  intent: analytics
+  query:
+    measures:
+    - issue_custom_field_values.count
+    dimensions:
+    - issue_custom_field_values.text_value
+    - issue_custom_field_values.number_value
+    limit: 100
+  tags:
+  - list
+  - issue_custom_field_values
+- question: сколько исправления версий багов (issue fix versions)
+  intent: analytics
+  query:
+    measures:
+    - issue_fix_versions.count
+    limit: 100
+  tags:
+  - count
+  - issue_fix_versions
+- question: список исправления версий багов (issue fix versions)
+  intent: analytics
+  query:
+    measures:
+    - issue_fix_versions.count
+    dimensions:
+    - issue_fix_versions.created_at
+    limit: 100
+  tags:
+  - list
+  - issue_fix_versions
+- question: сколько история изменений задач
+  intent: analytics
+  query:
+    measures:
+    - issue_history.count
+    limit: 100
+  tags:
+  - count
+  - issue_history
+- question: список история изменений задач
+  intent: analytics
+  query:
+    measures:
+    - issue_history.count
+    dimensions:
+    - issue_history.field_name
+    - issue_history.field_type
+    limit: 100
+  tags:
+  - list
+  - issue_history
+- question: сколько issue labels
+  intent: analytics
+  query:
+    measures:
+    - issue_labels.count
+    limit: 100
+  tags:
+  - count
+  - issue_labels
+- question: список issue labels
+  intent: analytics
+  query:
+    measures:
+    - issue_labels.count
+    dimensions:
+    - issue_labels.created_at
+    limit: 100
+  tags:
+  - list
+  - issue_labels
+- question: сколько issue link types
+  intent: analytics
+  query:
+    measures:
+    - issue_link_types.count
+    limit: 100
+  tags:
+  - count
+  - issue_link_types
+- question: список issue link types
+  intent: analytics
+  query:
+    measures:
+    - issue_link_types.count
+    dimensions:
+    - issue_link_types.name
+    - issue_link_types.inward_description
+    - issue_link_types.outward_description
+    - issue_link_types.created_at
+    limit: 100
+  tags:
+  - list
+  - issue_link_types
+- question: сколько issue links
+  intent: analytics
+  query:
+    measures:
+    - issue_links.count
+    limit: 100
+  tags:
+  - count
+  - issue_links
+- question: список issue links
+  intent: analytics
+  query:
+    measures:
+    - issue_links.count
+    dimensions:
+    - issue_links.created_by
+    limit: 100
+  tags:
+  - list
+  - issue_links
+- question: сколько issue priorities
+  intent: analytics
+  query:
+    measures:
+    - issue_priorities.count
+    limit: 100
+  tags:
+  - count
+  - issue_priorities
+- question: список issue priorities
+  intent: analytics
+  query:
+    measures:
+    - issue_priorities.count
+    dimensions:
+    - issue_priorities.name
+    - issue_priorities.description
+    - issue_priorities.icon_url
+    limit: 100
+  tags:
+  - list
+  - issue_priorities
+- question: сколько issue resolutions
+  intent: analytics
+  query:
+    measures:
+    - issue_resolutions.count
+    limit: 100
+  tags:
+  - count
+  - issue_resolutions
+- question: список issue resolutions
+  intent: analytics
+  query:
+    measures:
+    - issue_resolutions.count
+    dimensions:
+    - issue_resolutions.name
+    - issue_resolutions.description
+    - issue_resolutions.is_default
+    limit: 100
+  tags:
+  - list
+  - issue_resolutions
+- question: сколько issue statuses
+  intent: analytics
+  query:
+    measures:
+    - issue_statuses.count
+    limit: 100
+  tags:
+  - count
+  - issue_statuses
+- question: список issue statuses
+  intent: analytics
+  query:
+    measures:
+    - issue_statuses.count
+    dimensions:
+    - issue_statuses.name
+    - issue_statuses.description
+    - issue_statuses.color
+    limit: 100
+  tags:
+  - list
+  - issue_statuses
+- question: сколько issue types
+  intent: analytics
+  query:
+    measures:
+    - issue_types.count
+    limit: 100
+  tags:
+  - count
+  - issue_types
+- question: список issue types
+  intent: analytics
+  query:
+    measures:
+    - issue_types.count
+    dimensions:
+    - issue_types.name
+    - issue_types.description
+    - issue_types.icon_url
+    limit: 100
+  tags:
+  - list
+  - issue_types
+- question: сколько issue votes
+  intent: analytics
+  query:
+    measures:
+    - issue_votes.count
+    limit: 100
+  tags:
+  - count
+  - issue_votes
+- question: список issue votes
+  intent: analytics
+  query:
+    measures:
+    - issue_votes.count
+    dimensions:
+    - issue_votes.created_at
+    limit: 100
+  tags:
+  - list
+  - issue_votes
+- question: сколько issue watchers
+  intent: analytics
+  query:
+    measures:
+    - issue_watchers.count
+    limit: 100
+  tags:
+  - count
+  - issue_watchers
+- question: список issue watchers
+  intent: analytics
+  query:
+    measures:
+    - issue_watchers.count
+    dimensions:
+    - issue_watchers.created_at
+    limit: 100
+  tags:
+  - list
+  - issue_watchers
+- question: сколько issues
+  intent: analytics
+  query:
+    measures:
+    - issues.count
+    limit: 100
+  tags:
+  - count
+  - issues
+- question: сколько labels
+  intent: analytics
+  query:
+    measures:
+    - labels.count
+    limit: 100
+  tags:
+  - count
+  - labels
+- question: список labels
+  intent: analytics
+  query:
+    measures:
+    - labels.count
+    dimensions:
+    - labels.name
+    - labels.color
+    - labels.description
+    limit: 100
+  tags:
+  - list
+  - labels
+- question: сколько notification events
+  intent: analytics
+  query:
+    measures:
+    - notification_events.count
+    limit: 100
+  tags:
+  - count
+  - notification_events
+- question: список notification events
+  intent: analytics
+  query:
+    measures:
+    - notification_events.count
+    dimensions:
+    - notification_events.name
+    - notification_events.description
+    - notification_events.category
+    - notification_events.created_at
+    limit: 100
+  tags:
+  - list
+  - notification_events
+- question: сколько notification scheme entries
+  intent: analytics
+  query:
+    measures:
+    - notification_scheme_entries.count
+    limit: 100
+  tags:
+  - count
+  - notification_scheme_entries
+- question: список notification scheme entries
+  intent: analytics
+  query:
+    measures:
+    - notification_scheme_entries.count
+    dimensions:
+    - notification_scheme_entries.notification_type
+    - notification_scheme_entries.recipient_type
+    limit: 100
+  tags:
+  - list
+  - notification_scheme_entries
+- question: сколько notification schemes
+  intent: analytics
+  query:
+    measures:
+    - notification_schemes.count
+    limit: 100
+  tags:
+  - count
+  - notification_schemes
+- question: список notification schemes
+  intent: analytics
+  query:
+    measures:
+    - notification_schemes.count
+    dimensions:
+    - notification_schemes.name
+    - notification_schemes.description
+    - notification_schemes.is_default
+    limit: 100
+  tags:
+  - list
+  - notification_schemes
+- question: сколько notifications
+  intent: analytics
+  query:
+    measures:
+    - notifications.count
+    limit: 100
+  tags:
+  - count
+  - notifications
+- question: сколько organization members
+  intent: analytics
+  query:
+    measures:
+    - organization_members.count
+    limit: 100
+  tags:
+  - count
+  - organization_members
+- question: список organization members
+  intent: analytics
+  query:
+    measures:
+    - organization_members.count
+    dimensions:
+    - organization_members.role
+    - organization_members.joined_at
+    limit: 100
+  tags:
+  - list
+  - organization_members
+- question: сколько organizations
+  intent: analytics
+  query:
+    measures:
+    - organizations.count
+    limit: 100
+  tags:
+  - count
+  - organizations
+- question: список organizations
+  intent: analytics
+  query:
+    measures:
+    - organizations.count
+    dimensions:
+    - organizations.name
+    - organizations.slug
+    - organizations.description
+    - organizations.logo_url
+    limit: 100
+  tags:
+  - list
+  - organizations
+- question: сколько схема прав доступа
+  intent: analytics
+  query:
+    measures:
+    - permission_scheme_entries.count
+    limit: 100
+  tags:
+  - count
+  - permission_scheme_entries
+- question: список схема прав доступа
+  intent: analytics
+  query:
+    measures:
+    - permission_scheme_entries.count
+    dimensions:
+    - permission_scheme_entries.grant_type
+    - permission_scheme_entries.grant_value
+    limit: 100
+  tags:
+  - list
+  - permission_scheme_entries
+- question: сколько permission schemes
+  intent: analytics
+  query:
+    measures:
+    - permission_schemes.count
+    limit: 100
+  tags:
+  - count
+  - permission_schemes
+- question: список permission schemes
+  intent: analytics
+  query:
+    measures:
+    - permission_schemes.count
+    dimensions:
+    - permission_schemes.name
+    - permission_schemes.description
+    - permission_schemes.is_default
+    limit: 100
+  tags:
+  - list
+  - permission_schemes
+- question: сколько разрешения пользователей
+  intent: analytics
+  query:
+    measures:
+    - permissions.count
+    limit: 100
+  tags:
+  - count
+  - permissions
+- question: список разрешения пользователей
+  intent: analytics
+  query:
+    measures:
+    - permissions.count
+    dimensions:
+    - permissions.name
+    - permissions.description
+    - permissions.category
+    - permissions.created_at
+    limit: 100
+  tags:
+  - list
+  - permissions
+- question: сколько категории проектов
+  intent: analytics
+  query:
+    measures:
+    - project_categories.count
+    limit: 100
+  tags:
+  - count
+  - project_categories
+- question: список категории проектов
+  intent: analytics
+  query:
+    measures:
+    - project_categories.count
+    dimensions:
+    - project_categories.name
+    - project_categories.description
+    - project_categories.color
+    limit: 100
+  tags:
+  - list
+  - project_categories
+- question: сколько участники проекта
+  intent: analytics
+  query:
+    measures:
+    - project_members.count
+    limit: 100
+  tags:
+  - count
+  - project_members
+- question: список участники проекта
+  intent: analytics
+  query:
+    measures:
+    - project_members.count
+    dimensions:
+    - project_members.role
+    - project_members.notifications_enabled
+    limit: 100
+  tags:
+  - list
+  - project_members
+- question: сколько роли проекта
+  intent: analytics
+  query:
+    measures:
+    - project_roles.count
+    limit: 100
+  tags:
+  - count
+  - project_roles
+- question: сколько project settings
+  intent: analytics
+  query:
+    measures:
+    - project_settings.count
+    limit: 100
+  tags:
+  - count
+  - project_settings
+- question: список project settings
+  intent: analytics
+  query:
+    measures:
+    - project_settings.count
+    dimensions:
+    - project_settings.issue_key_prefix
+    limit: 100
+  tags:
+  - list
+  - project_settings
+- question: сколько projects
+  intent: analytics
+  query:
+    measures:
+    - projects.count
+    limit: 100
+  tags:
+  - count
+  - projects
+- question: список projects
+  intent: analytics
+  query:
+    measures:
+    - projects.count
+    dimensions:
+    - projects.name
+    - projects.key
+    limit: 100
+  tags:
+  - list
+  - projects
+- question: сколько роли и разрешения
+  intent: analytics
+  query:
+    measures:
+    - role_permissions.count
+    limit: 100
+  tags:
+  - count
+  - role_permissions
+- question: список роли и разрешения
+  intent: analytics
+  query:
+    measures:
+    - role_permissions.count
+    dimensions:
+    - role_permissions.created_at
+    limit: 100
+  tags:
+  - list
+  - role_permissions
+- question: сколько roles
+  intent: analytics
+  query:
+    measures:
+    - roles.count
+    limit: 100
+  tags:
+  - count
+  - roles
+- question: список roles
+  intent: analytics
+  query:
+    measures:
+    - roles.count
+    dimensions:
+    - roles.name
+    - roles.description
+    - roles.is_system
+    limit: 100
+  tags:
+  - list
+  - roles
+- question: сколько screen scheme items
+  intent: analytics
+  query:
+    measures:
+    - screen_scheme_items.count
+    limit: 100
+  tags:
+  - count
+  - screen_scheme_items
+- question: список screen scheme items
+  intent: analytics
+  query:
+    measures:
+    - screen_scheme_items.count
+    dimensions:
+    - screen_scheme_items.operation
+    - screen_scheme_items.created_at
+    limit: 100
+  tags:
+  - list
+  - screen_scheme_items
+- question: сколько схемы экранов организаций
+  intent: analytics
+  query:
+    measures:
+    - screen_schemes.count
+    limit: 100
+  tags:
+  - count
+  - screen_schemes
+- question: список схемы экранов организаций
+  intent: analytics
+  query:
+    measures:
+    - screen_schemes.count
+    dimensions:
+    - screen_schemes.name
+    - screen_schemes.description
+    - screen_schemes.created_at
+    limit: 100
+  tags:
+  - list
+  - screen_schemes
+- question: сколько поля экранной вкладки
+  intent: analytics
+  query:
+    measures:
+    - screen_tab_fields.count
+    limit: 100
+  tags:
+  - count
+  - screen_tab_fields
+- question: список поля экранной вкладки
+  intent: analytics
+  query:
+    measures:
+    - screen_tab_fields.count
+    dimensions:
+    - screen_tab_fields.position
+    - screen_tab_fields.created_at
+    limit: 100
+  tags:
+  - list
+  - screen_tab_fields
+- question: сколько экраны вкладок приложения
+  intent: analytics
+  query:
+    measures:
+    - screen_tabs.count
+    limit: 100
+  tags:
+  - count
+  - screen_tabs
+- question: список экраны вкладок приложения
+  intent: analytics
+  query:
+    measures:
+    - screen_tabs.count
+    dimensions:
+    - screen_tabs.name
+    - screen_tabs.position
+    - screen_tabs.created_at
+    limit: 100
+  tags:
+  - list
+  - screen_tabs
+- question: сколько экран организации (screens)
+  intent: analytics
+  query:
+    measures:
+    - screens.count
+    limit: 100
+  tags:
+  - count
+  - screens
+- question: список экран организации (screens)
+  intent: analytics
+  query:
+    measures:
+    - screens.count
+    dimensions:
+    - screens.name
+    - screens.description
+    - screens.created_at
+    limit: 100
+  tags:
+  - list
+  - screens
+- question: сколько отчёты спринта
+  intent: analytics
+  query:
+    measures:
+    - sprint_reports.count
+    limit: 100
+  tags:
+  - count
+  - sprint_reports
+- question: список отчёты спринта
+  intent: analytics
+  query:
+    measures:
+    - sprint_reports.count
+    dimensions:
+    - sprint_reports.committed_points
+    - sprint_reports.completed_points
+    - sprint_reports.added_points
+    limit: 100
+  tags:
+  - list
+  - sprint_reports
+- question: сколько sprints
+  intent: analytics
+  query:
+    measures:
+    - sprints.count
+    limit: 100
+  tags:
+  - count
+  - sprints
+- question: список sprints
+  intent: analytics
+  query:
+    measures:
+    - sprints.count
+    dimensions:
+    - sprints.name
+    - sprints.goal
+    - sprints.status
+    limit: 100
+  tags:
+  - list
+  - sprints
+- question: сколько участники команды
+  intent: analytics
+  query:
+    measures:
+    - team_members.count
+    limit: 100
+  tags:
+  - count
+  - team_members
+- question: список участники команды
+  intent: analytics
+  query:
+    measures:
+    - team_members.count
+    dimensions:
+    - team_members.role
+    - team_members.joined_at
+    limit: 100
+  tags:
+  - list
+  - team_members
+- question: сколько teams
+  intent: analytics
+  query:
+    measures:
+    - teams.count
+    limit: 100
+  tags:
+  - count
+  - teams
+- question: список teams
+  intent: analytics
+  query:
+    measures:
+    - teams.count
+    dimensions:
+    - teams.name
+    - teams.slug
+    - teams.description
+    limit: 100
+  tags:
+  - list
+  - teams
+- question: сколько настройки отслеживания времени
+  intent: analytics
+  query:
+    measures:
+    - time_tracking_settings.count
+    limit: 100
+  tags:
+  - count
+  - time_tracking_settings
+- question: список настройки отслеживания времени
+  intent: analytics
+  query:
+    measures:
+    - time_tracking_settings.count
+    dimensions:
+    - time_tracking_settings.hours_per_day
+    - time_tracking_settings.days_per_week
+    - time_tracking_settings.time_format
+    limit: 100
+  tags:
+  - list
+  - time_tracking_settings
+- question: сколько user api tokens
+  intent: analytics
+  query:
+    measures:
+    - user_api_tokens.count
+    limit: 100
+  tags:
+  - count
+  - user_api_tokens
+- question: список user api tokens
+  intent: analytics
+  query:
+    measures:
+    - user_api_tokens.count
+    dimensions:
+    - user_api_tokens.token_name
+    - user_api_tokens.token_hash
+    - user_api_tokens.scopes
+    limit: 100
+  tags:
+  - list
+  - user_api_tokens
+- question: сколько user profiles
+  intent: analytics
+  query:
+    measures:
+    - user_profiles.count
+    limit: 100
+  tags:
+  - count
+  - user_profiles
+- question: список user profiles
+  intent: analytics
+  query:
+    measures:
+    - user_profiles.count
+    dimensions:
+    - user_profiles.job_title
+    - user_profiles.department
+    - user_profiles.phone
+    limit: 100
+  tags:
+  - list
+  - user_profiles
+- question: сколько user sessions
+  intent: analytics
+  query:
+    measures:
+    - user_sessions.count
+    limit: 100
+  tags:
+  - count
+  - user_sessions
+- question: список user sessions
+  intent: analytics
+  query:
+    measures:
+    - user_sessions.count
+    dimensions:
+    - user_sessions.session_token
+    - user_sessions.ip_address
+    - user_sessions.user_agent
+    limit: 100
+  tags:
+  - list
+  - user_sessions
+- question: сколько user settings
+  intent: analytics
+  query:
+    measures:
+    - user_settings.count
+    limit: 100
+  tags:
+  - count
+  - user_settings
+- question: список user settings
+  intent: analytics
+  query:
+    measures:
+    - user_settings.count
+    dimensions:
+    - user_settings.notification_email
+    - user_settings.notification_push
+    - user_settings.notification_slack
+    limit: 100
+  tags:
+  - list
+  - user_settings
+- question: сколько users
+  intent: analytics
+  query:
+    measures:
+    - users.count
+    limit: 100
+  tags:
+  - count
+  - users
+- question: список users
+  intent: analytics
+  query:
+    measures:
+    - users.count
+    dimensions:
+    - users.username
+    - users.email
+    - users.password_hash
+    - users.display_name
+    limit: 100
+  tags:
+  - list
+  - users
+- question: сколько versions
+  intent: analytics
+  query:
+    measures:
+    - versions.count
+    limit: 100
+  tags:
+  - count
+  - versions
+- question: список versions
+  intent: analytics
+  query:
+    measures:
+    - versions.count
+    dimensions:
+    - versions.name
+    - versions.description
+    - versions.start_date
+    limit: 100
+  tags:
+  - list
+  - versions
+- question: сколько webhook deliveries
+  intent: analytics
+  query:
+    measures:
+    - webhook_deliveries.count
+    limit: 100
+  tags:
+  - count
+  - webhook_deliveries
+- question: список webhook deliveries
+  intent: analytics
+  query:
+    measures:
+    - webhook_deliveries.count
+    dimensions:
+    - webhook_deliveries.event_type
+    - webhook_deliveries.payload
+    - webhook_deliveries.response_status
+    limit: 100
+  tags:
+  - list
+  - webhook_deliveries
+- question: сколько webhooks
+  intent: analytics
+  query:
+    measures:
+    - webhooks.count
+    limit: 100
+  tags:
+  - count
+  - webhooks
+- question: список webhooks
+  intent: analytics
+  query:
+    measures:
+    - webhooks.count
+    dimensions:
+    - webhooks.name
+    - webhooks.url
+    - webhooks.secret
+    limit: 100
+  tags:
+  - list
+  - webhooks
+- question: сколько условия рабочих процессов
+  intent: analytics
+  query:
+    measures:
+    - workflow_conditions.count
+    limit: 100
+  tags:
+  - count
+  - workflow_conditions
+- question: список условия рабочих процессов
+  intent: analytics
+  query:
+    measures:
+    - workflow_conditions.count
+    dimensions:
+    - workflow_conditions.condition_type
+    - workflow_conditions.configuration
+    - workflow_conditions.created_at
+    limit: 100
+  tags:
+  - list
+  - workflow_conditions
+- question: сколько функции рабочего процесса
+  intent: analytics
+  query:
+    measures:
+    - workflow_post_functions.count
+    limit: 100
+  tags:
+  - count
+  - workflow_post_functions
+- question: список функции рабочего процесса
+  intent: analytics
+  query:
+    measures:
+    - workflow_post_functions.count
+    dimensions:
+    - workflow_post_functions.function_type
+    - workflow_post_functions.configuration
+    - workflow_post_functions.execution_order
+    limit: 100
+  tags:
+  - list
+  - workflow_post_functions
+- question: сколько схемы рабочих процессов
+  intent: analytics
+  query:
+    measures:
+    - workflow_scheme_mappings.count
+    limit: 100
+  tags:
+  - count
+  - workflow_scheme_mappings
+- question: список схемы рабочих процессов
+  intent: analytics
+  query:
+    measures:
+    - workflow_scheme_mappings.count
+    dimensions:
+    - workflow_scheme_mappings.created_at
+    limit: 100
+  tags:
+  - list
+  - workflow_scheme_mappings
+- question: сколько workflow schemes
+  intent: analytics
+  query:
+    measures:
+    - workflow_schemes.count
+    limit: 100
+  tags:
+  - count
+  - workflow_schemes
+- question: список workflow schemes
+  intent: analytics
+  query:
+    measures:
+    - workflow_schemes.count
+    dimensions:
+    - workflow_schemes.name
+    - workflow_schemes.description
+    - workflow_schemes.is_default
+    limit: 100
+  tags:
+  - list
+  - workflow_schemes
+- question: сколько состояния процессов
+  intent: analytics
+  query:
+    measures:
+    - workflow_statuses.count
+    limit: 100
+  tags:
+  - count
+  - workflow_statuses
+- question: список состояния процессов
+  intent: analytics
+  query:
+    measures:
+    - workflow_statuses.count
+    dimensions:
+    - workflow_statuses.is_initial
+    - workflow_statuses.position_x
+    limit: 100
+  tags:
+  - list
+  - workflow_statuses
+- question: сколько workflow transitions
+  intent: analytics
+  query:
+    measures:
+    - workflow_transitions.count
+    limit: 100
+  tags:
+  - count
+  - workflow_transitions
+- question: список workflow transitions
+  intent: analytics
+  query:
+    measures:
+    - workflow_transitions.count
+    dimensions:
+    - workflow_transitions.name
+    limit: 100
+  tags:
+  - list
+  - workflow_transitions
+- question: сколько таблица валидаторов рабочих процессов
+  intent: analytics
+  query:
+    measures:
+    - workflow_validators.count
+    limit: 100
+  tags:
+  - count
+  - workflow_validators
+- question: список таблица валидаторов рабочих процессов
+  intent: analytics
+  query:
+    measures:
+    - workflow_validators.count
+    dimensions:
+    - workflow_validators.validator_type
+    - workflow_validators.configuration
+    - workflow_validators.created_at
+    limit: 100
+  tags:
+  - list
+  - workflow_validators
+- question: сколько workflows
+  intent: analytics
+  query:
+    measures:
+    - workflows.count
+    limit: 100
+  tags:
+  - count
+  - workflows
+- question: список workflows
+  intent: analytics
+  query:
+    measures:
+    - workflows.count
+    dimensions:
+    - workflows.name
+    - workflows.description
+    - workflows.is_default
+    limit: 100
+  tags:
+  - list
+  - workflows
+- question: сколько worklogs
+  intent: analytics
+  query:
+    measures:
+    - worklogs.count
+    limit: 100
+  tags:
+  - count
+  - worklogs
+- question: список worklogs
+  intent: analytics
+  query:
+    measures:
+    - worklogs.count
+    dimensions:
+    - worklogs.time_spent
+    - worklogs.work_description
+    limit: 100
+  tags:
+  - list
+  - worklogs

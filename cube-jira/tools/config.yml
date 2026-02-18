@@ -1,44 +1,41 @@
-# ============================================================
-# КОНФИГУРАЦИЯ ИНСТРУМЕНТОВ CUBE-JIRA
-# Используется data_loader и build_faiss для генерации моделей
-# ============================================================
-
-# --- Подключение к данным ---
 database:
   driver: "postgresql"
-  host: "93.115.106.244"
+  host: "your_host"
   port: 5432
-  name: "jira_clone"
+  name: "your_database"
   schema: "public"
-  user: "${CUBEJS_DB_USER}"          # из .env
-  password: "${CUBEJS_DB_PASS}"      # из .env
+  user: "your_user"
+  password: "your_password"
 
-# --- Cube API ---
 cube:
   api_url: "http://localhost:4000/cubejs-api/v1"
   api_token: ""
-  model_path: "../model/cubes"       # пишем модели прямо в cube-jira/model/cubes/
+  model_path: "../model/cubes"
 
-# --- GigaChat ---
 gigachat:
-  credentials: "${GIGACHAT_CREDENTIALS}"
+  # Вариант 1: прямой доступ (SberCloud)
+  credentials: "your_gigachat_credentials"
   verify_ssl: false
+
+  # Вариант 2: через прокси (закрытый контур)
+  # base_url: "http://liveaccess-sig/v1/gc"
+  # access_token_env: "JPY_API_TOKEN"
+
   model: "GigaChat"
   timeout: 120
 
-# --- FAISS ---
 faiss:
   index_path: "../faiss_index"
   embedding_provider: "huggingface"
   embedding_model: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
   search_k: 20
 
+knowledge_base_path: "./kb/jira_kb.yml"
+
+# ETL execution plan (опционально, xlsx/csv)
+# Обогащает модели контекстом ETL-процессов (описание процесса, источник, целевая таблица).
+# etl_plan_path: "./sample_execution.xlsx"
+
 agent:
   language: "ru"
   max_rows_display: 15
-
-# --- Knowledge Base (опционально) ---
-# knowledge_base_path: "./kb/jira_kb.yml"
-
-# --- ETL execution plan (опционально) ---
-# etl_plan_path: "./sample_execution.xlsx"

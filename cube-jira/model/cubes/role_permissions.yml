@@ -1,0 +1,33 @@
+cubes:
+- name: role_permissions
+  sql_table: public.role_permissions
+  title: Роли и разрешения
+  description: Таблица определяет права пользователей для каждой роли системы.
+  joins:
+  - name: roles
+    sql: '{CUBE}.role_id = {roles}.id'
+    relationship: many_to_one
+    title: Роль
+    description: Идентификатор роли
+  - name: permissions
+    sql: '{CUBE}.permission_id = {permissions}.id'
+    relationship: many_to_one
+    title: Разрешение
+    description: Право или привилегия, назначаемая роли
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор строки
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата добавления
+    description: Дата и время создания записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Роли и разрешения

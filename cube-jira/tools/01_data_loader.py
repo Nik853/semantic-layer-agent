@@ -20,11 +20,20 @@ Knowledge Base (опционально):
 Дополнительно:
   --kb <file.yml>           — путь к Knowledge Base (переопределяет config.yml)
   --etl-plan <file.xlsx>    — обогатить модели из ETL execution plan файла
+  --enrich-etl              — обогатить УЖЕ СУЩЕСТВУЮЩИЕ модели через ETL plan
+  --enrich-with-llm         — при --enrich-etl переописать колонки через GigaChat
+  --model-dir <dir>         — папка с моделями (для --enrich-etl)
 
-Запуск: python 01_data_loader.py
-        python 01_data_loader.py --source cube
-        python 01_data_loader.py --kb ./kb/jira_kb.yml
-        python 01_data_loader.py --etl-plan sample_execution.xlsx
+Запуск:
+  Полная генерация:
+    python 01_data_loader.py
+    python 01_data_loader.py --source cube
+    python 01_data_loader.py --kb ./kb/jira_kb.yml --etl-plan plan.xlsx
+
+  Обогащение существующих моделей (без перегенерации):
+    python 01_data_loader.py --enrich-etl --etl-plan plan.xlsx
+    python 01_data_loader.py --enrich-etl --etl-plan plan.xlsx --enrich-with-llm
+    python 01_data_loader.py --enrich-etl --etl-plan plan.xlsx --model-dir ../model/cubes
 =================================================================
 """
 
@@ -849,31 +858,130 @@ def build_all_relationships(table_name, columns, all_tables, explicit_fks):
     return joins
 
 
+def _fix_missing_commas(text):
+    """Вставить пропущенные запятые в JSON от GigaChat.
+    Обрабатывает как многострочный, так и однострочный JSON.
+    """
+    import re
+    # --- Многострочный: "value"\n  "key" → "value",\n  "key" ---
+    text = re.sub(r'(")\s*\n(\s*")', r'\1,\n\2', text)
+    text = re.sub(r'(})\s*\n(\s*")', r'\1,\n\2', text)
+    text = re.sub(r'(\])\s*\n(\s*")', r'\1,\n\2', text)
+    text = re.sub(r'(true|false|null|\d)\s*\n(\s*")', r'\1,\n\2', text)
+    text = re.sub(r'(})\s*\n(\s*\{)', r'\1,\n\2', text)
+
+    # --- Однострочный: "value" "key" → "value", "key" ---
+    # "..." "..."  (два строковых значения подряд без запятой)
+    text = re.sub(r'(") (")', r'\1, \2', text)
+    # } "key"  →  }, "key"
+    text = re.sub(r'(}) (")', r'\1, \2', text)
+    # ] "key"  →  ], "key"
+    text = re.sub(r'(\]) (")', r'\1, \2', text)
+    # true/false/null/number  "key"
+    text = re.sub(r'(true|false|null)(\s+)(")', r'\1,\2\3', text)
+    text = re.sub(r'(\d)(\s+)(")', r'\1,\2\3', text)
+    # } {  →  }, {  (массив объектов)
+    text = re.sub(r'(})\s*(\{)', r'\1, \2', text)
+
+    # --- Trailing commas ---
+    text = re.sub(r',\s*}', '}', text)
+    text = re.sub(r',\s*]', ']', text)
+    return text
+
+
+def _balance_brackets(text):
+    """Добавить недостающие закрывающие скобки в JSON.
+    GigaChat часто забывает одну или несколько } в конце ответа.
+    """
+    in_string = False
+    escape = False
+    opens = []
+    match = {'{': '}', '[': ']'}
+    for ch in text:
+        if escape:
+            escape = False
+            continue
+        if ch == '\\' and in_string:
+            escape = True
+            continue
+        if ch == '"' and not escape:
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch in ('{', '['):
+            opens.append(ch)
+        elif ch in ('}', ']'):
+            if opens:
+                opens.pop()
+    closing = ''.join(match[o] for o in reversed(opens))
+    if closing:
+        text = text.rstrip()
+        if text.endswith(','):
+            text = text[:-1]
+        text += closing
+    return text
+
+
 def _parse_json_safe(text):
-    """Робастный парсинг JSON из ответа LLM"""
+    """Робастный парсинг JSON из ответа LLM.
+    Обрабатывает: markdown-обёртки, типографские кавычки,
+    пропущенные запятые, несбалансированные скобки.
+    """
     import json as _json
     import re
 
     text = text.strip()
+
     # Убираем markdown
-    if text.startswith("```"):
-        lines = text.split("\n")
-        text = "\n".join(lines[1:])
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
+    if "```" in text:
+        parts = text.split("```")
+        for part in parts:
+            part = part.strip()
+            if part.startswith("json"):
+                part = part[4:].strip()
+            if part.startswith("{"):
+                text = part
+                break
+
     # Типографские кавычки
     for old, new in [('\u201c', '"'), ('\u201d', '"'), ('\u00ab', '"'), ('\u00bb', '"'),
                      ('\u2018', "'"), ('\u2019', "'")]:
         text = text.replace(old, new)
-    # Ищем JSON-блок
+
+    # Извлекаем JSON-блок
     match = re.search(r'\{[\s\S]*\}', text)
     if match:
-        cleaned = match.group()
-        cleaned = re.sub(r',\s*}', '}', cleaned)
-        cleaned = re.sub(r',\s*]', ']', cleaned)
+        text = match.group()
+
+    # Попытка 1: как есть
+    try:
+        return _json.loads(text)
+    except _json.JSONDecodeError:
+        pass
+
+    # Попытка 2: чиним пропущенные запятые
+    fixed = _fix_missing_commas(text)
+    try:
+        return _json.loads(fixed)
+    except _json.JSONDecodeError:
+        pass
+
+    # Попытка 3: балансировка скобок (GigaChat часто забывает закрывающие })
+    balanced = _balance_brackets(fixed)
+    try:
+        return _json.loads(balanced)
+    except _json.JSONDecodeError:
+        pass
+
+    # Попытка 4: агрессивная чистка — убираем невалидные символы
+    cleaned = re.sub(r'[\x00-\x1f]+', ' ', balanced)
+    for old, new in [('\u2014', '-'), ('\u2013', '-'), ('\u2026', '...')]:
+        cleaned = cleaned.replace(old, new)
+    try:
         return _json.loads(cleaned)
-    return _json.loads(text)
+    except _json.JSONDecodeError as e:
+        raise e
 
 
 def suggest_joins_via_llm(llm, table_name, columns, detected_joins, all_tables):
@@ -909,7 +1017,7 @@ def suggest_joins_via_llm(llm, table_name, columns, detected_joins, all_tables):
 {{"joins": [{{"column": "col_id", "title": "Название", "description": "Описание"}}], "extra_joins": []}}"""
 
     try:
-        response = llm.invoke(prompt)
+        response = _llm_invoke_with_retry(llm, prompt)
         return _parse_json_safe(response.content)
     except Exception as e:
         print(f"  ⚠️ GigaChat не смог описать связи {table_name}: {e}")
@@ -920,63 +1028,171 @@ def suggest_joins_via_llm(llm, table_name, columns, detected_joins, all_tables):
 # Генерация описаний через GigaChat
 # ============================================================
 
-def generate_descriptions(llm, table_name, columns, fks, sample_columns, sample_rows, row_count):
+def _llm_invoke_with_retry(llm, prompt, max_retries=3):
+    """Вызов LLM с retry при rate-limit (429) и таймаутах."""
+    import time as _time
+    for attempt in range(max_retries):
+        try:
+            return llm.invoke(prompt)
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "Too Many Requests" in err_str or "timeout" in err_str.lower():
+                wait = 5 * (attempt + 1)
+                print(f"  ⏳ Rate limit / timeout, жду {wait}с (попытка {attempt+1}/{max_retries})...")
+                _time.sleep(wait)
+            else:
+                raise
+    raise RuntimeError(f"LLM не ответил после {max_retries} попыток")
+
+
+def _analyze_sample_data(sample_columns, sample_rows, columns):
+    """Статистический анализ sample-данных для обогащения промпта.
+    Возвращает dict: col_name → {unique_values, null_count, value_type_hint}.
     """
-    Попросить GigaChat сгенерировать описания для таблицы и колонок.
-    При неудаче с большой таблицей — разбивает на 2 запроса.
+    if not sample_rows or not sample_columns:
+        return {}
+
+    analysis = {}
+    col_types = {c["name"]: c["data_type"] for c in columns}
+
+    for idx, col_name in enumerate(sample_columns):
+        values = [row[idx] for row in sample_rows]
+        non_null = [v for v in values if v is not None]
+        null_count = len(values) - len(non_null)
+
+        info = {"null_count": null_count, "total": len(values)}
+
+        if not non_null:
+            info["hint"] = "все значения NULL"
+            analysis[col_name] = info
+            continue
+
+        unique = set()
+        for v in non_null:
+            s = str(v).strip()
+            if len(s) <= 100:
+                unique.add(s)
+
+        if len(unique) <= 10 and col_types.get(col_name, "") in (
+            "character varying", "text", "varchar", "USER-DEFINED"
+        ):
+            info["unique_values"] = sorted(unique)
+            info["hint"] = f"перечисление: {', '.join(sorted(unique))}"
+        elif len(unique) <= 5:
+            info["unique_values"] = sorted(unique)
+            info["hint"] = f"примеры: {', '.join(sorted(unique)[:5])}"
+        else:
+            samples = [str(v)[:60] for v in non_null[:3]]
+            info["hint"] = f"примеры: {', '.join(samples)}"
+
+        if null_count > 0:
+            pct = int(null_count / len(values) * 100)
+            info["hint"] += f" ({pct}% NULL)"
+
+        analysis[col_name] = info
+
+    return analysis
+
+
+def generate_descriptions(llm, table_name, columns, fks, sample_columns,
+                          sample_rows, row_count, etl_context=None):
     """
-    # Форматируем примеры данных (не более 3 строк, укороченные значения)
+    GigaChat: описания таблицы и колонок на основе структуры, примеров данных и ETL-контекста.
+    """
+    # Анализ sample data
+    data_analysis = _analyze_sample_data(sample_columns, sample_rows, columns)
+
+    # Формируем колонки с анализом
+    col_lines = []
+    for c in columns:
+        line = f"  - {c['name']} ({c['data_type']})"
+        hint = data_analysis.get(c["name"], {}).get("hint")
+        if hint:
+            line += f"  // {hint}"
+        col_lines.append(line)
+    columns_text = "\n".join(col_lines)
+
+    # Примеры строк (компактно)
     sample_text = ""
     if sample_rows:
-        sample_text = "\nПримеры:\n"
-        for row in sample_rows[:2]:
+        sample_text = "\nПримеры строк:\n"
+        for row in sample_rows[:3]:
             parts = []
             for col, val in zip(sample_columns, row):
                 val_str = str(val)[:50] if val is not None else "NULL"
                 parts.append(f"{col}={val_str}")
-            sample_text += "  " + ", ".join(parts[:8]) + "\n"
+            sample_text += "  " + ", ".join(parts[:10]) + "\n"
 
-    columns_text = "\n".join(
-        f"  - {c['name']} ({c['data_type']})"
-        for c in columns
-    )
+    # FK-контекст
+    fk_text = ""
+    if fks:
+        fk_lines = [f"  - {f['column']} → {f['foreign_table']}.{f['foreign_column']}" for f in fks]
+        fk_text = "\nВнешние ключи:\n" + "\n".join(fk_lines)
 
-    prompt = f"""Опиши таблицу {table_name} ({row_count} строк) на русском. Колонки:
+    # ETL-контекст
+    etl_text = ""
+    if etl_context:
+        parts = []
+        if etl_context.get("process_description"):
+            parts.append(f"Процесс: {etl_context['process_description']}")
+        if etl_context.get("source_schema"):
+            parts.append(f"Источник: {etl_context['source_schema']}")
+        if etl_context.get("target_table"):
+            parts.append(f"Целевая таблица ETL: {etl_context['target_table']}")
+        if parts:
+            etl_text = "\nETL-контекст: " + "; ".join(parts)
+
+    prompt = f"""Опиши таблицу {table_name} ({row_count} строк) на русском.
+
+Колонки (после // — реальные значения из данных):
 {columns_text}
-{sample_text}
+{sample_text}{fk_text}{etl_text}
+ВАЖНО: Проанализируй реальные значения данных (примеры строк и значения после //).
+Для колонок-перечислений (status, type, priority и пр.) обязательно перечисли допустимые значения в description.
+Для числовых колонок укажи единицу измерения если можно определить из данных.
+
 Ответ строго JSON:
-{{"table_title": "Русское название (2-3 слова)", "table_description": "Описание (1-2 предложения)", "columns": {{"col_name": {{"title": "Название", "description": "Что хранит"}}}}}}"""
+{{"table_title": "Русское название (2-3 слова)", "table_description": "Описание (1-2 предложения)", "columns": {{"col_name": {{"title": "Название", "description": "Что хранит (с примерами значений)"}}}}}}"""
 
     # Попытка 1
     try:
-        response = llm.invoke(prompt)
+        response = _llm_invoke_with_retry(llm, prompt)
         return _parse_json_safe(response.content)
     except Exception:
         pass
 
-    # Попытка 2: упрощённый промпт (для больших таблиц)
-    short_cols = ", ".join(c["name"] for c in columns)
-    prompt2 = f"""Таблица {table_name}. Колонки: {short_cols}.
+    # Попытка 2: сокращённый промпт с анализом
+    col_hints = []
+    for c in columns:
+        hint = data_analysis.get(c["name"], {}).get("hint", "")
+        col_hints.append(f"{c['name']}({c['data_type']}){': '+hint if hint else ''}")
+    short_cols = "; ".join(col_hints[:20])
+
+    prompt2 = f"""Таблица {table_name} ({row_count} строк). Колонки и данные: {short_cols}.
+{etl_text}
 Дай table_title (2 слова на русском) и table_description (1 предложение).
-Для каждой колонки дай title (1-2 слова) и description (кратко).
+Для каждой колонки дай title (1-2 слова) и description (кратко, включая примеры значений).
 Ответ: JSON {{"table_title":"...", "table_description":"...", "columns":{{"col":{{"title":"...", "description":"..."}}}}}}"""
 
     try:
-        response = llm.invoke(prompt2)
+        response = _llm_invoke_with_retry(llm, prompt2)
         return _parse_json_safe(response.content)
     except Exception as e:
         print(f"  ⚠️ GigaChat не смог описать {table_name}: {e}")
 
-    # Fallback — базовые описания
+    # Fallback — описания на основе анализа данных (без LLM)
     result = {
         "table_title": table_name.replace("_", " ").title(),
         "table_description": f"Таблица {table_name}",
         "columns": {}
     }
     for c in columns:
-        result["columns"][c["name"]] = {
-            "title": c["name"].replace("_", " ").replace("id", "").strip().title() or c["name"],
-            "description": f"{c['name']} ({c['data_type']})"
+        col_name = c["name"]
+        hint = data_analysis.get(col_name, {}).get("hint", "")
+        desc_text = hint if hint else f"{col_name} ({c['data_type']})"
+        result["columns"][col_name] = {
+            "title": col_name.replace("_", " ").replace("id", "").strip().title() or col_name,
+            "description": desc_text
         }
     return result
 
@@ -1011,21 +1227,34 @@ def pg_type_to_cube(pg_type, column_name):
 # ============================================================
 
 def generate_cube_yaml(table_name, columns, enriched_joins, pk, descriptions,
-                       schema="public", etl_plan=None):
+                       schema="public", etl_context=None):
     """
     Сгенерировать YAML-модель Cube для одной таблицы.
     enriched_joins — результат build_all_relationships + описания от LLM.
-    etl_plan — данные из ETL execution plan (для доп. мер).
+    etl_context — данные из ETL execution plan для этой таблицы.
     """
     
     desc = descriptions
     cube_name = table_name
     
+    table_desc = desc.get("table_description", "")
+    if etl_context:
+        etl_parts = []
+        if etl_context.get("process_description"):
+            etl_parts.append(etl_context["process_description"])
+        if etl_context.get("source_schema"):
+            etl_parts.append(f"Источник: {etl_context['source_schema']}")
+        if etl_context.get("target_table"):
+            etl_parts.append(f"ETL целевая: {etl_context['target_table']}")
+        if etl_parts:
+            etl_suffix = " | " + "; ".join(etl_parts)
+            table_desc = table_desc.rstrip(".") + etl_suffix
+
     cube = {
         "name": cube_name,
         "sql_table": f"{schema}.{table_name}",
         "title": desc.get("table_title", table_name),
-        "description": desc.get("table_description", ""),
+        "description": table_desc,
     }
     
     # --- Joins (обогащённые: FK + implicit + LLM) ---
@@ -1209,11 +1438,288 @@ def generate_examples(all_tables_info):
 
 
 # ============================================================
+# Парсинг Spark Execution Plan из ETL
+# ============================================================
+
+def _parse_spark_plan(process_description: str) -> dict:
+    """Извлечь структурированную информацию из Spark execution plan.
+    Возвращает: {source_tables, columns, joins, filters, target_table, target_columns}.
+    """
+    import re
+    info = {
+        "source_tables": [],
+        "columns": [],
+        "joins": [],
+        "filters": [],
+        "target_table": None,
+        "target_columns": [],
+    }
+    if not process_description:
+        return info
+
+    text = process_description
+
+    # Целевая таблица и колонки из INSERT
+    m = re.search(r'InsertIntoHiveTable\s+`([^`]+)`\.`([^`]+)`.*?\[([^\]]*)\]', text)
+    if m:
+        info["target_table"] = f"{m.group(1)}.{m.group(2)}"
+        cols_str = m.group(3)
+        info["target_columns"] = [c.strip().split("=")[0].strip()
+                                  for c in cols_str.split(",") if c.strip()]
+
+    # CreateDataSourceTableAsSelectCommand
+    m2 = re.search(r'CreateDataSourceTableAsSelectCommand\s+`([^`]+)`\.`([^`]+)`.*?\[([^\]]*)\]', text)
+    if m2:
+        info["target_table"] = f"{m2.group(1)}.{m2.group(2)}"
+        info["target_columns"] = [c.strip() for c in m2.group(3).split(",") if c.strip()]
+
+    # Scan hive → исходные таблицы
+    for m in re.finditer(r'Scan hive\s+([^\s\[]+)\s*\[([^\]]*)\]', text):
+        full_table = m.group(1)
+        scan_cols = [c.strip().split("#")[0].strip() for c in m.group(2).split(",") if c.strip()]
+        info["source_tables"].append({"table": full_table, "columns": scan_cols})
+        info["columns"].extend(scan_cols)
+
+    # Join-паттерны
+    for m in re.finditer(r'(BroadcastHashJoin|SortMergeJoin)\s*\[([^\]]*)\],\s*\[([^\]]*)\]', text):
+        left_col = m.group(2).strip().split("#")[0].strip()
+        right_col = m.group(3).strip().split("#")[0].strip()
+        info["joins"].append({"left": left_col, "right": right_col, "type": m.group(1)})
+
+    # Фильтры
+    for m in re.finditer(r'Filter\s*\((.+?)\)\s*$', text, re.MULTILINE):
+        filt = m.group(1).strip()
+        if len(filt) < 200:
+            info["filters"].append(filt)
+
+    info["columns"] = sorted(set(info["columns"]))
+    return info
+
+
+def _format_etl_summary(etl_entry: dict, parsed_plan: dict) -> str:
+    """Форматировать ETL-информацию в читаемый текст для описания модели."""
+    parts = []
+
+    if parsed_plan.get("target_table"):
+        parts.append(f"ETL целевая: {parsed_plan['target_table']}")
+    if parsed_plan.get("target_columns"):
+        parts.append(f"Колонки: {', '.join(parsed_plan['target_columns'][:15])}")
+    if parsed_plan.get("source_tables"):
+        src_names = list({s["table"].split(".")[-1] for s in parsed_plan["source_tables"]})
+        parts.append(f"Источники: {', '.join(src_names[:10])}")
+    if parsed_plan.get("joins"):
+        join_descs = [f"{j['left']}↔{j['right']}" for j in parsed_plan["joins"][:5]]
+        parts.append(f"Связи: {', '.join(join_descs)}")
+
+    if etl_entry.get("source_schema"):
+        parts.append(f"Схема: {etl_entry['source_schema']}")
+    if etl_entry.get("last_updated"):
+        parts.append(f"Обновлено: {etl_entry['last_updated']}")
+
+    return " | ".join(parts)
+
+
+# ============================================================
+# Обогащение существующих моделей через ETL plan
+# ============================================================
+
+def enrich_models_with_etl(model_dir: str, etl_plan: dict, llm=None,
+                           data_source=None, kb_path: str = None) -> dict:
+    """Обогатить уже сгенерированные Cube YAML-модели данными из ETL plan.
+
+    Параметры:
+      model_dir   — папка с .yml файлами моделей Cube
+      etl_plan    — dict из load_etl_plan()
+      llm         — GigaChat (опционально, для переописания колонок)
+      data_source — источник данных (опционально, для sample data)
+      kb_path     — путь к KB (опционально)
+
+    Возвращает: {updated: [...], skipped: [...], errors: [...]}
+    """
+    model_path = Path(model_dir)
+    if not model_path.exists():
+        print(f"❌ Папка моделей не найдена: {model_dir}")
+        return {"updated": [], "skipped": [], "errors": []}
+
+    if kb_path and Path(kb_path).exists():
+        load_knowledge_base(kb_path)
+
+    # Парсим все ETL-записи заранее
+    etl_parsed = {}
+    for src_table, entry in etl_plan.items():
+        parsed = _parse_spark_plan(entry.get("process_description", ""))
+        etl_parsed[src_table] = {"entry": entry, "parsed": parsed}
+
+    yml_files = sorted(model_path.glob("*.yml"))
+    print(f"\n📂 Моделей в {model_dir}: {len(yml_files)}")
+    print(f"📋 Записей в ETL plan: {len(etl_plan)}")
+    print()
+
+    results = {"updated": [], "skipped": [], "errors": []}
+
+    for yml_file in yml_files:
+        cube_name = yml_file.stem
+        try:
+            with open(yml_file, 'r', encoding='utf-8') as f:
+                model = yaml.safe_load(f)
+        except Exception as e:
+            results["errors"].append(f"{cube_name}: ошибка чтения — {e}")
+            continue
+
+        if not model or "cubes" not in model or not model["cubes"]:
+            results["skipped"].append(f"{cube_name}: нет блока cubes")
+            continue
+
+        cube = model["cubes"][0]
+
+        # Сопоставляем с ETL plan
+        matched_key = None
+        matched_data = None
+        cube_norm = cube_name.lower().replace("_", "")
+        cube_singulars = _singularize(cube_norm)
+
+        for src_table, data in etl_parsed.items():
+            src_norm = src_table.lower().replace("_", "")
+            src_singulars = _singularize(src_norm)
+
+            if cube_singulars & src_singulars:
+                matched_key = src_table
+                matched_data = data
+                break
+
+            # Проверяем целевую таблицу
+            target = data["parsed"].get("target_table", "")
+            if target:
+                target_short = target.split(".")[-1].lower().replace("_", "")
+                target_singulars = _singularize(target_short)
+                if cube_singulars & target_singulars:
+                    matched_key = src_table
+                    matched_data = data
+                    break
+
+            # Проверяем исходные таблицы в плане
+            for st in data["parsed"].get("source_tables", []):
+                st_short = st["table"].split(".")[-1].lower().replace("_", "")
+                st_singulars = _singularize(st_short)
+                if cube_singulars & st_singulars:
+                    matched_key = src_table
+                    matched_data = data
+                    break
+            if matched_key:
+                break
+
+        if not matched_data:
+            results["skipped"].append(cube_name)
+            continue
+
+        print(f"🔗 {cube_name} ← ETL: {matched_key}")
+
+        entry = matched_data["entry"]
+        parsed = matched_data["parsed"]
+
+        etl_summary = _format_etl_summary(entry, parsed)
+        changes = []
+
+        # 1. Обогащаем description куба
+        old_desc = cube.get("description", "")
+        if "ETL" not in old_desc and etl_summary:
+            cube["description"] = (old_desc.rstrip(". ") + " | " + etl_summary) if old_desc else etl_summary
+            changes.append("description")
+
+        # 2. Обогащаем колонки из parsed plan
+        if parsed.get("target_columns"):
+            dim_names = {d["name"] for d in cube.get("dimensions", [])}
+            etl_cols = set(parsed["target_columns"])
+            new_cols_in_etl = etl_cols - dim_names
+            if new_cols_in_etl:
+                changes.append(f"ETL-колонки не в модели: {', '.join(sorted(new_cols_in_etl))}")
+
+        # 3. Если есть LLM + data_source — переописываем колонки с ETL-контекстом
+        if llm and data_source:
+            try:
+                columns = data_source.get_columns(cube_name)
+                fks = data_source.get_foreign_keys(cube_name)
+                row_count = data_source.get_row_count(cube_name)
+                scols, srows = data_source.get_sample_data(cube_name, 10)
+
+                new_desc = generate_descriptions(
+                    llm, cube_name, columns, fks, scols, srows, row_count,
+                    etl_context=entry
+                )
+
+                # Обновляем title/description если GigaChat дал лучше
+                if new_desc.get("table_title") and len(new_desc["table_title"]) > len(cube.get("title", "")):
+                    cube["title"] = new_desc["table_title"]
+                    changes.append("title (GigaChat+ETL)")
+
+                if new_desc.get("table_description") and len(new_desc["table_description"]) > 20:
+                    cube["description"] = new_desc["table_description"]
+                    if etl_summary and "ETL" not in cube["description"]:
+                        cube["description"] += " | " + etl_summary
+                    changes.append("description (GigaChat+ETL)")
+
+                # Обновляем описания dimensions
+                col_descs = new_desc.get("columns", {})
+                for dim in cube.get("dimensions", []):
+                    dname = dim["name"]
+                    new_col = col_descs.get(dname, {})
+                    if new_col.get("title") and dim.get("title", "") in (dname, dname.replace("_", " ").title(), ""):
+                        dim["title"] = new_col["title"]
+                    old_dim_desc = dim.get("description", "")
+                    if new_col.get("description") and (
+                        not old_dim_desc or old_dim_desc.endswith(")") or len(old_dim_desc) < 15
+                    ):
+                        dim["description"] = new_col["description"]
+
+                changes.append("dimensions (GigaChat+ETL)")
+
+            except Exception as e:
+                changes.append(f"⚠️ GigaChat: {e}")
+
+        # 4. Обогащаем описания из Knowledge Base
+        if _KNOWLEDGE_BASE:
+            kb_hints = match_kb_hints(cube_name)
+            if kb_hints:
+                col_hints = kb_hints.get("column_hints", {})
+                for dim in cube.get("dimensions", []):
+                    dname = dim["name"]
+                    if dname in col_hints:
+                        old_dim_desc = dim.get("description", "")
+                        if not old_dim_desc or old_dim_desc.endswith(")") or len(old_dim_desc) < 15:
+                            dim["description"] = col_hints[dname]
+
+                # Добавляем suggested measures
+                suggested = kb_hints.get("suggested_measures", [])
+                existing_measure_names = {m["name"] for m in cube.get("measures", [])}
+                for sm in suggested:
+                    if sm["name"] not in existing_measure_names:
+                        cube.setdefault("measures", []).append(sm)
+                        changes.append(f"measure: {sm['name']}")
+
+        if changes:
+            model["cubes"][0] = cube
+            with open(yml_file, 'w', encoding='utf-8') as f:
+                yaml.dump(model, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
+            results["updated"].append(f"{cube_name}: {', '.join(changes)}")
+            print(f"   ✅ {', '.join(changes)}")
+        else:
+            results["skipped"].append(cube_name)
+            print(f"   ⏭️  Нет изменений")
+
+    print(f"\n{'='*60}")
+    print(f"  Обновлено: {len(results['updated'])}")
+    print(f"  Пропущено: {len(results['skipped'])}")
+    print(f"  Ошибок:    {len(results['errors'])}")
+    print(f"{'='*60}\n")
+
+    return results
+
+
+# ============================================================
 # MAIN
 # ============================================================
 
 def main():
-    # Разбор аргументов
     parser = argparse.ArgumentParser(description="Загрузчик данных в Cube")
     parser.add_argument("--source", choices=["postgresql", "greenplum", "hive", "duckdb", "cube"],
                         help="Переопределить database.driver из config.yml")
@@ -1221,16 +1727,73 @@ def main():
                         help="Путь к Knowledge Base YAML (переопределяет config.yml)")
     parser.add_argument("--etl-plan", metavar="FILE",
                         help="Путь к ETL execution plan (xlsx/csv) для обогащения моделей")
+    parser.add_argument("--enrich-etl", action="store_true",
+                        help="Обогатить существующие модели через ETL plan (без перегенерации)")
+    parser.add_argument("--enrich-with-llm", action="store_true",
+                        help="При --enrich-etl переописывать колонки через GigaChat + sample data")
+    parser.add_argument("--model-dir", metavar="DIR",
+                        help="Папка с моделями (для --enrich-etl, по умолчанию из config.yml)")
     args = parser.parse_args()
 
+    # 1. Загрузить конфиг
+    config = load_config()
+
+    # ── Режим: обогащение существующих моделей через ETL plan ──
+    if args.enrich_etl:
+        print("=" * 60)
+        print("  ОБОГАЩЕНИЕ МОДЕЛЕЙ ЧЕРЕЗ ETL PLAN")
+        print("=" * 60)
+        print()
+
+        plan_file = args.etl_plan or config.get("etl_plan_path")
+        if not plan_file:
+            print("❌ Укажите ETL plan: --etl-plan <file.xlsx> или etl_plan_path в config.yml")
+            sys.exit(1)
+        if not Path(plan_file).exists():
+            print(f"❌ ETL plan файл не найден: {plan_file}")
+            sys.exit(1)
+
+        etl_plan = load_etl_plan(plan_file)
+        if not etl_plan:
+            print("❌ ETL plan пустой или не удалось загрузить")
+            sys.exit(1)
+
+        model_dir = args.model_dir or config.get("cube", {}).get("model_path", "./cube_models")
+        kb_path = args.kb or config.get("knowledge_base_path")
+
+        llm = None
+        data_source = None
+        if args.enrich_with_llm:
+            print("🔄 Подключение к GigaChat...")
+            llm = create_gigachat(config)
+            print("✅ GigaChat готов")
+            data_source, _ = create_data_source(config, args.source)
+            print(f"✅ Источник данных подключён")
+
+        results = enrich_models_with_etl(
+            model_dir=model_dir,
+            etl_plan=etl_plan,
+            llm=llm,
+            data_source=data_source,
+            kb_path=kb_path
+        )
+
+        if data_source:
+            data_source.close()
+
+        print("Следующие шаги:")
+        print("  1. Проверьте обновлённые модели в папке моделей")
+        print("  2. Перезапустите Cube: npx cubejs-server")
+        print("  3. Пересоберите FAISS: python 02_build_faiss.py")
+        return
+
+    # ── Режим: полная генерация моделей ──
     print("=" * 60)
     print("  ЗАГРУЗЧИК ДАННЫХ В CUBE")
     print("  Источник → Описания GigaChat → YAML-модели Cube")
     print("=" * 60)
     print()
     
-    # 1. Загрузить конфиг
-    config = load_config()
     print("✅ Конфигурация загружена")
     
     # 2. Подключиться к источнику данных
@@ -1333,10 +1896,22 @@ def main():
                         })
                         print(f"      ✨ LLM предложил: {extra['column']} → {extra_table}")
         
+        # ETL-контекст для текущей таблицы
+        etl_context = None
+        if etl_plan:
+            for src_name, plan_info in etl_plan.items():
+                src_norm = src_name.lower().replace("_", "")
+                table_norm = table.lower().replace("_", "")
+                if src_norm == table_norm or table_norm in src_norm or src_norm in table_norm:
+                    etl_context = plan_info
+                    print(f"   📋 ETL plan: сопоставлена с {src_name}")
+                    break
+
         # Генерируем описания через GigaChat
         print(f"   🤖 GigaChat: описания таблицы и колонок...")
         descriptions = generate_descriptions(
-            llm, table, columns, fks, sample_cols, sample_rows, row_count
+            llm, table, columns, fks, sample_cols, sample_rows, row_count,
+            etl_context=etl_context
         )
 
         # Обогащаем описания из Knowledge Base
@@ -1354,7 +1929,7 @@ def main():
         # Генерируем Cube YAML
         cube_schema = schema if driver_name != "duckdb" else "main"
         cube_yaml = generate_cube_yaml(table, columns, enriched_joins, pk, descriptions,
-                                        cube_schema, etl_plan)
+                                        cube_schema, etl_context)
         
         # Сохраняем
         yaml_path = model_path / f"{table}.yml"

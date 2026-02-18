@@ -1,0 +1,49 @@
+cubes:
+- name: components
+  sql_table: public.components
+  title: Компоненты проекта
+  description: Таблица компонентов проекта с информацией о компонентах и ответственных
+    лицах
+  joins:
+  - name: projects
+    sql: '{CUBE}.project_id = {projects}.id'
+    relationship: many_to_one
+    title: Проект
+    description: Ссылка на проект
+  - name: users
+    sql: '{CUBE}.lead_id = {users}.id'
+    relationship: many_to_one
+    title: Лидер проекта
+    description: Пользователь, ответственный за выполнение проекта
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор
+    description: Уникальный идентификатор компонента
+  - name: name
+    sql: name
+    type: string
+    title: Название
+    description: Наименование компонента
+  - name: description
+    sql: description
+    type: string
+    title: Описание
+    description: Краткое описание компонента
+  - name: default_assignee_id
+    sql: default_assignee_id
+    type: number
+    title: Стандартный исполнитель
+    description: Идентификатор исполнителя по умолчанию
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата добавления компонента в систему
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Компоненты проекта

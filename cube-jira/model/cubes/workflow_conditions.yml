@@ -1,0 +1,38 @@
+cubes:
+- name: workflow_conditions
+  sql_table: public.workflow_conditions
+  title: Условия рабочих процессов
+  description: Таблица содержит условия переходов между рабочими состояниями задач.
+  joins:
+  - name: workflow_transitions
+    sql: '{CUBE}.transition_id = {workflow_transitions}.id'
+    relationship: many_to_one
+    title: Переход
+    description: Ссылка на конкретный переход процесса
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор строки
+  - name: condition_type
+    sql: condition_type
+    type: string
+    title: Тип условия
+    description: 'Тип проверяемого условия (например: equals, not_equal, contains)'
+  - name: configuration
+    sql: configuration
+    type: string
+    title: Конфигурация условий
+    description: Параметры конкретного условия в формате jsonb
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата создания
+    description: Дата и время добавления записи
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Условия рабочих процессов

@@ -1,0 +1,69 @@
+cubes:
+- name: issue_history
+  sql_table: public.issue_history
+  title: История изменений задач
+  description: Таблица фиксирует изменения полей задач и соответствующих значений,
+    произведенные пользователями.
+  joins:
+  - name: issues
+    sql: '{CUBE}.issue_id = {issues}.id'
+    relationship: many_to_one
+    title: Идентификатор задачи
+    description: Уникальный идентификатор задачи
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Автор или исполнитель задачи
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: Идентификатор записи
+    description: Уникальный идентификатор строки
+  - name: field_name
+    sql: field_name
+    type: string
+    title: Имя поля
+    description: Поле задачи, значение которого изменилось
+  - name: field_type
+    sql: field_type
+    type: string
+    title: Тип поля
+    description: 'Тип поля: user, priority и др.'
+  - name: old_value
+    sql: old_value
+    type: string
+    title: Старое значение
+    description: Значение до изменения
+  - name: new_value
+    sql: new_value
+    type: string
+    title: Новое значение
+    description: Текущее значение после изменения
+  - name: old_string
+    sql: old_string
+    type: string
+    title: Строка старого значения
+    description: Текстовая версия старого значения
+  - name: new_string
+    sql: new_string
+    type: string
+    title: Строка нового значения
+    description: Текстовая версия текущего значения
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Дата и время изменения
+    description: Время, когда было выполнено изменение
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице История изменений задач
+  - name: status_change_count
+    sql: CASE WHEN {CUBE}.field = 'status' THEN 1 END
+    type: count
+    title: Смены статуса
+    description: Количество смен статуса задач

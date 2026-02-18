@@ -1,0 +1,53 @@
+cubes:
+- name: user_api_tokens
+  sql_table: public.user_api_tokens
+  title: User Api Tokens
+  description: Таблица user_api_tokens
+  joins:
+  - name: users
+    sql: '{CUBE}.user_id = {users}.id'
+    relationship: many_to_one
+    title: Пользователь
+    description: Идентификатор связанного пользователя
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: token_name
+    sql: token_name
+    type: string
+    title: Token Name
+    description: token_name (character varying)
+  - name: token_hash
+    sql: token_hash
+    type: string
+    title: Token Hash
+    description: token_hash (character varying)
+  - name: scopes
+    sql: scopes
+    type: string
+    title: Scopes
+    description: scopes (ARRAY)
+  - name: last_used_at
+    sql: last_used_at
+    type: time
+    title: Last Used At
+    description: last_used_at (timestamp without time zone)
+  - name: expires_at
+    sql: expires_at
+    type: time
+    title: Expires At
+    description: expires_at (timestamp without time zone)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице User Api Tokens

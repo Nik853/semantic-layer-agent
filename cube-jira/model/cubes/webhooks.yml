@@ -1,0 +1,68 @@
+cubes:
+- name: webhooks
+  sql_table: public.webhooks
+  title: Webhooks
+  description: Таблица webhooks
+  joins:
+  - name: organizations
+    sql: '{CUBE}.organization_id = {organizations}.id'
+    relationship: many_to_one
+    title: Организация
+    description: Идентификатор организации
+  dimensions:
+  - name: id
+    sql: id
+    type: number
+    primary_key: true
+    title: id
+    description: id (integer)
+  - name: name
+    sql: name
+    type: string
+    title: Name
+    description: name (character varying)
+  - name: url
+    sql: url
+    type: string
+    title: Url
+    description: url (text)
+  - name: secret
+    sql: secret
+    type: string
+    title: Secret
+    description: secret (character varying)
+  - name: events
+    sql: events
+    type: string
+    title: Events
+    description: events (ARRAY)
+  - name: is_active
+    sql: is_active
+    type: boolean
+    title: Is Active
+    description: is_active (boolean)
+  - name: created_by
+    sql: created_by
+    type: number
+    title: Created By
+    description: created_by (integer)
+  - name: created_at
+    sql: created_at
+    type: time
+    title: Created At
+    description: created_at (timestamp without time zone)
+  measures:
+  - name: count
+    type: count
+    title: Количество
+    description: Общее количество записей в таблице Webhooks
+  - name: total_created_by
+    sql: created_by
+    type: sum
+    title: Сумма Created By
+    description: Сумма значений поля created_by
+  - name: avg_created_by
+    sql: created_by
+    type: avg
+    title: Среднее Created By
+    description: Среднее значение поля created_by
