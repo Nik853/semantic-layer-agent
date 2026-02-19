@@ -686,124 +686,149 @@ def get_kb_suggested_measures(table_name: str) -> list:
 # Обнаружение связей между таблицами
 # ============================================================
 
+def _is_likely_fk_type(data_type: str) -> bool:
+    """Тип колонки может быть FK (integer, bigint, numeric)."""
+    dt = data_type.lower()
+    return any(t in dt for t in ["integer", "int", "bigint", "smallint", "serial", "numeric", "decimal", "number"])
+
+
+def _find_table_match(name: str, all_tables: set, current_table: str) -> str:
+    """Найти таблицу по имени с учётом множественного числа и префиксов.
+    Возвращает имя таблицы или None.
+    """
+    candidates = [
+        name,                  # project → project
+        name + "s",            # project → projects
+        name + "es",           # status → statuses
+    ]
+    if name.endswith("y"):
+        candidates.append(name[:-1] + "ies")  # priority → priorities
+    if name.endswith("s"):
+        candidates.append(name[:-1])           # users → user
+
+    for c in candidates:
+        if c in all_tables and c != current_table:
+            return c
+
+    # Доменные префиксы: status → issue_statuses, type → issue_types
+    parts = current_table.split("_")
+    prefixes = set()
+    if parts:
+        prefixes.add(parts[0].rstrip("s"))     # issues → issue
+        prefixes.add(parts[0])                 # issues
+    prefixes.update(["issue", "project", "workflow", "notification", "permission", "custom", "screen"])
+
+    for prefix in prefixes:
+        prefix_candidates = [
+            f"{prefix}_{name}",
+            f"{prefix}_{name}s",
+            f"{prefix}_{name}es",
+        ]
+        if name.endswith("y"):
+            prefix_candidates.append(f"{prefix}_{name[:-1]}ies")
+        for c in prefix_candidates:
+            if c in all_tables and c != current_table:
+                return c
+
+    # Подстрока >= 5 символов в имени таблицы
+    if len(name) >= 5:
+        for t in all_tables:
+            if t != current_table and name in t:
+                return t
+
+    return None
+
+
 def detect_implicit_relationships(table_name, columns, all_tables, explicit_fks):
     """
-    Найти неявные связи по соглашению об именах (*_id → таблица).
-    Обрабатывает:
-      - Прямое совпадение: project_id → projects
-      - Множественное число: priority_id → priorities, status_id → statuses
-      - Префиксы доменных таблиц: status_id → issue_statuses, type_id → issue_types
-      - Семантические маппинги: assignee_id → users, reporter_id → users, author_id → users
+    Найти неявные связи по соглашению об именах.
+    Обрабатывает ДВА паттерна:
+      A) Колонки с суффиксом _id: project_id → projects, assignee_id → users
+      B) Числовые колонки без _id, чьё имя совпадает с таблицей:
+         project (integer) → project/projects, issuetype (bigint) → issuetype/issuetypes
     """
     explicit_cols = {fk["column"] for fk in explicit_fks}
     implicit = []
+    found_cols = set()
 
-    # Семантические маппинги: колонка → целевая таблица
+    # Семантический маппинг: имя_колонки → список возможных целевых таблиц (по приоритету)
     SEMANTIC_MAP = {
-        "assignee": "users",
-        "reporter": "users",
-        "author": "users",
-        "creator": "users",
-        "owner": "users",
-        "updated_by": "users",
-        "created_by": "users",
-        "lead": "users",
-        "manager": "users",
-        "parent": None,  # self-join обрабатывается отдельно
+        "assignee":   ["users", "cwd_user", "app_user"],
+        "reporter":   ["users", "cwd_user", "app_user"],
+        "author":     ["users", "cwd_user", "app_user"],
+        "creator":    ["users", "cwd_user", "app_user"],
+        "owner":      ["users", "cwd_user", "app_user"],
+        "updated_by": ["users", "cwd_user", "app_user"],
+        "created_by": ["users", "cwd_user", "app_user"],
+        "lead":       ["users", "cwd_user", "app_user"],
+        "manager":    ["users", "cwd_user", "app_user"],
+        "parent":     [None],  # self-join
     }
+
+    # Колонки, которые точно НЕ FK
+    SKIP_COLS = {"id", "created_at", "updated_at", "created", "updated",
+                 "deleted_at", "sequence", "pcounter", "votes", "watches",
+                 "timeoriginalestimate", "timeestimate", "timespent",
+                 "story_points", "environment", "description", "summary",
+                 "pkey", "issuenum", "body", "name", "pname", "url",
+                 "avatar", "iconurl", "password", "email", "email_address"}
 
     for col in columns:
         col_name = col["name"]
-        if not col_name.endswith("_id") or col_name in explicit_cols:
+        if col_name in explicit_cols or col_name in found_cols:
             continue
         if col_name == "id":
             continue
 
-        base = col_name[:-3]  # "project_id" → "project"
+        # Хелпер: попробовать семантический маппинг
+        def _try_semantic(base_name, source_tag):
+            if base_name not in SEMANTIC_MAP:
+                return False
+            targets = SEMANTIC_MAP[base_name]
+            for target in targets:
+                if target is None:
+                    # self-join
+                    implicit.append({"column": col_name, "foreign_table": table_name,
+                                     "foreign_column": "id", "source": source_tag})
+                    found_cols.add(col_name)
+                    return True
+                if target in all_tables:
+                    implicit.append({"column": col_name, "foreign_table": target,
+                                     "foreign_column": "id", "source": source_tag})
+                    found_cols.add(col_name)
+                    return True
+            return False
 
-        # 1. Семантический маппинг
-        if base in SEMANTIC_MAP:
-            target = SEMANTIC_MAP[base]
-            if target and target in all_tables:
-                implicit.append({
-                    "column": col_name,
-                    "foreign_table": target,
-                    "foreign_column": "id",
-                    "source": "implicit"
-                })
+        # ── Паттерн A: колонки с суффиксом _id ──
+        if col_name.endswith("_id"):
+            base = col_name[:-3]
+
+            if _try_semantic(base, "implicit"):
                 continue
-            elif target is None and table_name in all_tables:
-                # self-join (parent_id → та же таблица)
-                implicit.append({
-                    "column": col_name,
-                    "foreign_table": table_name,
-                    "foreign_column": "id",
-                    "source": "implicit"
-                })
-                continue
 
-        # 2. Прямые кандидаты по имени
-        candidates = [
-            base + "s",       # project → projects
-            base + "es",      # status → statuses
-            base,             # sprint → sprint
-        ]
-        if base.endswith("y"):
-            candidates.append(base[:-1] + "ies")  # priority → priorities, category → categories
-        if base.endswith("s"):
-            candidates.append(base)
+            matched = _find_table_match(base, all_tables, table_name)
+            if matched:
+                implicit.append({"column": col_name, "foreign_table": matched,
+                                 "foreign_column": "id", "source": "implicit"})
+                found_cols.add(col_name)
+            continue
 
-        matched_table = None
-        for candidate in candidates:
-            if candidate in all_tables and candidate != table_name:
-                matched_table = candidate
-                break
+        # ── Паттерн B: колонки без _id ──
+        # B1: семантический маппинг (работает для любого типа — varchar assignee, etc.)
+        if _try_semantic(col_name, "implicit_semantic"):
+            continue
 
-        # 3. Если прямое не нашло — пробуем с доменными префиксами
-        if not matched_table:
-            # Получаем «домен» из имени текущей таблицы (issue_comments → issue)
-            # и пробуем prefix_base (issue_status, issue_priority, etc.)
-            prefixes_to_try = set()
-            # Из имени таблицы: issues → issue, issue_comments → issue
-            parts = table_name.split("_")
-            if parts:
-                singular = parts[0].rstrip("s")
-                prefixes_to_try.add(singular)       # "issue"
-                prefixes_to_try.add(parts[0])       # "issues"
+        # B2: числовые колонки, чьё имя совпадает с таблицей (project, issuetype, etc.)
+        if not _is_likely_fk_type(col["data_type"]):
+            continue
+        if col_name in SKIP_COLS:
+            continue
 
-            # Также общие доменные префиксы
-            prefixes_to_try.update(["issue", "project", "workflow", "notification", "permission"])
-
-            for prefix in prefixes_to_try:
-                prefix_candidates = [
-                    f"{prefix}_{base}s",       # issue_statuses
-                    f"{prefix}_{base}es",      # issue_statuses
-                    f"{prefix}_{base}",        # issue_type
-                ]
-                if base.endswith("y"):
-                    prefix_candidates.append(f"{prefix}_{base[:-1]}ies")  # issue_priorities
-                
-                for candidate in prefix_candidates:
-                    if candidate in all_tables and candidate != table_name:
-                        matched_table = candidate
-                        break
-                if matched_table:
-                    break
-
-        # 4. Последняя попытка — поиск таблиц содержащих base в имени
-        if not matched_table:
-            for t in all_tables:
-                if t != table_name and base in t and t.endswith("s"):
-                    matched_table = t
-                    break
-
-        if matched_table:
-            implicit.append({
-                "column": col_name,
-                "foreign_table": matched_table,
-                "foreign_column": "id",
-                "source": "implicit"
-            })
+        matched = _find_table_match(col_name, all_tables, table_name)
+        if matched:
+            implicit.append({"column": col_name, "foreign_table": matched,
+                             "foreign_column": "id", "source": "implicit_no_id"})
+            found_cols.add(col_name)
 
     return implicit
 
